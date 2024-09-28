@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/opencurve/curveadm/internal/configure"
+	"github.com/dingodb/curveadm/internal/configure"
 	"github.com/stretchr/testify/assert"
 )
 

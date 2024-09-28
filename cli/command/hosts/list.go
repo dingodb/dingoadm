@@ -25,10 +25,10 @@ package hosts
 import (
 	"strings"
 
-	"github.com/opencurve/curveadm/cli/cli"
-	"github.com/opencurve/curveadm/internal/configure/hosts"
-	"github.com/opencurve/curveadm/internal/tui"
-	cliutil "github.com/opencurve/curveadm/internal/utils"
+	"github.com/dingodb/curveadm/cli/cli"
+	"github.com/dingodb/curveadm/internal/configure/hosts"
+	"github.com/dingodb/curveadm/internal/tui"
+	cliutil "github.com/dingodb/curveadm/internal/utils"
 	"github.com/spf13/cobra"
 )
 

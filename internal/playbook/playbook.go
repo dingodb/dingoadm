@@ -25,8 +25,8 @@
 package playbook
 
 import (
-	"github.com/opencurve/curveadm/cli/cli"
-	"github.com/opencurve/curveadm/internal/tasks"
+	"github.com/dingodb/curveadm/cli/cli"
+	"github.com/dingodb/curveadm/internal/tasks"
 )
 
 /*

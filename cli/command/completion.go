@@ -28,7 +28,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/opencurve/curveadm/cli/cli"
+	"github.com/dingodb/curveadm/cli/cli"
 	"github.com/spf13/cobra"
 )
 

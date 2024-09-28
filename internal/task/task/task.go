@@ -27,10 +27,10 @@ package task
 import (
 	"errors"
 
+	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/task/context"
+	"github.com/dingodb/curveadm/pkg/module"
 	"github.com/google/uuid"
-	"github.com/opencurve/curveadm/internal/errno"
-	"github.com/opencurve/curveadm/internal/task/context"
-	"github.com/opencurve/curveadm/pkg/module"
 )
 
 var (

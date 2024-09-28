@@ -23,17 +23,17 @@
 package target
 
 import (
+	"github.com/dingodb/curveadm/cli/cli"
+	"github.com/dingodb/curveadm/cli/command/client"
+	comm "github.com/dingodb/curveadm/internal/common"
+	"github.com/dingodb/curveadm/internal/configure"
+	"github.com/dingodb/curveadm/internal/configure/topology"
+	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/playbook"
+	"github.com/dingodb/curveadm/internal/task/task/bs"
+	cliutil "github.com/dingodb/curveadm/internal/utils"
+	utils "github.com/dingodb/curveadm/internal/utils"
 	"github.com/fatih/color"
-	"github.com/opencurve/curveadm/cli/cli"
-	"github.com/opencurve/curveadm/cli/command/client"
-	comm "github.com/opencurve/curveadm/internal/common"
-	"github.com/opencurve/curveadm/internal/configure"
-	"github.com/opencurve/curveadm/internal/configure/topology"
-	"github.com/opencurve/curveadm/internal/errno"
-	"github.com/opencurve/curveadm/internal/playbook"
-	"github.com/opencurve/curveadm/internal/task/task/bs"
-	cliutil "github.com/opencurve/curveadm/internal/utils"
-	utils "github.com/opencurve/curveadm/internal/utils"
 	"github.com/spf13/cobra"
 )
 

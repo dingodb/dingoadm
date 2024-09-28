@@ -27,10 +27,10 @@ package config
 import (
 	"encoding/json"
 
-	"github.com/opencurve/curveadm/cli/cli"
-	"github.com/opencurve/curveadm/internal/configure"
-	"github.com/opencurve/curveadm/internal/errno"
-	cliutil "github.com/opencurve/curveadm/internal/utils"
+	"github.com/dingodb/curveadm/cli/cli"
+	"github.com/dingodb/curveadm/internal/configure"
+	"github.com/dingodb/curveadm/internal/errno"
+	cliutil "github.com/dingodb/curveadm/internal/utils"
 	"github.com/spf13/cobra"
 )
 

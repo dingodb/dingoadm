@@ -28,8 +28,8 @@ import (
 	"fmt"
 	"path"
 
-	"github.com/opencurve/curveadm/internal/utils"
-	"github.com/opencurve/curveadm/pkg/variable"
+	"github.com/dingodb/curveadm/internal/utils"
+	"github.com/dingodb/curveadm/pkg/variable"
 )
 
 const (

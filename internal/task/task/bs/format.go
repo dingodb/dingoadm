@@ -29,16 +29,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/opencurve/curveadm/cli/cli"
-	"github.com/opencurve/curveadm/internal/configure"
-	os "github.com/opencurve/curveadm/internal/configure/os"
-	"github.com/opencurve/curveadm/internal/configure/topology"
-	"github.com/opencurve/curveadm/internal/errno"
-	"github.com/opencurve/curveadm/internal/task/context"
-	"github.com/opencurve/curveadm/internal/task/scripts"
-	"github.com/opencurve/curveadm/internal/task/step"
-	"github.com/opencurve/curveadm/internal/task/task"
-	"github.com/opencurve/curveadm/internal/utils"
+	"github.com/dingodb/curveadm/cli/cli"
+	"github.com/dingodb/curveadm/internal/configure"
+	os "github.com/dingodb/curveadm/internal/configure/os"
+	"github.com/dingodb/curveadm/internal/configure/topology"
+	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/task/context"
+	"github.com/dingodb/curveadm/internal/task/scripts"
+	"github.com/dingodb/curveadm/internal/task/step"
+	"github.com/dingodb/curveadm/internal/task/task"
+	"github.com/dingodb/curveadm/internal/utils"
 )
 
 const (

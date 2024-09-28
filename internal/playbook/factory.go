@@ -25,15 +25,15 @@
 package playbook
 
 import (
-	"github.com/opencurve/curveadm/internal/errno"
-	"github.com/opencurve/curveadm/internal/task/task"
-	"github.com/opencurve/curveadm/internal/task/task/bs"
-	"github.com/opencurve/curveadm/internal/task/task/checker"
-	comm "github.com/opencurve/curveadm/internal/task/task/common"
-	"github.com/opencurve/curveadm/internal/task/task/fs"
-	"github.com/opencurve/curveadm/internal/task/task/monitor"
-	pg "github.com/opencurve/curveadm/internal/task/task/playground"
-	"github.com/opencurve/curveadm/internal/tasks"
+	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/task/task"
+	"github.com/dingodb/curveadm/internal/task/task/bs"
+	"github.com/dingodb/curveadm/internal/task/task/checker"
+	comm "github.com/dingodb/curveadm/internal/task/task/common"
+	"github.com/dingodb/curveadm/internal/task/task/fs"
+	"github.com/dingodb/curveadm/internal/task/task/monitor"
+	pg "github.com/dingodb/curveadm/internal/task/task/playground"
+	"github.com/dingodb/curveadm/internal/tasks"
 )
 
 const (

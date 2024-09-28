@@ -23,15 +23,15 @@
 package client
 
 import (
+	"github.com/dingodb/curveadm/cli/cli"
+	comm "github.com/dingodb/curveadm/internal/common"
+	"github.com/dingodb/curveadm/internal/configure"
+	"github.com/dingodb/curveadm/internal/configure/topology"
+	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/playbook"
+	cliutil "github.com/dingodb/curveadm/internal/utils"
+	utils "github.com/dingodb/curveadm/internal/utils"
 	"github.com/fatih/color"
-	"github.com/opencurve/curveadm/cli/cli"
-	comm "github.com/opencurve/curveadm/internal/common"
-	"github.com/opencurve/curveadm/internal/configure"
-	"github.com/opencurve/curveadm/internal/configure/topology"
-	"github.com/opencurve/curveadm/internal/errno"
-	"github.com/opencurve/curveadm/internal/playbook"
-	cliutil "github.com/opencurve/curveadm/internal/utils"
-	utils "github.com/opencurve/curveadm/internal/utils"
 	"github.com/spf13/cobra"
 )
 

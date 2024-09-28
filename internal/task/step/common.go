@@ -25,10 +25,10 @@
 package step
 
 import (
-	"github.com/opencurve/curveadm/internal/errno"
-	"github.com/opencurve/curveadm/internal/task/context"
-	"github.com/opencurve/curveadm/internal/utils"
-	"github.com/opencurve/curveadm/pkg/module"
+	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/task/context"
+	"github.com/dingodb/curveadm/internal/utils"
+	"github.com/dingodb/curveadm/pkg/module"
 )
 
 type (

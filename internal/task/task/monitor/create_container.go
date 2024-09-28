@@ -26,11 +26,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/opencurve/curveadm/cli/cli"
-	"github.com/opencurve/curveadm/internal/configure"
-	"github.com/opencurve/curveadm/internal/task/step"
-	"github.com/opencurve/curveadm/internal/task/task"
-	"github.com/opencurve/curveadm/internal/task/task/common"
+	"github.com/dingodb/curveadm/cli/cli"
+	"github.com/dingodb/curveadm/internal/configure"
+	"github.com/dingodb/curveadm/internal/task/step"
+	"github.com/dingodb/curveadm/internal/task/task"
+	"github.com/dingodb/curveadm/internal/task/task/common"
 )
 
 func getArguments(cfg *configure.MonitorConfig) string {

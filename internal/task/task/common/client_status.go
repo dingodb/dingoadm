@@ -25,15 +25,15 @@ package common
 import (
 	"fmt"
 
-	"github.com/opencurve/curveadm/cli/cli"
-	comm "github.com/opencurve/curveadm/internal/common"
-	"github.com/opencurve/curveadm/internal/errno"
-	"github.com/opencurve/curveadm/internal/storage"
-	"github.com/opencurve/curveadm/internal/task/context"
-	"github.com/opencurve/curveadm/internal/task/step"
-	"github.com/opencurve/curveadm/internal/task/task"
-	tui "github.com/opencurve/curveadm/internal/tui/common"
-	"github.com/opencurve/curveadm/internal/utils"
+	"github.com/dingodb/curveadm/cli/cli"
+	comm "github.com/dingodb/curveadm/internal/common"
+	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/storage"
+	"github.com/dingodb/curveadm/internal/task/context"
+	"github.com/dingodb/curveadm/internal/task/step"
+	"github.com/dingodb/curveadm/internal/task/task"
+	tui "github.com/dingodb/curveadm/internal/tui/common"
+	"github.com/dingodb/curveadm/internal/utils"
 )
 
 const (

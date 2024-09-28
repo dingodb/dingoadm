@@ -25,12 +25,12 @@ package bs
 import (
 	"fmt"
 
-	"github.com/opencurve/curveadm/cli/cli"
-	comm "github.com/opencurve/curveadm/internal/common"
-	"github.com/opencurve/curveadm/internal/configure"
-	"github.com/opencurve/curveadm/internal/task/scripts"
-	"github.com/opencurve/curveadm/internal/task/step"
-	"github.com/opencurve/curveadm/internal/task/task"
+	"github.com/dingodb/curveadm/cli/cli"
+	comm "github.com/dingodb/curveadm/internal/common"
+	"github.com/dingodb/curveadm/internal/configure"
+	"github.com/dingodb/curveadm/internal/task/scripts"
+	"github.com/dingodb/curveadm/internal/task/step"
+	"github.com/dingodb/curveadm/internal/task/task"
 )
 
 type TargetOption struct {

@@ -29,10 +29,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/utils"
+	"github.com/dingodb/curveadm/pkg/variable"
 	"github.com/google/uuid"
-	"github.com/opencurve/curveadm/internal/errno"
-	"github.com/opencurve/curveadm/internal/utils"
-	"github.com/opencurve/curveadm/pkg/variable"
 )
 
 const (

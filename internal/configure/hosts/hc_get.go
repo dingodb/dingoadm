@@ -25,10 +25,10 @@
 package hosts
 
 import (
-	comm "github.com/opencurve/curveadm/internal/configure/common"
-	"github.com/opencurve/curveadm/internal/configure/curveadm"
-	"github.com/opencurve/curveadm/internal/utils"
-	"github.com/opencurve/curveadm/pkg/module"
+	comm "github.com/dingodb/curveadm/internal/configure/common"
+	"github.com/dingodb/curveadm/internal/configure/curveadm"
+	"github.com/dingodb/curveadm/internal/utils"
+	"github.com/dingodb/curveadm/pkg/module"
 )
 
 func (hc *HostConfig) get(i *comm.Item) interface{} {

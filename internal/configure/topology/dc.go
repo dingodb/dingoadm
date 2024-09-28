@@ -28,11 +28,11 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/opencurve/curveadm/internal/build"
-	"github.com/opencurve/curveadm/internal/errno"
-	"github.com/opencurve/curveadm/internal/utils"
-	log "github.com/opencurve/curveadm/pkg/log/glg"
-	"github.com/opencurve/curveadm/pkg/variable"
+	"github.com/dingodb/curveadm/internal/build"
+	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/utils"
+	log "github.com/dingodb/curveadm/pkg/log/glg"
+	"github.com/dingodb/curveadm/pkg/variable"
 )
 
 const (

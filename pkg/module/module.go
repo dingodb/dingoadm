@@ -33,8 +33,8 @@ import (
 	"text/template"
 	"time"
 
+	log "github.com/dingodb/curveadm/pkg/log/glg"
 	"github.com/melbahja/goph"
-	log "github.com/opencurve/curveadm/pkg/log/glg"
 )
 
 type (

@@ -26,7 +26,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/opencurve/curveadm/internal/configure/topology"
+	"github.com/dingodb/curveadm/internal/configure/topology"
 )
 
 const (
@@ -172,7 +172,7 @@ func createLogicalPool(dcs []*topology.DeployConfig, logicalPool, poolset string
 			// and the value of instance greater than 1, we should
 			// set internal port and external port to 0 for let MDS
 			// attribute them as services on the same machine.
-			// see issue: https://github.com/opencurve/curve/issues/1441
+			// see issue: https://github.com/dingodb/curve/issues/1441
 			internalPort := dc.GetListenPort()
 			externalPort := dc.GetListenExternalPort()
 			if dc.GetInstances() > 1 {

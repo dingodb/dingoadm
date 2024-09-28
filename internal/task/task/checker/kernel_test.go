@@ -25,8 +25,8 @@ package checker
 import (
 	"testing"
 
-	"github.com/opencurve/curveadm/internal/configure/topology"
-	"github.com/opencurve/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/configure/topology"
+	"github.com/dingodb/curveadm/internal/errno"
 	"github.com/stretchr/testify/assert"
 )
 

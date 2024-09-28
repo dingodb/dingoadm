@@ -25,8 +25,8 @@
 package hosts
 
 import (
-	"github.com/opencurve/curveadm/cli/cli"
-	cliutil "github.com/opencurve/curveadm/internal/utils"
+	"github.com/dingodb/curveadm/cli/cli"
+	cliutil "github.com/dingodb/curveadm/internal/utils"
 	"github.com/spf13/cobra"
 )
 

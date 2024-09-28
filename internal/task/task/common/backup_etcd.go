@@ -26,11 +26,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/opencurve/curveadm/cli/cli"
-	"github.com/opencurve/curveadm/internal/configure/topology"
-	"github.com/opencurve/curveadm/internal/task/step"
-	"github.com/opencurve/curveadm/internal/task/task"
-	tui "github.com/opencurve/curveadm/internal/tui/common"
+	"github.com/dingodb/curveadm/cli/cli"
+	"github.com/dingodb/curveadm/internal/configure/topology"
+	"github.com/dingodb/curveadm/internal/task/step"
+	"github.com/dingodb/curveadm/internal/task/task"
+	tui "github.com/dingodb/curveadm/internal/tui/common"
 )
 
 func genBackupCommand(dc *topology.DeployConfig) string {

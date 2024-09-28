@@ -27,15 +27,15 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/opencurve/curveadm/cli/cli"
-	comm "github.com/opencurve/curveadm/internal/common"
-	"github.com/opencurve/curveadm/internal/configure"
-	"github.com/opencurve/curveadm/internal/errno"
-	"github.com/opencurve/curveadm/internal/task/context"
-	"github.com/opencurve/curveadm/internal/task/step"
-	"github.com/opencurve/curveadm/internal/task/task"
-	"github.com/opencurve/curveadm/internal/task/task/checker"
-	"github.com/opencurve/curveadm/internal/utils"
+	"github.com/dingodb/curveadm/cli/cli"
+	comm "github.com/dingodb/curveadm/internal/common"
+	"github.com/dingodb/curveadm/internal/configure"
+	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/task/context"
+	"github.com/dingodb/curveadm/internal/task/step"
+	"github.com/dingodb/curveadm/internal/task/task"
+	"github.com/dingodb/curveadm/internal/task/task/checker"
+	"github.com/dingodb/curveadm/internal/utils"
 )
 
 const (
@@ -106,7 +106,7 @@ func getVolumes(cc *configure.ClientConfig) []step.Volume {
 		{HostPath: "/dev", ContainerPath: "/dev"},
 		{HostPath: "/lib/modules", ContainerPath: "/lib/modules"},
 	}
-	// see also: https://github.com/opencurve/curve/tree/master/nebd/etc/nebd
+	// see also: https://github.com/dingodb/curve/tree/master/nebd/etc/nebd
 	if len(cc.GetLogDir()) > 0 {
 		volumes = append(volumes, step.Volume{
 			HostPath:      cc.GetLogDir(),

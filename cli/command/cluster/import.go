@@ -25,10 +25,10 @@ package cluster
 import (
 	"fmt"
 
-	"github.com/opencurve/curveadm/cli/cli"
-	"github.com/opencurve/curveadm/internal/storage"
-	"github.com/opencurve/curveadm/internal/utils"
-	"github.com/opencurve/curveadm/pkg/log/zaplog"
+	"github.com/dingodb/curveadm/cli/cli"
+	"github.com/dingodb/curveadm/internal/storage"
+	"github.com/dingodb/curveadm/internal/utils"
+	"github.com/dingodb/curveadm/pkg/log/zaplog"
 	"github.com/spf13/cobra"
 )
 

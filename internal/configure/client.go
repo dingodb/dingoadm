@@ -27,12 +27,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/opencurve/curveadm/internal/build"
-	"github.com/opencurve/curveadm/internal/configure/topology"
-	"github.com/opencurve/curveadm/internal/errno"
-	"github.com/opencurve/curveadm/internal/utils"
-	log "github.com/opencurve/curveadm/pkg/log/glg"
-	"github.com/opencurve/curveadm/pkg/variable"
+	"github.com/dingodb/curveadm/internal/build"
+	"github.com/dingodb/curveadm/internal/configure/topology"
+	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/utils"
+	log "github.com/dingodb/curveadm/pkg/log/glg"
+	"github.com/dingodb/curveadm/pkg/variable"
 	"github.com/spf13/viper"
 )
 
@@ -42,6 +42,7 @@ const (
 	KEY_LOG_DIR                  = "log_dir"
 	KEY_DATA_DIR                 = "data_dir"
 	KEY_CORE_DIR                 = "core_dir"
+	KEY_CACHE_DIR                = "mount_dirs"
 	KEY_CURVEBS_LISTEN_MDS_ADDRS = "mds.listen.addr"
 	KEY_CURVEFS_LISTEN_MDS_ADDRS = "mdsOpt.rpcRetryOpt.addrs"
 	KEY_CONTAINER_PID            = "container_pid"
@@ -57,7 +58,7 @@ const (
 
 const (
 	DEFAULT_CURVEBS_CLIENT_CONTAINER_IMAGE = "opencurvedocker/curvebs:v1.2"
-	DEFAULT_CURVEFS_CLIENT_CONTAINER_IMAGE = "opencurvedocker/curvefs:latest"
+	DEFAULT_CURVEFS_CLIENT_CONTAINER_IMAGE = "dingodatabase/dingofs:latest"
 )
 
 var (
@@ -66,6 +67,7 @@ var (
 		KEY_LOG_DIR:         true,
 		KEY_DATA_DIR:        true,
 		KEY_CORE_DIR:        true,
+		KEY_CACHE_DIR:       true,
 		KEY_CONTAINER_PID:   true,
 		KEY_ENVIRONMENT:     true,
 	}
@@ -196,6 +198,7 @@ func (cc *ClientConfig) GetKind() string                     { return cc.getStri
 func (cc *ClientConfig) GetDataDir() string                  { return cc.getString(KEY_DATA_DIR) }
 func (cc *ClientConfig) GetLogDir() string                   { return cc.getString(KEY_LOG_DIR) }
 func (cc *ClientConfig) GetCoreDir() string                  { return cc.getString(KEY_CORE_DIR) }
+func (cc *ClientConfig) GetMapperCacheDir() string           { return cc.getString(KEY_CACHE_DIR) }
 func (cc *ClientConfig) GetS3AccessKey() string              { return cc.getString(KEY_CLIENT_S3_ACCESS_KEY) }
 func (cc *ClientConfig) GetS3SecretKey() string              { return cc.getString(KEY_CLIENT_S3_SECRET_KEY) }
 func (cc *ClientConfig) GetS3Address() string                { return cc.getString(KEY_CLIENT_S3_ADDRESS) }

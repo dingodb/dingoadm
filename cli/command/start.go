@@ -25,12 +25,12 @@
 package command
 
 import (
-	"github.com/opencurve/curveadm/cli/cli"
-	"github.com/opencurve/curveadm/internal/configure/topology"
-	"github.com/opencurve/curveadm/internal/errno"
-	"github.com/opencurve/curveadm/internal/playbook"
-	tui "github.com/opencurve/curveadm/internal/tui/common"
-	cliutil "github.com/opencurve/curveadm/internal/utils"
+	"github.com/dingodb/curveadm/cli/cli"
+	"github.com/dingodb/curveadm/internal/configure/topology"
+	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/playbook"
+	tui "github.com/dingodb/curveadm/internal/tui/common"
+	cliutil "github.com/dingodb/curveadm/internal/utils"
 	"github.com/spf13/cobra"
 )
 
