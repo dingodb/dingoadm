@@ -26,10 +26,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/opencurve/curveadm/cli/cli"
-	"github.com/opencurve/curveadm/internal/storage"
-	"github.com/opencurve/curveadm/internal/utils"
-	log "github.com/opencurve/curveadm/pkg/log/glg"
+	"github.com/dingodb/curveadm/cli/cli"
+	"github.com/dingodb/curveadm/internal/storage"
+	"github.com/dingodb/curveadm/internal/utils"
+	log "github.com/dingodb/curveadm/pkg/log/glg"
 	"github.com/spf13/cobra"
 )
 

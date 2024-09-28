@@ -28,12 +28,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/opencurve/curveadm/cli/cli"
-	"github.com/opencurve/curveadm/internal/configure/topology"
-	"github.com/opencurve/curveadm/internal/errno"
-	"github.com/opencurve/curveadm/internal/task/context"
-	"github.com/opencurve/curveadm/internal/task/step"
-	"github.com/opencurve/curveadm/internal/task/task"
+	"github.com/dingodb/curveadm/cli/cli"
+	"github.com/dingodb/curveadm/internal/configure/topology"
+	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/task/context"
+	"github.com/dingodb/curveadm/internal/task/step"
+	"github.com/dingodb/curveadm/internal/task/task"
 )
 
 const (
@@ -145,7 +145,7 @@ func NewCheckPermissionTask(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (
 	t.AddStep(&step.Ping{
 		Destination: &hostname,
 		Count:       1,
-		Timeout: 1,
+		Timeout:     1,
 		Success:     &success,
 		ExecOptions: curveadm.ExecOptions(),
 	})

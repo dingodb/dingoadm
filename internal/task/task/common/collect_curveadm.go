@@ -26,12 +26,12 @@ import (
 	"fmt"
 	"path"
 
-	"github.com/opencurve/curveadm/cli/cli"
-	comm "github.com/opencurve/curveadm/internal/common"
-	"github.com/opencurve/curveadm/internal/configure/topology"
-	"github.com/opencurve/curveadm/internal/task/step"
-	"github.com/opencurve/curveadm/internal/task/task"
-	"github.com/opencurve/curveadm/internal/utils"
+	"github.com/dingodb/curveadm/cli/cli"
+	comm "github.com/dingodb/curveadm/internal/common"
+	"github.com/dingodb/curveadm/internal/configure/topology"
+	"github.com/dingodb/curveadm/internal/task/step"
+	"github.com/dingodb/curveadm/internal/task/task"
+	"github.com/dingodb/curveadm/internal/utils"
 )
 
 func NewCollectCurveAdmTask(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (*task.Task, error) {

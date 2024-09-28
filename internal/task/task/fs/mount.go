@@ -28,17 +28,17 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/opencurve/curveadm/cli/cli"
-	comm "github.com/opencurve/curveadm/internal/common"
-	"github.com/opencurve/curveadm/internal/configure"
-	"github.com/opencurve/curveadm/internal/configure/topology"
-	"github.com/opencurve/curveadm/internal/errno"
-	"github.com/opencurve/curveadm/internal/task/context"
-	"github.com/opencurve/curveadm/internal/task/scripts"
-	"github.com/opencurve/curveadm/internal/task/step"
-	"github.com/opencurve/curveadm/internal/task/task"
-	"github.com/opencurve/curveadm/internal/task/task/checker"
-	"github.com/opencurve/curveadm/internal/utils"
+	"github.com/dingodb/curveadm/cli/cli"
+	comm "github.com/dingodb/curveadm/internal/common"
+	"github.com/dingodb/curveadm/internal/configure"
+	"github.com/dingodb/curveadm/internal/configure/topology"
+	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/task/context"
+	"github.com/dingodb/curveadm/internal/task/scripts"
+	"github.com/dingodb/curveadm/internal/task/step"
+	"github.com/dingodb/curveadm/internal/task/task"
+	"github.com/dingodb/curveadm/internal/task/task/checker"
+	"github.com/dingodb/curveadm/internal/utils"
 )
 
 const (
@@ -101,6 +101,7 @@ func getMountVolumes(cc *configure.ClientConfig) []step.Volume {
 	logDir := cc.GetLogDir()
 	dataDir := cc.GetDataDir()
 	coreDir := cc.GetCoreDir()
+	cacheDir := cc.GetMapperCacheDir()
 
 	if len(logDir) > 0 {
 		volumes = append(volumes, step.Volume{
@@ -121,6 +122,16 @@ func getMountVolumes(cc *configure.ClientConfig) []step.Volume {
 			HostPath:      coreDir,
 			ContainerPath: cc.GetCoreLocateDir(),
 		})
+	}
+
+	if len(cacheDir) > 0 {
+		// host_path_1:container_path_1;host_path_2:container_path_2;host_path_3:container_path_3
+		for hostPath, containerPath := range parseMountPaths(cacheDir) {
+			volumes = append(volumes, step.Volume{
+				HostPath:      hostPath,
+				ContainerPath: containerPath,
+			})
+		}
 	}
 
 	return volumes
@@ -406,4 +417,21 @@ func NewMountFSTask(curveadm *cli.CurveAdm, cc *configure.ClientConfig) (*task.T
 
 	return t, nil
 
+}
+
+func parseMountPaths(input string) map[string]string {
+	result := make(map[string]string)
+	pairs := strings.Split(input, ";")
+
+	for _, pair := range pairs {
+		// Split each pair by ':' to separate host and container paths
+		paths := strings.Split(pair, ":")
+		if len(paths) == 2 {
+			hostPath := paths[0]
+			containerPath := paths[1]
+			result[hostPath] = containerPath
+		}
+	}
+
+	return result
 }

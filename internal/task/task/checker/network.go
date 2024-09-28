@@ -28,15 +28,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/opencurve/curveadm/cli/cli"
-	comm "github.com/opencurve/curveadm/internal/common"
-	"github.com/opencurve/curveadm/internal/configure/topology"
-	"github.com/opencurve/curveadm/internal/errno"
-	"github.com/opencurve/curveadm/internal/task/context"
-	"github.com/opencurve/curveadm/internal/task/scripts"
-	"github.com/opencurve/curveadm/internal/task/step"
-	"github.com/opencurve/curveadm/internal/task/task"
-	tui "github.com/opencurve/curveadm/internal/tui/common"
+	"github.com/dingodb/curveadm/cli/cli"
+	comm "github.com/dingodb/curveadm/internal/common"
+	"github.com/dingodb/curveadm/internal/configure/topology"
+	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/task/context"
+	"github.com/dingodb/curveadm/internal/task/scripts"
+	"github.com/dingodb/curveadm/internal/task/step"
+	"github.com/dingodb/curveadm/internal/task/task"
+	tui "github.com/dingodb/curveadm/internal/tui/common"
 )
 
 const (
@@ -54,9 +54,14 @@ func checkPortInUse(success *bool, out *string, host string, port int) step.Lamb
 		}
 
 		if len(*out) > 0 {
+			if *out == "RTNETLINK answers: Invalid argument" {
+				return nil
+			}
+
 			return errno.ERR_PORT_ALREADY_IN_USE.
 				F("host=%s, port=%d", host, port)
 		}
+
 		return nil
 	}
 }
@@ -103,6 +108,7 @@ func (s *step2CheckPortStatus) Execute(ctx *context.Context) error {
 	steps = append(steps, &step.ContainerExec{
 		ContainerId: s.containerId,
 		Command:     command,
+		Success:     s.success,
 		Out:         &out,
 		ExecOptions: s.curveadm.ExecOptions(),
 	})

@@ -28,8 +28,8 @@ import (
 	"fmt"
 	"strings"
 
+	tui "github.com/dingodb/curveadm/internal/tui/common"
 	"github.com/fatih/color"
-	tui "github.com/opencurve/curveadm/internal/tui/common"
 )
 
 const (

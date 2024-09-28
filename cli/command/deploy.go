@@ -26,15 +26,15 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/dingodb/curveadm/cli/cli"
+	comm "github.com/dingodb/curveadm/internal/common"
+	"github.com/dingodb/curveadm/internal/configure"
+	"github.com/dingodb/curveadm/internal/configure/topology"
+	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/playbook"
+	cliutil "github.com/dingodb/curveadm/internal/utils"
+	utils "github.com/dingodb/curveadm/internal/utils"
 	"github.com/fatih/color"
-	"github.com/opencurve/curveadm/cli/cli"
-	comm "github.com/opencurve/curveadm/internal/common"
-	"github.com/opencurve/curveadm/internal/configure"
-	"github.com/opencurve/curveadm/internal/configure/topology"
-	"github.com/opencurve/curveadm/internal/errno"
-	"github.com/opencurve/curveadm/internal/playbook"
-	cliutil "github.com/opencurve/curveadm/internal/utils"
-	utils "github.com/opencurve/curveadm/internal/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -252,10 +252,12 @@ func genDeployPlaybook(curveadm *cli.CurveAdm,
 		if step == CREATE_PHYSICAL_POOL {
 			options[comm.KEY_CREATE_POOL_TYPE] = comm.POOL_TYPE_PHYSICAL
 			options[comm.KEY_POOLSET] = poolset
+			options[comm.KEY_NUMBER_OF_CHUNKSERVER] = calcNumOfChunkserver(curveadm, dcs)
 		} else if step == CREATE_LOGICAL_POOL {
 			options[comm.KEY_CREATE_POOL_TYPE] = comm.POOL_TYPE_LOGICAL
 			options[comm.POOLSET] = poolset
 			options[comm.POOLSET_DISK_TYPE] = diskType
+			options[comm.KEY_NUMBER_OF_CHUNKSERVER] = calcNumOfChunkserver(curveadm, dcs)
 		}
 
 		pb.AddStep(&playbook.PlaybookStep{

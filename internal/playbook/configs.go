@@ -23,11 +23,11 @@
 package playbook
 
 import (
-	"github.com/opencurve/curveadm/internal/build"
-	"github.com/opencurve/curveadm/internal/configure"
-	"github.com/opencurve/curveadm/internal/configure/hosts"
-	"github.com/opencurve/curveadm/internal/configure/topology"
-	"github.com/opencurve/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/build"
+	"github.com/dingodb/curveadm/internal/configure"
+	"github.com/dingodb/curveadm/internal/configure/hosts"
+	"github.com/dingodb/curveadm/internal/configure/topology"
+	"github.com/dingodb/curveadm/internal/errno"
 )
 
 const (

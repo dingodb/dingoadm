@@ -27,10 +27,10 @@ package tui
 import (
 	"strconv"
 
+	"github.com/dingodb/curveadm/internal/storage"
+	"github.com/dingodb/curveadm/internal/tui/common"
+	tuicommon "github.com/dingodb/curveadm/internal/tui/common"
 	"github.com/fatih/color"
-	"github.com/opencurve/curveadm/internal/storage"
-	"github.com/opencurve/curveadm/internal/tui/common"
-	tuicommon "github.com/opencurve/curveadm/internal/tui/common"
 )
 
 func currentDecorate(message string) string {

@@ -25,16 +25,16 @@ package command
 import (
 	"time"
 
+	"github.com/dingodb/curveadm/cli/cli"
+	comm "github.com/dingodb/curveadm/internal/common"
+	"github.com/dingodb/curveadm/internal/configure"
+	"github.com/dingodb/curveadm/internal/configure/topology"
+	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/playbook"
+	tui "github.com/dingodb/curveadm/internal/tui/common"
+	cliutil "github.com/dingodb/curveadm/internal/utils"
+	utils "github.com/dingodb/curveadm/internal/utils"
 	"github.com/fatih/color"
-	"github.com/opencurve/curveadm/cli/cli"
-	comm "github.com/opencurve/curveadm/internal/common"
-	"github.com/opencurve/curveadm/internal/configure"
-	"github.com/opencurve/curveadm/internal/configure/topology"
-	"github.com/opencurve/curveadm/internal/errno"
-	"github.com/opencurve/curveadm/internal/playbook"
-	tui "github.com/opencurve/curveadm/internal/tui/common"
-	cliutil "github.com/opencurve/curveadm/internal/utils"
-	utils "github.com/opencurve/curveadm/internal/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -339,6 +339,8 @@ func genScaleOutPlaybook(curveadm *cli.CurveAdm,
 			options[comm.KEY_CREATE_POOL_TYPE] = comm.POOL_TYPE_PHYSICAL
 			options[comm.KEY_SCALE_OUT_CLUSTER] = dcs2scaleOut
 			options[comm.KEY_NEW_TOPOLOGY_DATA] = data
+			options[comm.KEY_NUMBER_OF_CHUNKSERVER] = calcNumOfChunkserver(curveadm, dcs) +
+				calcNumOfChunkserver(curveadm, dcs2scaleOut)
 			options[comm.KEY_POOLSET] = poolset
 		case CREATE_LOGICAL_POOL:
 			options[comm.KEY_CREATE_POOL_TYPE] = comm.POOL_TYPE_LOGICAL

@@ -25,10 +25,10 @@ package service
 import (
 	"sort"
 
+	comm "github.com/dingodb/curveadm/internal/common"
+	task "github.com/dingodb/curveadm/internal/task/task/common"
+	tui "github.com/dingodb/curveadm/internal/tui/common"
 	"github.com/fatih/color"
-	comm "github.com/opencurve/curveadm/internal/common"
-	task "github.com/opencurve/curveadm/internal/task/task/common"
-	tui "github.com/opencurve/curveadm/internal/tui/common"
 )
 
 func statusDecorate(status string) string {

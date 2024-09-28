@@ -23,7 +23,7 @@
 package configure
 
 import (
-	"github.com/opencurve/curveadm/internal/configure/topology"
+	"github.com/dingodb/curveadm/internal/configure/topology"
 )
 
 const (

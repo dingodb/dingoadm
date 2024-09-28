@@ -29,15 +29,15 @@ import (
 	"sort"
 	"strings"
 
+	comm "github.com/dingodb/curveadm/internal/common"
+	"github.com/dingodb/curveadm/internal/configure"
+	"github.com/dingodb/curveadm/internal/configure/topology"
+	task "github.com/dingodb/curveadm/internal/task/task/common"
+	"github.com/dingodb/curveadm/internal/task/task/monitor"
+	tui "github.com/dingodb/curveadm/internal/tui/common"
+	"github.com/dingodb/curveadm/internal/utils"
 	"github.com/fatih/color"
 	longest "github.com/jpillora/longestcommon"
-	comm "github.com/opencurve/curveadm/internal/common"
-	"github.com/opencurve/curveadm/internal/configure"
-	"github.com/opencurve/curveadm/internal/configure/topology"
-	task "github.com/opencurve/curveadm/internal/task/task/common"
-	"github.com/opencurve/curveadm/internal/task/task/monitor"
-	tui "github.com/opencurve/curveadm/internal/tui/common"
-	"github.com/opencurve/curveadm/internal/utils"
 )
 
 const (

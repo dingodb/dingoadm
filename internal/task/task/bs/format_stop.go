@@ -25,11 +25,11 @@ package bs
 import (
 	"fmt"
 
-	"github.com/opencurve/curveadm/cli/cli"
-	"github.com/opencurve/curveadm/internal/configure"
-	"github.com/opencurve/curveadm/internal/task/context"
-	"github.com/opencurve/curveadm/internal/task/step"
-	"github.com/opencurve/curveadm/internal/task/task"
+	"github.com/dingodb/curveadm/cli/cli"
+	"github.com/dingodb/curveadm/internal/configure"
+	"github.com/dingodb/curveadm/internal/task/context"
+	"github.com/dingodb/curveadm/internal/task/step"
+	"github.com/dingodb/curveadm/internal/task/task"
 )
 
 func skipStopFormat(containerId *string) step.LambdaType {
@@ -82,20 +82,20 @@ func NewStopFormatTask(curveadm *cli.CurveAdm, fc *configure.FormatConfig) (*tas
 	t := task.NewTask("Stop Format Chunkfile Pool", subname, hc.GetSSHConfig())
 
 	var oldContainerId string
-	var oldUUID string
+	var oldUuid string
 
 	// 1: list block device and edit fstab delete record
 	t.AddStep(&step.BlockId{
 		Device:      device,
 		Format:      "value",
 		MatchTag:    "UUID",
-		Out:         &oldUUID,
+		Out:         &oldUuid,
 		ExecOptions: curveadm.ExecOptions(),
 	})
 	t.AddStep(&step2EditFSTab{
 		host:       host,
 		device:     device,
-		oldUUID:    &oldUUID,
+		oldUuid:    &oldUuid,
 		mountPoint: mountPoint,
 		curveadm:   curveadm,
 		skipAdd:    true,

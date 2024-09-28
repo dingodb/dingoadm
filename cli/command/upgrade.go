@@ -25,23 +25,23 @@
 package command
 
 import (
+	"github.com/dingodb/curveadm/cli/cli"
+	comm "github.com/dingodb/curveadm/internal/common"
+	"github.com/dingodb/curveadm/internal/configure/topology"
+	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/playbook"
+	tui "github.com/dingodb/curveadm/internal/tui/common"
+	cliutil "github.com/dingodb/curveadm/internal/utils"
 	"github.com/fatih/color"
-	"github.com/opencurve/curveadm/cli/cli"
-	comm "github.com/opencurve/curveadm/internal/common"
-	"github.com/opencurve/curveadm/internal/configure/topology"
-	"github.com/opencurve/curveadm/internal/errno"
-	"github.com/opencurve/curveadm/internal/playbook"
-	tui "github.com/opencurve/curveadm/internal/tui/common"
-	cliutil "github.com/opencurve/curveadm/internal/utils"
 	"github.com/spf13/cobra"
 )
 
 var (
 	UPGRADE_PLAYBOOK_STEPS = []int{
 		// TODO(P0): we can skip it for upgrade one service more than once
+		playbook.PULL_IMAGE,
 		playbook.STOP_SERVICE,
 		playbook.CLEAN_SERVICE,
-		playbook.PULL_IMAGE,
 		playbook.CREATE_CONTAINER,
 		playbook.SYNC_CONFIG,
 		playbook.START_SERVICE,

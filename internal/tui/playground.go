@@ -25,11 +25,11 @@ package tui
 import (
 	"sort"
 
+	comm "github.com/dingodb/curveadm/internal/common"
+	pg "github.com/dingodb/curveadm/internal/task/task/playground"
+	"github.com/dingodb/curveadm/internal/tui/common"
+	tuicommon "github.com/dingodb/curveadm/internal/tui/common"
 	"github.com/fatih/color"
-	comm "github.com/opencurve/curveadm/internal/common"
-	pg "github.com/opencurve/curveadm/internal/task/task/playground"
-	"github.com/opencurve/curveadm/internal/tui/common"
-	tuicommon "github.com/opencurve/curveadm/internal/tui/common"
 )
 
 func playgroundStatusDecorate(status string) string {

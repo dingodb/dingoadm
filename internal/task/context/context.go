@@ -25,7 +25,7 @@
 package context
 
 import (
-	"github.com/opencurve/curveadm/pkg/module"
+	"github.com/dingodb/curveadm/pkg/module"
 )
 
 type Context struct {

@@ -25,12 +25,12 @@
 package command
 
 import (
-	"github.com/opencurve/curveadm/cli/cli"
-	"github.com/opencurve/curveadm/internal/configure/topology"
-	"github.com/opencurve/curveadm/internal/errno"
-	"github.com/opencurve/curveadm/internal/playbook"
-	tui "github.com/opencurve/curveadm/internal/tui/common"
-	cliutil "github.com/opencurve/curveadm/internal/utils"
+	"github.com/dingodb/curveadm/cli/cli"
+	"github.com/dingodb/curveadm/internal/configure/topology"
+	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/playbook"
+	tui "github.com/dingodb/curveadm/internal/tui/common"
+	cliutil "github.com/dingodb/curveadm/internal/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -107,7 +107,7 @@ func runStop(curveadm *cli.CurveAdm, options stopOptions) error {
 	}
 
 	// 3) confirm by user
-	pass := tui.ConfirmYes(tui.PromptStopService(options.id, options.role, options.host));
+	pass := tui.ConfirmYes(tui.PromptStopService(options.id, options.role, options.host))
 	if !pass {
 		curveadm.WriteOut(tui.PromptCancelOpetation("stop service"))
 		return errno.ERR_CANCEL_OPERATION

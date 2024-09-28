@@ -23,16 +23,16 @@
 package monitor
 
 import (
+	"github.com/dingodb/curveadm/cli/cli"
+	"github.com/dingodb/curveadm/internal/configure"
+	"github.com/dingodb/curveadm/internal/configure/topology"
+	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/playbook"
+	"github.com/dingodb/curveadm/internal/storage"
+	"github.com/dingodb/curveadm/internal/tasks"
+	"github.com/dingodb/curveadm/internal/utils"
+	cliutil "github.com/dingodb/curveadm/internal/utils"
 	"github.com/fatih/color"
-	"github.com/opencurve/curveadm/cli/cli"
-	"github.com/opencurve/curveadm/internal/configure"
-	"github.com/opencurve/curveadm/internal/configure/topology"
-	"github.com/opencurve/curveadm/internal/errno"
-	"github.com/opencurve/curveadm/internal/playbook"
-	"github.com/opencurve/curveadm/internal/storage"
-	"github.com/opencurve/curveadm/internal/tasks"
-	"github.com/opencurve/curveadm/internal/utils"
-	cliutil "github.com/opencurve/curveadm/internal/utils"
 	"github.com/spf13/cobra"
 )
 

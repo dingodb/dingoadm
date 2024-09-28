@@ -29,7 +29,7 @@ import (
 	"fmt"
 	"os"
 
-	log "github.com/opencurve/curveadm/pkg/log/glg"
+	log "github.com/dingodb/curveadm/pkg/log/glg"
 )
 
 const (

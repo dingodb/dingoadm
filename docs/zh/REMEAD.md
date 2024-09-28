@@ -90,7 +90,7 @@ topology 的配置项分为 3 个层级：
 `curveadm` 内置变量系统，这些变量可用于配置 `topology` 以增加配置的灵活性，变量分为两类：
 
 * 用户自定义变量：用户可以自定义变量，以减少 `topology` 中的重复配置
-* 内嵌变量：`curveadm` 内置了近 20 个变量，详见 [topology_variables](https://github.com/opencurve/curveadm/blob/master/internal/configure/topology_variables.go#L32)
+* 内嵌变量：`curveadm` 内置了近 20 个变量，详见 [topology_variables](https://github.com/dingodb/curveadm/blob/master/internal/configure/topology_variables.go#L32)
 
 [返回目录](#目录)
 
@@ -236,7 +236,7 @@ variable
 其他
 ---
 
-* `topology` 中的其余配置项与 `curvefs` 项目中的配置项保持一致，包括默认值，详见 [curvefs/conf](https://github.com/opencurve/curve/tree/fs/curvefs/conf)
+* `topology` 中的其余配置项与 `curvefs` 项目中的配置项保持一致，包括默认值，详见 [curvefs/conf](https://github.com/dingodb/curve/tree/fs/curvefs/conf)
 * 若想修改相关配置，在 `topology` 中修改即可，如修改 metaserver 中的日志等级，你可以在 `topology` 中增加以下配置项：
 ```shell
 metaserver.loglevel: 9

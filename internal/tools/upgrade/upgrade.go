@@ -31,8 +31,8 @@ import (
 	"strconv"
 	"strings"
 
+	tui "github.com/dingodb/curveadm/internal/tui/common"
 	"github.com/go-resty/resty/v2"
-	tui "github.com/opencurve/curveadm/internal/tui/common"
 )
 
 const (

@@ -25,14 +25,14 @@ package client
 import (
 	"strings"
 
-	"github.com/opencurve/curveadm/cli/cli"
-	comm "github.com/opencurve/curveadm/internal/common"
-	"github.com/opencurve/curveadm/internal/configure"
-	"github.com/opencurve/curveadm/internal/errno"
-	"github.com/opencurve/curveadm/internal/playbook"
-	"github.com/opencurve/curveadm/internal/task/task/fs"
-	cliutil "github.com/opencurve/curveadm/internal/utils"
-	utils "github.com/opencurve/curveadm/internal/utils"
+	"github.com/dingodb/curveadm/cli/cli"
+	comm "github.com/dingodb/curveadm/internal/common"
+	"github.com/dingodb/curveadm/internal/configure"
+	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/playbook"
+	"github.com/dingodb/curveadm/internal/task/task/fs"
+	cliutil "github.com/dingodb/curveadm/internal/utils"
+	utils "github.com/dingodb/curveadm/internal/utils"
 	"github.com/spf13/cobra"
 )
 

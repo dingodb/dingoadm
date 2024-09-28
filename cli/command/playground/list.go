@@ -23,14 +23,14 @@
 package playground
 
 import (
-	"github.com/opencurve/curveadm/cli/cli"
-	comm "github.com/opencurve/curveadm/internal/common"
-	"github.com/opencurve/curveadm/internal/errno"
-	"github.com/opencurve/curveadm/internal/playbook"
-	"github.com/opencurve/curveadm/internal/storage"
-	pg "github.com/opencurve/curveadm/internal/task/task/playground"
-	"github.com/opencurve/curveadm/internal/tui"
-	cliutil "github.com/opencurve/curveadm/internal/utils"
+	"github.com/dingodb/curveadm/cli/cli"
+	comm "github.com/dingodb/curveadm/internal/common"
+	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/playbook"
+	"github.com/dingodb/curveadm/internal/storage"
+	pg "github.com/dingodb/curveadm/internal/task/task/playground"
+	"github.com/dingodb/curveadm/internal/tui"
+	cliutil "github.com/dingodb/curveadm/internal/utils"
 	"github.com/spf13/cobra"
 )
 

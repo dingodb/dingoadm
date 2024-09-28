@@ -25,11 +25,11 @@
 package cluster
 
 import (
-	"github.com/opencurve/curveadm/cli/cli"
-	"github.com/opencurve/curveadm/internal/errno"
-	"github.com/opencurve/curveadm/internal/tui"
-	cliutil "github.com/opencurve/curveadm/internal/utils"
-	log "github.com/opencurve/curveadm/pkg/log/glg"
+	"github.com/dingodb/curveadm/cli/cli"
+	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/tui"
+	cliutil "github.com/dingodb/curveadm/internal/utils"
+	log "github.com/dingodb/curveadm/pkg/log/glg"
 	"github.com/spf13/cobra"
 )
 

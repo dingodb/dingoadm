@@ -1,6 +1,6 @@
-module github.com/opencurve/curveadm
+module github.com/dingodb/curveadm
 
-go 1.18
+go 1.22
 
 require (
 	github.com/docker/cli v23.0.3+incompatible

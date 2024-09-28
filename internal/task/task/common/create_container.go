@@ -28,15 +28,15 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/opencurve/curveadm/cli/cli"
-	comm "github.com/opencurve/curveadm/internal/common"
-	"github.com/opencurve/curveadm/internal/configure/topology"
-	"github.com/opencurve/curveadm/internal/errno"
-	"github.com/opencurve/curveadm/internal/storage"
-	"github.com/opencurve/curveadm/internal/task/context"
-	"github.com/opencurve/curveadm/internal/task/step"
-	"github.com/opencurve/curveadm/internal/task/task"
-	log "github.com/opencurve/curveadm/pkg/log/glg"
+	"github.com/dingodb/curveadm/cli/cli"
+	comm "github.com/dingodb/curveadm/internal/common"
+	"github.com/dingodb/curveadm/internal/configure/topology"
+	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/curveadm/internal/storage"
+	"github.com/dingodb/curveadm/internal/task/context"
+	"github.com/dingodb/curveadm/internal/task/step"
+	"github.com/dingodb/curveadm/internal/task/task"
+	log "github.com/dingodb/curveadm/pkg/log/glg"
 )
 
 const (
@@ -152,9 +152,14 @@ func getEnvironments(dc *topology.DeployConfig) []string {
 		preloads = append(preloads, "/usr/local/lib/libsmc-preload.so")
 	}
 
-	return []string{
+	envs := []string{
 		fmt.Sprintf("'LD_PRELOAD=%s'", strings.Join(preloads, " ")),
 	}
+	env := dc.GetEnv()
+	if len(env) > 0 {
+		envs = append(envs, strings.Split(env, " ")...)
+	}
+	return envs
 }
 
 func getMountVolumes(dc *topology.DeployConfig) []step.Volume {
