@@ -101,6 +101,12 @@ func (s *step2RemoveContainer) Execute(ctx *context.Context) error {
 	options := s.curveadm.ExecOptions()
 	options.ExecTimeoutSec = ONE_DAY_SECONDS // wait all data flushed to S3
 	if strings.HasPrefix(*s.status, "Up") {
+		// stop container
+		steps = append(steps, &step.StopContainer{
+			ContainerId: s.containerId,
+			ExecOptions: options,
+		})
+		// wait container stop
 		steps = append(steps, &step.WaitContainer{
 			ContainerId: s.containerId,
 			ExecOptions: options,
