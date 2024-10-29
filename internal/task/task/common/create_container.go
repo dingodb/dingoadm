@@ -242,16 +242,18 @@ func NewCreateContainerTask(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (
 		ExecOptions: options,
 	})
 	t.AddStep(&step.CreateContainer{
-		Image:       dc.GetContainerImage(),
-		Command:     fmt.Sprintf("--role %s --args='%s'", role, getArguments(dc)),
-		AddHost:     []string{fmt.Sprintf("%s:127.0.0.1", hostname)},
-		Envs:        getEnvironments(dc),
-		Hostname:    hostname,
-		Init:        true,
-		Name:        hostname,
-		Privileged:  true,
-		Restart:     getRestartPolicy(dc),
-		Ulimits:     []string{"core=-1"},
+		Image:      dc.GetContainerImage(),
+		Command:    fmt.Sprintf("--role %s --args='%s'", role, getArguments(dc)),
+		AddHost:    []string{fmt.Sprintf("%s:127.0.0.1", hostname)},
+		Envs:       getEnvironments(dc),
+		Hostname:   hostname,
+		Init:       true,
+		Name:       hostname,
+		Privileged: true,
+		Restart:    getRestartPolicy(dc),
+		//--ulimit core=-1: Sets the core dump file size limit to -1, meaning there’s no restriction on the core dump size.
+		//--ulimit nofile=65535:65535: Sets both the soft and hard limits for the number of open files to 65535.
+		Ulimits:     []string{"core=-1", "nofile=65535:65535"},
 		Volumes:     getMountVolumes(dc),
 		Out:         &containerId,
 		ExecOptions: curveadm.ExecOptions(),

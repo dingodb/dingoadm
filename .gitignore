@@ -12,3 +12,4 @@ logs/*
 .CHANGELOG
 vendor/
 TODO.md
+scripts/install_test.sh
