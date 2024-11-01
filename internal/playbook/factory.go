@@ -31,6 +31,7 @@ import (
 	"github.com/dingodb/curveadm/internal/task/task/checker"
 	comm "github.com/dingodb/curveadm/internal/task/task/common"
 	"github.com/dingodb/curveadm/internal/task/task/fs"
+	"github.com/dingodb/curveadm/internal/task/task/gateway"
 	"github.com/dingodb/curveadm/internal/task/task/monitor"
 	pg "github.com/dingodb/curveadm/internal/task/task/playground"
 	"github.com/dingodb/curveadm/internal/tasks"
@@ -129,6 +130,9 @@ const (
 	START_PLAYGROUND
 	REMOVE_PLAYGROUND
 	GET_PLAYGROUND_STATUS
+
+	// gateway
+	START_GATEWAY
 
 	// unknown
 	UNKNOWN
@@ -321,6 +325,8 @@ func (p *Playbook) createTasks(step *PlaybookStep) (*tasks.Tasks, error) {
 			t, err = monitor.NewGetMonitorStatusTask(curveadm, config.GetMC(i))
 		case CLEAN_MONITOR:
 			t, err = monitor.NewCleanMonitorTask(curveadm, config.GetMC(i))
+		case START_GATEWAY:
+			t, err = gateway.NewStartGatewayTask(curveadm, config.GetGC())
 
 		default:
 			return nil, errno.ERR_UNKNOWN_TASK_TYPE.

@@ -37,6 +37,7 @@ const (
 	TYPE_CONFIG_CLIENT
 	TYPE_CONFIG_PLAYGROUND
 	TYPE_CONFIG_MONITOR
+	TYPE_CONFIG_GATEWAY
 	TYPE_CONFIG_ANY
 	TYPE_CONFIG_NULL
 )
@@ -50,6 +51,7 @@ type SmartConfig struct {
 	ccs   []*configure.ClientConfig
 	pgcs  []*configure.PlaygroundConfig
 	mcs   []*configure.MonitorConfig
+	gc    *configure.GatewayConfig
 	anys  []interface{}
 }
 
@@ -101,6 +103,13 @@ func (c *SmartConfig) GetMC(index int) *configure.MonitorConfig {
 		return nil
 	}
 	return c.mcs[index]
+}
+
+func (c *SmartConfig) GetGC() *configure.GatewayConfig {
+	if c.ctype != TYPE_CONFIG_GATEWAY {
+		return nil
+	}
+	return c.gc
 }
 
 func (c *SmartConfig) GetAny(index int) interface{} {
@@ -181,6 +190,10 @@ func NewSmartConfig(configs interface{}) (*SmartConfig, error) {
 	case *configure.MonitorConfig:
 		c.ctype = TYPE_CONFIG_MONITOR
 		c.mcs = append(c.mcs, configs.(*configure.MonitorConfig))
+		c.len = 1
+	case *configure.GatewayConfig:
+		c.ctype = TYPE_CONFIG_GATEWAY
+		c.gc = configs.(*configure.GatewayConfig)
 		c.len = 1
 	case nil:
 		c.ctype = TYPE_CONFIG_NULL

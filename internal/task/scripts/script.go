@@ -61,4 +61,7 @@ var (
 
 	//go:embed shell/create_fs.sh
 	CREATE_FS string
+
+	//go:embed shell/start_gateway.sh
+	START_GATEWAY string
 )

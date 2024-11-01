@@ -341,6 +341,18 @@ func (curveadm *CurveAdm) FilterDeployConfig(deployConfigs []*topology.DeployCon
 	return dcs
 }
 
+func (curveadm *CurveAdm) FilterDeployConfigByGateway(deployConfigs []*topology.DeployConfig,
+	options topology.FilterOption) *topology.DeployConfig {
+	for _, dc := range deployConfigs {
+		host := dc.GetHost()
+		if options.Host == host {
+			return dc
+		}
+	}
+
+	return nil
+}
+
 func (curveadm *CurveAdm) FilterDeployConfigByRole(dcs []*topology.DeployConfig,
 	role string) []*topology.DeployConfig {
 	options := topology.FilterOption{Id: "*", Role: role, Host: "*"}
