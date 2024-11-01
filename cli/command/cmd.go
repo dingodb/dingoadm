@@ -26,6 +26,7 @@ package command
 
 import (
 	"fmt"
+	"github.com/dingodb/curveadm/cli/command/gateway"
 
 	"github.com/dingodb/curveadm/cli/cli"
 	"github.com/dingodb/curveadm/cli/command/client"
@@ -66,6 +67,7 @@ func addSubCommands(cmd *cobra.Command, curveadm *cli.CurveAdm) {
 		target.NewTargetCommand(curveadm),         // curveadm target ...
 		pfs.NewPFSCommand(curveadm),               // curveadm pfs ...
 		monitor.NewMonitorCommand(curveadm),       // curveadm monitor ...
+		gateway.NewGatewayCommand(curveadm),       // curveadm gateway ...
 
 		NewAuditCommand(curveadm),      // curveadm audit
 		NewCleanCommand(curveadm),      // curveadm clean

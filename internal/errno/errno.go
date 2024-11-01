@@ -371,6 +371,10 @@ var (
 	ERR_REQUIRE_CURVEFS_KIND_CLIENT_CONFIGURE_FILE = EC(351003, "require curvefs kind client configure file")
 	ERR_INVALID_CLUSTER_LISTEN_MDS_ADDRESS         = EC(351004, "invalid cluster MDS listen address")
 
+	// 360: configure (gateway.yaml: parse failed)
+	ERR_PARSE_GATEWAY_CONFIGURE_FAILED = EC(360000, "parse client configure failed")
+	ERR_GATEWAY_MDSADDR_EMPTY          = EC(360001, "dingofs mdsaddr is empty")
+
 	// 400: common (hosts)
 	ERR_HOST_NOT_FOUND = EC(400000, "host not found")
 
@@ -545,6 +549,10 @@ var (
 	ERR_INSPECT_CONTAINER_FAILED         = EC(630012, "get container low-level information failed")
 	ERR_GET_CONTAINER_LOGS_FAILED        = EC(630013, "get container logs failed")
 	ERR_UPDATE_CONTAINER_FAILED          = EC(630014, "update container failed")
+
+	// 640: gateway (curve gateway)
+	ERR_NO_HOST_FOR_GATEWAY  = EC(640000, "no host found")
+	ERR_START_GATEWAY_FAILED = EC(640001, "start s3 gateway failed")
 
 	// 690: execuetr task (others)
 	ERR_START_CRONTAB_IN_CONTAINER_FAILED = EC(690000, "start crontab in container failed")
