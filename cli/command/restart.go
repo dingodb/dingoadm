@@ -25,6 +25,8 @@
 package command
 
 import (
+	"fmt"
+
 	"github.com/dingodb/curveadm/cli/cli"
 	"github.com/dingodb/curveadm/internal/configure/topology"
 	"github.com/dingodb/curveadm/internal/errno"
@@ -41,9 +43,10 @@ var (
 )
 
 type restartOptions struct {
-	id   string
-	role string
-	host string
+	id    string
+	role  string
+	host  string
+	force bool
 }
 
 func NewRestartCommand(curveadm *cli.CurveAdm) *cobra.Command {
@@ -66,6 +69,7 @@ func NewRestartCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	flags.StringVar(&options.id, "id", "*", "Specify service id")
 	flags.StringVar(&options.role, "role", "*", "Specify service role")
 	flags.StringVar(&options.host, "host", "*", "Specify service host")
+	flags.BoolVarP(&options.force, "force", "f", false, "Never prompt")
 
 	return cmd
 }
@@ -104,6 +108,12 @@ func runRestart(curveadm *cli.CurveAdm, options restartOptions) error {
 	pb, err := genRestartPlaybook(curveadm, dcs, options)
 	if err != nil {
 		return err
+	}
+
+	// 3) force restart
+	if options.force {
+		fmt.Print(tui.PromptRestartService(options.id, options.role, options.host))
+		return pb.Run()
 	}
 
 	// 3) confirm by user

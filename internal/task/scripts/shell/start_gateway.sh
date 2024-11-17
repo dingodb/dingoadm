@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-# Usage: curve fs gateway --mdsaddr={mdsaddr} --listen-address {listenAddr} --console-address {consoleAddr} --mountpoint {mountPoint}
-# Example: curve fs gateway --mdsaddr=172.20.7.232:16700,172.20.7.233:16700,172.20.7.234:16700 --listen-address=:29000 --console-address=:29002 --mountpoint=/home/dingofs/cli/cli1
+# Usage: curve gateway --mdsaddr={mdsaddr} --listen-address {listenAddr} --console-address {consoleAddr} --mountpoint {mountPoint}
+# Example: curve gateway --mdsaddr=172.20.7.232:16700,172.20.7.233:16700,172.20.7.234:16700 --listen-address=:29000 --console-address=:29002 --mountpoint=/home/dingofs/cli/cli1
 # Created Date: 2024-10-30
 # Author: Wei Dong (jackblack369)
 
 
 g_curvefs="curve"
-g_curvefs_operator="fs gateway"
+g_curvefs_operator="gateway"
 g_mdsaddr="--mdsaddr="
 g_listen_address="--listen-address="
 g_console_address="--console-address="

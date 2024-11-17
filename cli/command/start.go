@@ -25,6 +25,8 @@
 package command
 
 import (
+	"fmt"
+
 	"github.com/dingodb/curveadm/cli/cli"
 	"github.com/dingodb/curveadm/internal/configure/topology"
 	"github.com/dingodb/curveadm/internal/errno"
@@ -41,9 +43,10 @@ var (
 )
 
 type startOptions struct {
-	id   string
-	role string
-	host string
+	id    string
+	role  string
+	host  string
+	force bool
 }
 
 func checkCommonOptions(curveadm *cli.CurveAdm, id, role, host string) error {
@@ -88,6 +91,7 @@ func NewStartCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	flags.StringVar(&options.id, "id", "*", "Specify service id")
 	flags.StringVar(&options.role, "role", "*", "Specify service role")
 	flags.StringVar(&options.host, "host", "*", "Specify service host")
+	flags.BoolVarP(&options.force, "force", "f", false, "Never prompt")
 
 	return cmd
 }
@@ -126,6 +130,12 @@ func runStart(curveadm *cli.CurveAdm, options startOptions) error {
 	pb, err := genStartPlaybook(curveadm, dcs, options)
 	if err != nil {
 		return err
+	}
+
+	// 3) force start
+	if options.force {
+		fmt.Print(tui.PromptStartService(options.id, options.role, options.host))
+		return pb.Run()
 	}
 
 	// 3) confirm by user
