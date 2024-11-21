@@ -42,6 +42,7 @@ const (
 type commitOptions struct {
 	filename string
 	slient   bool
+	force    bool
 }
 
 func NewCommitCommand(curveadm *cli.CurveAdm) *cobra.Command {
@@ -61,6 +62,7 @@ func NewCommitCommand(curveadm *cli.CurveAdm) *cobra.Command {
 
 	flags := cmd.Flags()
 	flags.BoolVarP(&options.slient, "slient", "s", false, "Slient output for config commit")
+	flags.BoolVarP(&options.force, "force", "f", false, "Never prompt")
 
 	return cmd
 }
@@ -95,11 +97,13 @@ func runCommit(curveadm *cli.CurveAdm, options commitOptions) error {
 		return err
 	}
 
-	// 2) confirm by user
-	pass := tui.ConfirmYes("Do you want to continue?")
-	if !pass {
-		curveadm.WriteOut(tui.PromptCancelOpetation("commit hosts"))
-		return errno.ERR_CANCEL_OPERATION
+	// 2) confirm by user or force commit
+	if !options.force {
+		pass := tui.ConfirmYes("Do you want to continue?")
+		if !pass {
+			curveadm.WriteOut(tui.PromptCancelOpetation("commit hosts"))
+			return errno.ERR_CANCEL_OPERATION
+		}
 	}
 
 	// 3) update hosts in database
