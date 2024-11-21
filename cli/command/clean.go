@@ -61,6 +61,7 @@ type cleanOptions struct {
 	host           string
 	only           []string
 	withoutRecycle bool
+	force          bool
 }
 
 func checkCleanOptions(curveadm *cli.CurveAdm, options cleanOptions) error {
@@ -97,6 +98,7 @@ func NewCleanCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	flags.StringVar(&options.host, "host", "*", "Specify service host")
 	flags.StringSliceVarP(&options.only, "only", "o", CLEAN_ITEMS, "Specify clean item")
 	flags.BoolVar(&options.withoutRecycle, "no-recycle", false, "Remove data directory directly instead of recycle chunks")
+	flags.BoolVarP(&options.force, "force", "f", false, "Never prompt")
 
 	return cmd
 }
@@ -142,6 +144,12 @@ func runClean(curveadm *cli.CurveAdm, options cleanOptions) error {
 	}
 
 	// 3) confirm by user
+	// 3) force stop
+	if options.force {
+		curveadm.WriteOut(tui.PromptCancelOpetation("clean service"))
+		return pb.Run()
+	}
+
 	if pass := tui.ConfirmYes(tui.PromptCleanService(options.role, options.host, options.only)); !pass {
 		curveadm.WriteOut(tui.PromptCancelOpetation("clean service"))
 		return errno.ERR_CANCEL_OPERATION
