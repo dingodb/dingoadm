@@ -34,7 +34,7 @@ import (
 
 const (
 	UNMAP_EXAMPLE = `Examples:
-  $ curveadm unmap user:volume --host machine1  # Unmap volume`
+  $ dingoadm unmap user:volume --host machine1  # Unmap volume`
 )
 
 var (

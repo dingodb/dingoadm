@@ -38,7 +38,7 @@ import (
 
 const (
 	DEPLOY_EXAMPLE = `Examples:
-	$ curveadm monitor deploy -c monitor.yaml    # deploy monitor for current cluster`
+	$ dingoadm monitor deploy -c monitor.yaml    # deploy monitor for current cluster`
 )
 
 var (

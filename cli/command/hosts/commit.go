@@ -36,7 +36,7 @@ import (
 
 const (
 	COMMIT_EXAMPLE = `Examples:
-  $ curveadm hosts commit /path/to/hosts.yaml  # Commit hosts`
+  $ dingoadm hosts commit /path/to/hosts.yaml  # Commit hosts`
 )
 
 type commitOptions struct {

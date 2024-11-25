@@ -75,7 +75,7 @@ type CurveAdm struct {
 /*
  * $HOME/.curveadm
  *   - curveadm.cfg
- *   - /bin/curveadm
+ *   - /bin/dingoadm
  *   - /data/curveadm.db
  *   - /plugins/{shell,file,polarfs}
  *   - /logs/2006-01-02_15-04-05.log

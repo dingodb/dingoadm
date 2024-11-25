@@ -39,9 +39,9 @@ import (
 
 const (
 	PRECHECK_EXAMPLE = `Examples:
-  $ curveadm precheck                         # Check all items
-  $ curveadm precheck --skip topology         # Check all items except topology
-  $ curveadm precheck --skip topology,kernel  # Check all items except topology and kernel`
+  $ dingoadm precheck                         # Check all items
+  $ dingoadm precheck --skip topology         # Check all items except topology
+  $ dingoadm precheck --skip topology,kernel  # Check all items except topology and kernel`
 )
 
 const (

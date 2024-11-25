@@ -38,9 +38,9 @@ import (
 
 const (
 	ADD_EXAMPLE = `Examples:
-  $ curveadm add my-cluster                            # Add a cluster named 'my-cluster'
-  $ curveadm add my-cluster -m "deploy for test"       # Add a cluster with description
-  $ curveadm add my-cluster -f /path/to/topology.yaml  # Add a cluster with specified topology`
+  $ dingoadm add my-cluster                            # Add a cluster named 'my-cluster'
+  $ dingoadm add my-cluster -m "deploy for test"       # Add a cluster with description
+  $ dingoadm add my-cluster -f /path/to/topology.yaml  # Add a cluster with specified topology`
 )
 
 var (

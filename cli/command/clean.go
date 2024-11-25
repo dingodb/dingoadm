@@ -38,9 +38,9 @@ import (
 
 const (
 	CLEAN_EXAMPLE = `Examples:
-  $ curveadm clean                               # Clean everything for all services
-  $ curveadm clean --only='log,data'             # Clean log and data for all services
-  $ curveadm clean --role=etcd --only=container  # Clean container for etcd services`
+  $ dingoadm clean                               # Clean everything for all services
+  $ dingoadm clean --only='log,data'             # Clean log and data for all services
+  $ dingoadm clean --role=etcd --only=container  # Clean container for etcd services`
 )
 
 var (

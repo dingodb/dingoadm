@@ -43,8 +43,8 @@ const (
 
 var (
 	exportExample = `Examples:
-  $ curveadm cluster export my-cluster                     # Export cluster 'my-cluster' 
-  $ curveadm cluster export my-cluster -o /path/to/dbfile  # Export cluster 'my-cluster' to specified file`
+  $ dingoadm cluster export my-cluster                     # Export cluster 'my-cluster' 
+  $ dingoadm cluster export my-cluster -o /path/to/dbfile  # Export cluster 'my-cluster' to specified file`
 )
 
 type exportOptions struct {
