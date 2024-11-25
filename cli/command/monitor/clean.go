@@ -35,9 +35,9 @@ import (
 
 const (
 	CLEAN_EXAMPLE = `Examples:
-  $ curveadm monitor clean                                  # Clean everything for monitor
-  $ curveadm monitor clean --only='data'                    # Clean data for monitor
-  $ curveadm monitor clean --role=grafana --only=container  # Clean container for grafana service`
+  $ dingoadm monitor clean                                  # Clean everything for monitor
+  $ dingoadm monitor clean --only='data'                    # Clean data for monitor
+  $ dingoadm monitor clean --role=grafana --only=container  # Clean container for grafana service`
 )
 
 var (

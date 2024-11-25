@@ -6,7 +6,7 @@
 # Author: Wei Dong (jackblack369)
 
 
-g_curvefs="curve"
+g_curvefs="dingo"
 g_curvefs_operator="gateway"
 g_mdsaddr="--mdsaddr="
 g_listen_address="--listen-address="

@@ -26,6 +26,7 @@ package command
 
 import (
 	"fmt"
+
 	"github.com/dingodb/curveadm/cli/command/gateway"
 
 	"github.com/dingodb/curveadm/cli/cli"
@@ -44,13 +45,13 @@ import (
 )
 
 var curveadmExample = `Examples:
-  $ curveadm playground run --kind curvebs  # Run a CurveBS playground quickly
-  $ curveadm cluster add c1                 # Add a cluster named 'c1'
-  $ curveadm deploy                         # Deploy current cluster
-  $ curveadm stop                           # Stop current cluster service
-  $ curveadm clean                          # Clean current cluster
-  $ curveadm enter 6ff561598c6f             # Enter specified service container
-  $ curveadm -u                             # Upgrade curveadm itself to the latest version`
+  $ dingoadm playground run --kind dingofs  # Run a dingoFS playground quickly
+  $ dingoadm cluster add c1                 # Add a cluster named 'c1'
+  $ dingoadm deploy                         # Deploy current cluster
+  $ dingoadm stop                           # Stop current cluster service
+  $ dingoadm clean                          # Clean current cluster
+  $ dingoadm enter 6ff561598c6f             # Enter specified service container
+  $ dingoadm -u                             # Upgrade dingoadm itself to the latest version`
 
 type rootOptions struct {
 	debug   bool
@@ -108,9 +109,9 @@ func NewCurveAdmCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	var options rootOptions
 
 	cmd := &cobra.Command{
-		Use:     "curveadm [OPTIONS] COMMAND [ARGS...]",
-		Short:   "Deploy and manage CurveBS/CurveFS cluster",
-		Version: fmt.Sprintf("CurveAdm v%s, build %s", cli.Version, cli.CommitId),
+		Use:     "dingoadm [OPTIONS] COMMAND [ARGS...]",
+		Short:   "Deploy and manage dingoFS cluster",
+		Version: fmt.Sprintf("dingoadm v%s, build %s", cli.Version, cli.CommitId),
 		Example: curveadmExample,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if options.debug {
@@ -121,8 +122,8 @@ func NewCurveAdmCommand(curveadm *cli.CurveAdm) *cobra.Command {
 				return cliutil.ShowHelp(curveadm.Err())(cmd, args)
 			}
 
-			return fmt.Errorf("curveadm: '%s' is not a curveadm command.\n"+
-				"See 'curveadm --help'", args[0])
+			return fmt.Errorf("dingoadm: '%s' is not a dingoadm command.\n"+
+				"See 'dingoadm --help'", args[0])
 		},
 		SilenceUsage:          true, // silence usage when an error occurs
 		DisableFlagsInUseLine: true,

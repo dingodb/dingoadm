@@ -33,7 +33,7 @@ import (
 
 const (
 	DIFF_EXAMPLE = `Examples:
-  $ curveadm config diff /path/to/topology.yaml  # Display difference for topology`
+  $ dingoadm config diff /path/to/topology.yaml  # Display difference for topology`
 )
 
 type diffOptions struct {

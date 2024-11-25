@@ -41,10 +41,10 @@ import (
 
 const (
 	MAP_EXAMPLE = `Examples:
-  $ curveadm map user:/volume --host machine1 --create                  # Map volume which created by automatic
-  $ curveadm map user:/volume --host machine1 --size=10GiB --create     # Map volume which size is 10GiB and created by automatic
-  $ curveadm map user:/volume --host machine1 --create --poolset ssd    # Map volume created by automatic in poolset 'ssd'
-  $ curveadm map user:/volume --host machine1 -c /path/to/client.yaml   # Map volume with specified configure file`
+  $ dingoadm map user:/volume --host machine1 --create                  # Map volume which created by automatic
+  $ dingoadm map user:/volume --host machine1 --size=10GiB --create     # Map volume which size is 10GiB and created by automatic
+  $ dingoadm map user:/volume --host machine1 --create --poolset ssd    # Map volume created by automatic in poolset 'ssd'
+  $ dingoadm map user:/volume --host machine1 -c /path/to/client.yaml   # Map volume with specified configure file`
 )
 
 var (

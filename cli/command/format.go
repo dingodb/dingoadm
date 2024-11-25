@@ -37,9 +37,9 @@ import (
 
 const (
 	FORMAT_EXAMPLE = `Examples:
-  $ curveadm format -f /path/to/format.yaml           # Format chunkfile pool with specified configure file
-  $ curveadm format --status -f /path/to/format.yaml  # Display formatting status
-  $ curveadm format --stop   -f /path/to/format.yaml  # Stop formatting progress`
+  $ dingoadm format -f /path/to/format.yaml           # Format chunkfile pool with specified configure file
+  $ dingoadm format --status -f /path/to/format.yaml  # Display formatting status
+  $ dingoadm format --stop   -f /path/to/format.yaml  # Stop formatting progress`
 )
 
 var (

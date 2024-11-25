@@ -34,7 +34,7 @@ import (
 
 const (
 	START_GATEWAY_EXAMPLE = `Examples:
-  $ curveadm gateway start --host dingfs1 --listen-address=:9000 --console-address=:9001 --mountpoint=/home/dingofs/client`
+  $ dingoadm gateway start --host dingfs1 --listen-address=:9000 --console-address=:9001 --mountpoint=/home/dingofs/client`
 )
 
 type startOptions struct {

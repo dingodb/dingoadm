@@ -39,8 +39,8 @@ import (
 
 const (
 	MOUNT_EXAMPLE = `Examples:
-  $ curveadm mount /s3_001     /path/to/mount --host machine -c client.yaml [--fstype s3]    # Mount a s3 CurveFS '/s3_001' to '/path/to/mount'
-  $ curveadm mount /volume_001 /path/to/mount --host machine -c client.yaml --fstype volume  # Mount a volume CurveFS '/volume_001' to '/path/to/mount'`
+  $ dingoadm mount /s3_001     /path/to/mount --host machine -c client.yaml [--fstype s3]    # Mount a s3 CurveFS '/s3_001' to '/path/to/mount'
+  $ dingoadm mount /volume_001 /path/to/mount --host machine -c client.yaml --fstype volume  # Mount a volume CurveFS '/volume_001' to '/path/to/mount'`
 )
 
 var (

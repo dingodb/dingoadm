@@ -38,8 +38,8 @@ const (
 
 var (
 	importExample = `Examples:
-  $ curveadm cluster import my-cluster                     # Import cluster 'my-cluster' with curveadm.db
-  $ curveadm cluster import my-cluster -f /path/to/dbfile  # Import cluster 'my-cluster' with specified database file`
+  $ dingoadm cluster import my-cluster                     # Import cluster 'my-cluster' with curveadm.db
+  $ dingoadm cluster import my-cluster -f /path/to/dbfile  # Import cluster 'my-cluster' with specified database file`
 )
 
 type importOptions struct {

@@ -39,7 +39,7 @@ import (
 
 const (
 	COMMIT_EXAMPLE = `Examples:
-  $ curveadm config commit /path/to/topology.yaml  # Commit cluster topology`
+  $ dingoadm config commit /path/to/topology.yaml  # Commit cluster topology`
 )
 
 var (

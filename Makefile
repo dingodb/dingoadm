@@ -20,7 +20,7 @@ GOBIN_GOLANGCILINT := $(shell which $(GOBIN)/golangci-lint)
 GO := go
 
 # output
-OUTPUT := bin/curveadm
+OUTPUT := bin/dingoadm
 
 # build flags
 LDFLAGS := -s -w
@@ -63,7 +63,7 @@ debug:
 	$(GOENV) $(GO) build -o $(OUTPUT) $(DEBUG_FLAGS) $(PACKAGES)
 
 install:
-	cp bin/curveadm ~/.curveadm/bin
+	cp bin/dingoadm ~/.curveadm/bin
 
 test:
 	$(GO_TEST) $(TEST_FLAGS) ./...
