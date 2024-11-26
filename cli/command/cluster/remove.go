@@ -100,10 +100,16 @@ func runRemove(curveadm *cli.CurveAdm, options removeOptions) error {
 	//   2.3): delete cluster in database
 	if err := checkAllServicesRemoved(curveadm, options, clusters[0].Id); err != nil {
 		return err
-	} else if pass := tui.ConfirmYes(tui.PromptRemoveCluster(clusterName)); !pass {
+	}
+	// force stop
+	if !options.force && !tui.ConfirmYes(tui.PromptRemoveCluster(clusterName)) {
 		curveadm.WriteOut(tui.PromptCancelOpetation("remove cluster"))
 		return errno.ERR_CANCEL_OPERATION
-	} else if err := curveadm.Storage().DeleteCluster(clusterName); err != nil {
+	} else {
+		curveadm.WriteOut(tui.PromptRemoveCluster(clusterName))
+	}
+
+	if err := curveadm.Storage().DeleteCluster(clusterName); err != nil {
 		return errno.ERR_DELETE_CLUSTER_FAILED.E(err)
 	}
 

@@ -38,6 +38,7 @@ import (
 const (
 	KIND_CURVEBS = "curvebs"
 	KIND_CURVEFS = "curvefs"
+	KIND_DINGOFS = "dingofs"
 
 	ROLE_ETCD          = "etcd"
 	ROLE_MDS           = "mds"

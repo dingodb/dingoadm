@@ -8,17 +8,21 @@
 
 [[ -z $(which curl) ]] && apt-get install -y curl
 wait=0
-while ((wait<20))
+while ((wait<30))
 do
     for addr in "$@"
     do
-        curl --connect-timeout 3 --max-time 10 $addr -Iso /dev/null
+        echo "connect [$addr]..." >> /curvefs/tools/logs/wait.log
+        # curl --connect-timeout 3 --max-time 10 $addr -Iso /dev/null
+        curl -sfI --connect-timeout 3 --max-time 5 "$addr" > /dev/null 2>&1
         if [ $? == 0 ]; then
-           exit 0
+            echo "connect [$addr] success !" >> /curvefs/tools/logs/wait.log
+            exit 0
         fi
     done
-    sleep 0.5s
+    sleep 1s
     wait=$(expr $wait + 1)
+    date >> /curvefs/tools/logs/wait.log
 done
 echo "wait timeout"
 exit 1
