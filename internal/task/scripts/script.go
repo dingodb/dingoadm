@@ -59,7 +59,7 @@ var (
 
 	// CurveFS
 
-	//go:embed shell/create_fs.sh
+	//go:embed shell/create_fs_v2.sh
 	CREATE_FS string
 
 	//go:embed shell/start_gateway.sh

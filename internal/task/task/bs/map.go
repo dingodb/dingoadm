@@ -39,7 +39,7 @@ import (
 const (
 	TOOLS_V2_CONFIG_DELIMITER = ": "
 	TOOLS_V2_CONFIG_SRC_PATH  = "/curvebs/conf/curve.yaml"
-	TOOLS_V2_CONFIG_DEST_PATH = "/etc/curve/curve.yaml"
+	TOOLS_V2_CONFIG_DEST_PATH = "/etc/dingo/dingo.yaml"
 )
 
 type (

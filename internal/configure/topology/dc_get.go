@@ -49,7 +49,7 @@ const (
 	LAYOUT_CURVEBS_RECYCLER_DIR              = "recycler"
 	LAYOUT_CURVEBS_TOOLS_CONFIG_SYSTEM_PATH  = "/etc/curve/tools.conf"
 	LAYOUT_CURVEFS_TOOLS_CONFIG_SYSTEM_PATH  = "/etc/curvefs/tools.conf"
-	LAYOUT_CURVE_TOOLS_V2_CONFIG_SYSTEM_PATH = "/etc/curve/curve.yaml"
+	LAYOUT_CURVE_TOOLS_V2_CONFIG_SYSTEM_PATH = "/etc/dingo/dingo.yaml"
 	LAYOUT_CORE_SYSTEM_DIR                   = "/core"
 
 	BINARY_CURVEBS_TOOL     = "curvebs-tool"
@@ -229,8 +229,8 @@ type (
 		ToolsBinaryPath     string // /curvebs/tools/sbin/curvebs-tool
 
 		// tools-v2
-		ToolsV2ConfSrcPath    string // /curvebs/conf/curve.yaml
-		ToolsV2ConfSystemPath string // /etc/curve/curve.yaml
+		ToolsV2ConfSrcPath    string // /curvefs/conf/dingo.yaml
+		ToolsV2ConfSystemPath string // /etc/dingo/dingo.yaml
 		ToolsV2BinaryPath     string // /curvebs/tools-v2/sbin/curve
 
 		// format
@@ -309,7 +309,7 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 		ToolsBinaryPath:     fmt.Sprintf("%s/%s", toolsBinDir, toolsBinaryName),
 
 		// toolsv2
-		ToolsV2ConfSrcPath:    fmt.Sprintf("%s/curve.yaml", confSrcDir),
+		ToolsV2ConfSrcPath:    fmt.Sprintf("%s/dingo.yaml", confSrcDir),
 		ToolsV2ConfSystemPath: toolsV2ConfSystemPath,
 		ToolsV2BinaryPath:     fmt.Sprintf("%s/%s", toolsV2BinDir, toolsV2BinaryName),
 
