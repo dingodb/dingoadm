@@ -136,7 +136,7 @@ func runMount(curveadm *cli.CurveAdm, options mountOptions) error {
 	cc, err := configure.ParseClientConfig(options.filename)
 	if err != nil {
 		return err
-	} else if cc.GetKind() != topology.KIND_CURVEFS {
+	} else if cc.GetKind() != topology.KIND_CURVEFS && cc.GetKind() != topology.KIND_DINGOFS {
 		return errno.ERR_REQUIRE_CURVEFS_KIND_CLIENT_CONFIGURE_FILE.
 			F("kind: %s", cc.GetKind())
 	}

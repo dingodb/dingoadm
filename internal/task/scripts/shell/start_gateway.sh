@@ -27,9 +27,8 @@ startGateway "$@"
 
 ret=$?
 if [ $ret -eq 0 ]; then
-    $g_entrypoint "$@"
-    ret=$?
-    exit $ret
+    echo "START GATEWAY SUCCESS"
+    exit 0
 else
     echo "START GATEWAY FAILED"
     exit 1

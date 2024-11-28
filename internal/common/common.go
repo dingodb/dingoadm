@@ -124,6 +124,10 @@ const (
 	GATEWAY_CONSOLE_ADDR = "GATEWAY_CONSOLE_ADDR"
 	GATEWAY_MOUNTPOINT   = "GATEWAY_MOUNTPOINT"
 	MDSADDR              = "mdsaddr"
+
+	// delimiter symbol
+	CLIENT_CONFIG_DELIMITER   = "="
+	TOOLS_V2_CONFIG_DELIMITER = ": "
 )
 
 // others

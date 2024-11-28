@@ -32,6 +32,7 @@ import (
 	"regexp"
 	"strings"
 
+	comm "github.com/dingodb/curveadm/internal/common"
 	"github.com/dingodb/curveadm/internal/errno"
 	"github.com/dingodb/curveadm/internal/task/context"
 	"github.com/dingodb/curveadm/internal/task/task"
@@ -40,8 +41,9 @@ import (
 )
 
 const (
-	TEMP_DIR       = "/tmp"
-	REGEX_KV_SPLIT = "^(([^%s]+)%s\\s*)([^\\s#]*)" // key: mu[2] value: mu[3]
+	TEMP_DIR             = "/tmp"
+	REGEX_KV_SPLIT       = "^(([^%s]+)%s\\s*)([^\\s#]*)" // key: mu[2] value: mu[3]
+	DINGO_REGEX_KV_SPLIT = `^(\s*[^%s]+)%s\s*([^#\s]*)`  // key: mu[1] value: mu[2]
 )
 
 type (
@@ -196,7 +198,11 @@ func (s *InstallFile) Execute(ctx *context.Context) error {
 }
 
 func (s *Filter) kvSplit(line string, key, value *string) error {
-	pattern := fmt.Sprintf(REGEX_KV_SPLIT, s.KVFieldSplit, s.KVFieldSplit)
+	regex_pattern := REGEX_KV_SPLIT
+	if s.KVFieldSplit == comm.TOOLS_V2_CONFIG_DELIMITER {
+		regex_pattern = DINGO_REGEX_KV_SPLIT
+	}
+	pattern := fmt.Sprintf(regex_pattern, s.KVFieldSplit, s.KVFieldSplit)
 	regex, err := regexp.Compile(pattern)
 	if err != nil {
 		return errno.ERR_BUILD_REGEX_FAILED.E(err)
@@ -206,6 +212,9 @@ func (s *Filter) kvSplit(line string, key, value *string) error {
 	if len(mu) == 0 {
 		*key = ""
 		*value = ""
+	} else if len(mu) == 3 {
+		*key = mu[1]
+		*value = mu[2]
 	} else {
 		*key = mu[2]
 		*value = mu[3]
