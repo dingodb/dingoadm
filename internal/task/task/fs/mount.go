@@ -89,7 +89,11 @@ func getMountCommand(cc *configure.ClientConfig, mountFSName string, mountFSType
 	format := strings.Join(FORMAT_FUSE_ARGS, " ")
 	fuseArgs := fmt.Sprintf(format, mountFSName, mountFSType,
 		configure.GetFSClientConfPath(), configure.GetFSClientMountPath(mountPoint))
-	return fmt.Sprintf("/client.sh %s %s --role=client --args='%s'", mountFSName, mountFSType, fuseArgs)
+
+	fmt.Printf("docker bootstrap command: /client.sh %s %s --role=client --args='%s' --capacity=%d --inodes=%d\n", mountFSName, mountFSType, fuseArgs, cc.GetQuotaCapacity(), cc.GetQuotaInodes())
+
+	return fmt.Sprintf("/client.sh %s %s --role=client --args='%s' --capacity=%d --inodes=%d", mountFSName, mountFSType, fuseArgs, cc.GetQuotaCapacity(), cc.GetQuotaInodes())
+
 }
 
 func getMountVolumes(cc *configure.ClientConfig) []step.Volume {
