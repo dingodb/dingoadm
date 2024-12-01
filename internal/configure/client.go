@@ -53,6 +53,9 @@ const (
 	KEY_CLIENT_S3_ADDRESS     = "s3.endpoint"
 	KEY_CLIENT_S3_BUCKET_NAME = "s3.bucket_name"
 
+	KEY_QUOTA_CAPACITY = "quota.capacity"
+	KEY_QUOTA_INODES   = "quota.inodes"
+
 	DEFAULT_CORE_LOCATE_DIR = "/core"
 )
 
@@ -194,6 +197,14 @@ func (cc *ClientConfig) getBool(key string) bool {
 	return v.(bool)
 }
 
+func (cc *ClientConfig) getDigital(key string) int {
+	v := cc.config[strings.ToLower(key)]
+	if v == nil {
+		return 0
+	}
+	return v.(int)
+}
+
 func (cc *ClientConfig) GetKind() string                     { return cc.getString(KEY_KIND) }
 func (cc *ClientConfig) GetDataDir() string                  { return cc.getString(KEY_DATA_DIR) }
 func (cc *ClientConfig) GetLogDir() string                   { return cc.getString(KEY_LOG_DIR) }
@@ -205,6 +216,8 @@ func (cc *ClientConfig) GetS3Address() string                { return cc.getStri
 func (cc *ClientConfig) GetS3BucketName() string             { return cc.getString(KEY_CLIENT_S3_BUCKET_NAME) }
 func (cc *ClientConfig) GetContainerPid() string             { return cc.getString(KEY_CONTAINER_PID) }
 func (cc *ClientConfig) GetEnvironments() string             { return cc.getString(KEY_ENVIRONMENT) }
+func (cc *ClientConfig) GetQuotaCapacity() int               { return cc.getDigital(KEY_QUOTA_CAPACITY) }
+func (cc *ClientConfig) GetQuotaInodes() int                 { return cc.getDigital(KEY_QUOTA_INODES) }
 func (cc *ClientConfig) GetCoreLocateDir() string            { return DEFAULT_CORE_LOCATE_DIR }
 func (cc *ClientConfig) GetData() string                     { return cc.data }
 func (cc *ClientConfig) GetServiceConfig() map[string]string { return cc.serviceConfig }
