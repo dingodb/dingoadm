@@ -1,7 +1,7 @@
-CurveAdm
+DingoAdm
 ---
 
-CurveAdm is a tool for deploy and manage Curve cluster, it's easy to use and with rich features.
+DingoAdm is a tool for deploy and manage Curve cluster, it's easy to use and with rich features.
 
 Documentation
 ---
@@ -12,13 +12,13 @@ Installation
 ---
 
 ```shell
-$ bash -c "$(curl -fsSL https://curveadm.nos-eastchina1.126.net/script/install.sh)"
+$ bash -c "$(curl -fsSL https://raw.githubusercontent.com/dingodb/dingoadm/master/scripts/install_dingoadm.sh)"
 ```
 
 Usage
 ---
 
-Run `curveadm -h` for more informations.
+Run `dingoadm -h` for more informations.
 
 Contributing
 ---
@@ -29,7 +29,7 @@ you can see [CONTRIBUTING][contributing] for details.
 License
 ---
 
-CurveAdm is under the Apache 2.0 license. See the [LICENSE](LICENSE) file for details.
+DingoAdm is under the Apache 2.0 license. See the [LICENSE](LICENSE) file for details.
 
 [docs]: https://github.com/dingodb/dingoadm/wiki
 [contributing]: https://github.com/dingodb/dingoadm/wiki/others#参与-dingoadm-的开发
