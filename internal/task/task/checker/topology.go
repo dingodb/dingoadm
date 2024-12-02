@@ -181,7 +181,7 @@ func (s *step2CheckServices) getHostNum(dcs []*topology.DeployConfig) int {
 func (s *step2CheckServices) skip(role string) bool {
 	kind := s.dcs[0].GetKind()
 	// KIND_CURVEFS
-	if kind == topology.KIND_CURVEFS {
+	if kind == topology.KIND_CURVEFS || kind == topology.KIND_DINGOFS {
 		if role == ROLE_CHUNKSERVER || role == ROLE_SNAPSHOTCLONE {
 			return true
 		}

@@ -122,7 +122,7 @@ func NewClientConfig(config map[string]interface{}) (*ClientConfig, error) {
 	kind := cc.GetKind()
 	field := utils.Choose(kind == topology.KIND_CURVEBS,
 		KEY_CURVEBS_LISTEN_MDS_ADDRS, KEY_CURVEFS_LISTEN_MDS_ADDRS)
-	if cc.GetKind() != topology.KIND_CURVEBS && kind != topology.KIND_CURVEFS {
+	if cc.GetKind() != topology.KIND_CURVEBS && kind != topology.KIND_CURVEFS && kind != topology.KIND_DINGOFS {
 		return nil, errno.ERR_UNSUPPORT_CLIENT_CONFIGURE_KIND.
 			F("kind: %s", kind)
 	} else if len(cc.GetClusterMDSAddr()) == 0 {

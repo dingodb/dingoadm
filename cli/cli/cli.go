@@ -73,10 +73,10 @@ type CurveAdm struct {
 }
 
 /*
- * $HOME/.curveadm
- *   - curveadm.cfg
+ * $HOME/.dingoadm
+ *   - dingoadm.cfg
  *   - /bin/dingoadm
- *   - /data/curveadm.db
+ *   - /data/dingoadm.db
  *   - /plugins/{shell,file,polarfs}
  *   - /logs/2006-01-02_15-04-05.log
  *   - /temp/
@@ -87,7 +87,7 @@ func NewCurveAdm() (*CurveAdm, error) {
 		return nil, errno.ERR_GET_USER_HOME_DIR_FAILED.E(err)
 	}
 
-	rootDir := fmt.Sprintf("%s/.curveadm", home)
+	rootDir := fmt.Sprintf("%s/.dingoadm", home)
 	curveadm := &CurveAdm{
 		rootDir:   rootDir,
 		dataDir:   path.Join(rootDir, "data"),
@@ -120,8 +120,8 @@ func (curveadm *CurveAdm) init() error {
 		}
 	}
 
-	// (2) Parse curveadm.cfg
-	confpath := fmt.Sprintf("%s/curveadm.cfg", curveadm.rootDir)
+	// (2) Parse dingoadm.cfg
+	confpath := fmt.Sprintf("%s/dingoadm.cfg", curveadm.rootDir)
 	config, err := configure.ParseCurveAdmConfig(confpath)
 	if err != nil {
 		return err
@@ -130,7 +130,7 @@ func (curveadm *CurveAdm) init() error {
 
 	// (3) Init logger
 	now := time.Now().Format("2006-01-02_15-04-05")
-	logpath := fmt.Sprintf("%s/curveadm-%s.log", curveadm.logDir, now)
+	logpath := fmt.Sprintf("%s/dingoadm-%s.log", curveadm.logDir, now)
 	if err := log.Init(config.GetLogLevel(), logpath); err != nil {
 		return errno.ERR_INIT_LOGGER_FAILED.E(err)
 	} else {
@@ -422,7 +422,7 @@ func (curveadm *CurveAdm) CheckRole(role string) error {
 
 	kind := dcs[0].GetKind()
 	roles := topology.CURVEBS_ROLES
-	if kind == topology.KIND_CURVEFS {
+	if kind == topology.KIND_CURVEFS || kind == topology.KIND_DINGOFS {
 		roles = topology.CURVEFS_ROLES
 	}
 	supported := utils.Slice2Map(roles)
