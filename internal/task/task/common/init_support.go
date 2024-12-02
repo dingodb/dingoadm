@@ -24,12 +24,13 @@ package common
 
 import (
 	"fmt"
+	"path"
+
 	"github.com/dingodb/curveadm/cli/cli"
 	comm "github.com/dingodb/curveadm/internal/common"
 	"github.com/dingodb/curveadm/internal/configure/topology"
 	"github.com/dingodb/curveadm/internal/task/step"
 	"github.com/dingodb/curveadm/internal/task/task"
-	"path"
 )
 
 func NewInitSupportTask(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (*task.Task, error) {
@@ -56,7 +57,7 @@ func NewInitSupportTask(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (*tas
 	 *     b0d56cfaad14-encrypted.tar.gz
 	 */
 	roles := topology.CURVEBS_ROLES
-	if kind == topology.KIND_CURVEFS {
+	if kind == topology.KIND_CURVEFS || kind == topology.KIND_DINGOFS {
 		roles = topology.CURVEFS_ROLES
 	}
 	secret := curveadm.MemStorage().Get(comm.KEY_SECRET).(string)

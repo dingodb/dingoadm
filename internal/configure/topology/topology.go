@@ -115,11 +115,12 @@ func ParseTopology(data string, ctx *Context) ([]*DeployConfig, error) {
 	// check topology kind
 	kind := topology.Kind
 	roles := []string{}
-	if kind == KIND_CURVEBS {
+	switch kind {
+	case KIND_CURVEBS:
 		roles = append(roles, CURVEBS_ROLES...)
-	} else if kind == KIND_CURVEFS {
+	case KIND_CURVEFS, KIND_DINGOFS:
 		roles = append(roles, CURVEFS_ROLES...)
-	} else {
+	default:
 		return nil, errno.ERR_UNSUPPORT_CLUSTER_KIND
 	}
 

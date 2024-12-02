@@ -32,6 +32,7 @@ import (
 const (
 	KIND_CURVEBS     = topology.KIND_CURVEBS
 	KIND_CURVEFS     = topology.KIND_CURVEFS
+	KIND_DINGOFS     = topology.KIND_DINGOFS
 	ROLE_CHUNKSERVER = topology.ROLE_CHUNKSERVER
 	ROLE_METASERVER  = topology.ROLE_METASERVER
 
@@ -163,7 +164,8 @@ func createLogicalPool(dcs []*topology.DeployConfig, logicalPool, poolset string
 	for _, dc := range dcs {
 		role := dc.GetRole()
 		if (role == ROLE_CHUNKSERVER && kind == KIND_CURVEBS) ||
-			(role == ROLE_METASERVER && kind == KIND_CURVEFS) {
+			(role == ROLE_METASERVER && kind == KIND_CURVEFS) ||
+			(role == ROLE_METASERVER && kind == KIND_DINGOFS) {
 			if dc.GetParentId() == dc.GetId() {
 				zone = nextZone()
 			}

@@ -31,5 +31,5 @@ License
 
 CurveAdm is under the Apache 2.0 license. See the [LICENSE](LICENSE) file for details.
 
-[docs]: https://github.com/dingodb/curveadm/wiki
-[contributing]: https://github.com/dingodb/curveadm/wiki/others#参与-curveadm-的开发
+[docs]: https://github.com/dingodb/dingoadm/wiki
+[contributing]: https://github.com/dingodb/dingoadm/wiki/others#参与-dingoadm-的开发

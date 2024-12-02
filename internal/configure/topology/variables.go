@@ -122,7 +122,7 @@ var (
 		{name: "cluster_snapshotclone_proxy_addr", kind: []string{KIND_CURVEBS}},
 		{name: "cluster_snapshotclone_dummy_port", kind: []string{KIND_CURVEBS}},
 		{name: "cluster_snapshotclone_nginx_upstream", kind: []string{KIND_CURVEBS}},
-		{name: "cluster_metaserver_addr", kind: []string{KIND_CURVEFS}},
+		{name: "cluster_metaserver_addr", kind: []string{KIND_CURVEFS, KIND_DINGOFS}},
 	}
 )
 
