@@ -1,7 +1,7 @@
 DingoAdm
 ---
 
-DingoAdm is a tool for deploy and manage Curve cluster, it's easy to use and with rich features.
+DingoAdm is a tool for deploy and manage DingoFS cluster, it's easy to use and with rich features.
 
 Documentation
 ---
