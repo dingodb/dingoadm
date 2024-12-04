@@ -117,6 +117,7 @@ type deployOptions struct {
 	insecure        bool
 	poolset         string
 	poolsetDiskType string
+	useLocalImage   bool
 }
 
 func checkDeployOptions(options deployOptions) error {
@@ -151,6 +152,7 @@ func NewDeployCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	flags.BoolVarP(&options.insecure, "insecure", "k", false, "Deploy without precheck")
 	flags.StringVar(&options.poolset, "poolset", "default", "Specify the poolset name")
 	flags.StringVar(&options.poolsetDiskType, "poolset-disktype", "ssd", "Specify the disk type of physical pool")
+	flags.BoolVar(&options.useLocalImage, "local", false, "Use local image")
 
 	return cmd
 }
@@ -225,6 +227,15 @@ func genDeployPlaybook(curveadm *cli.CurveAdm,
 		steps = CURVEBS_DEPLOY_STEPS
 	} else {
 		steps = CURVEFS_DEPLOY_STEPS
+		if options.useLocalImage {
+			// remote PULL_IMAGE step
+			for i, item := range steps {
+				if item == PULL_IMAGE {
+					steps = append(steps[:i], steps[i+1:]...)
+					break
+				}
+			}
+		}
 	}
 	steps = skipDeploySteps(dcs, steps, options)
 	poolset := configure.Poolset{
