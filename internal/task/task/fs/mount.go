@@ -360,10 +360,13 @@ func NewMountFSTask(curveadm *cli.CurveAdm, cc *configure.ClientConfig) (*task.T
 	t.AddStep(&step.Lambda{
 		Lambda: checkMountStatus(mountPoint, containerName, &out),
 	})
-	t.AddStep(&step.PullImage{
-		Image:       cc.GetContainerImage(),
-		ExecOptions: curveadm.ExecOptions(),
-	})
+	useLocalImage := curveadm.MemStorage().Get(comm.KEY_USE_LOCAL_IMAGE).(bool)
+	if !useLocalImage {
+		t.AddStep(&step.PullImage{
+			Image:       cc.GetContainerImage(),
+			ExecOptions: curveadm.ExecOptions(),
+		})
+	}
 	t.AddStep(&step.CreateContainer{
 		Image:             cc.GetContainerImage(),
 		Command:           getMountCommand(cc, mountFSName, mountFSType, mountPoint),
