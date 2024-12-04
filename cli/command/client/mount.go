@@ -53,12 +53,13 @@ var (
 )
 
 type mountOptions struct {
-	host        string
-	mountFSName string
-	mountFSType string
-	mountPoint  string
-	filename    string
-	insecure    bool
+	host          string
+	mountFSName   string
+	mountFSType   string
+	mountPoint    string
+	filename      string
+	insecure      bool
+	useLocalImage bool
 }
 
 func checkMountOptions(curveadm *cli.CurveAdm, options mountOptions) error {
@@ -95,6 +96,7 @@ func NewMountCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	flags.StringVarP(&options.filename, "conf", "c", "client.yaml", "Specify client configuration file")
 	flags.StringVar(&options.mountFSType, "fstype", "s3", "Specify fs data backend")
 	flags.BoolVarP(&options.insecure, "insecure", "k", false, "Mount without precheck")
+	flags.BoolVar(&options.useLocalImage, "local", false, "Use local image to mount")
 
 	return cmd
 }
@@ -122,6 +124,7 @@ func genMountPlaybook(curveadm *cli.CurveAdm,
 				},
 				comm.KEY_CLIENT_HOST:              options.host, // for checker
 				comm.KEY_CHECK_KERNEL_MODULE_NAME: comm.KERNERL_MODULE_FUSE,
+				comm.KEY_USE_LOCAL_IMAGE:          options.useLocalImage,
 			},
 			ExecOptions: playbook.ExecOptions{
 				SilentSubBar: step == playbook.CHECK_CLIENT_S3,
