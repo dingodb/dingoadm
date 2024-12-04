@@ -12,7 +12,7 @@ Installation
 ---
 
 ```shell
-$ bash -c "$(curl -fsSL https://raw.githubusercontent.com/dingodb/dingoadm/master/scripts/install_dingoadm.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/dingodb/dingoadm/master/scripts/install_dingoadm.sh)"
 ```
 
 Usage
