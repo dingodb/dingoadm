@@ -43,7 +43,7 @@ import (
 const (
 	TEMP_DIR             = "/tmp"
 	REGEX_KV_SPLIT       = "^(([^%s]+)%s\\s*)([^\\s#]*)" // key: mu[2] value: mu[3]
-	DINGO_REGEX_KV_SPLIT = `^(\s*[^%s]+)%s\s*([^#\s]*)`  // key: mu[1] value: mu[2]
+	DINGO_REGEX_KV_SPLIT = `^(\s*[^%s]+)%s\s*([^#]*)`    // key: mu[1] value: mu[2]
 )
 
 type (
