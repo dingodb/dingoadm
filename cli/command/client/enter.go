@@ -65,7 +65,7 @@ func runEnter(curveadm *cli.CurveAdm, options enterOptions) error {
 	client := clients[0]
 	home := "/curvebs/nebd"
 	if client.Kind == topology.KIND_CURVEFS || client.Kind == topology.KIND_DINGOFS {
-		home = "/curvefs/client"
+		home = "/dingofs/client"
 	}
 	return tools.AttachRemoteContainer(curveadm, client.Host, client.ContainerId, home)
 }

@@ -86,7 +86,7 @@ var (
 			if dc.GetKind() == KIND_CURVEBS {
 				return path.Join(LAYOUT_CURVEBS_ROOT_DIR, dc.GetRole())
 			}
-			return path.Join(LAYOUT_CURVEFS_ROOT_DIR, dc.GetRole())
+			return path.Join(LAYOUT_DINGOFS_ROOT_DIR, dc.GetRole())
 		},
 	)
 

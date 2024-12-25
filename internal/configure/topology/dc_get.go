@@ -34,6 +34,7 @@ import (
 
 const (
 	// service project layout
+	LAYOUT_DINGOFS_ROOT_DIR                  = "/dingofs"
 	LAYOUT_CURVEFS_ROOT_DIR                  = "/curvefs"
 	LAYOUT_CURVEBS_ROOT_DIR                  = "/curvebs"
 	LAYOUT_PLAYGROUND_ROOT_DIR               = "playground"
@@ -48,13 +49,13 @@ const (
 	LAYOUT_CURVEBS_COPYSETS_DIR              = "copysets"
 	LAYOUT_CURVEBS_RECYCLER_DIR              = "recycler"
 	LAYOUT_CURVEBS_TOOLS_CONFIG_SYSTEM_PATH  = "/etc/curve/tools.conf"
-	LAYOUT_CURVEFS_TOOLS_CONFIG_SYSTEM_PATH  = "/etc/curvefs/tools.conf"
+	LAYOUT_CURVEFS_TOOLS_CONFIG_SYSTEM_PATH  = "/etc/curvefs/tools.conf" // TODO: keep tools config path
 	LAYOUT_CURVE_TOOLS_V2_CONFIG_SYSTEM_PATH = "/etc/dingo/dingo.yaml"
 	LAYOUT_CORE_SYSTEM_DIR                   = "/core"
 
 	BINARY_CURVEBS_TOOL     = "curvebs-tool"
 	BINARY_CURVEBS_FORMAT   = "curve_format"
-	BINARY_CURVEFS_TOOL     = "curvefs_tool"
+	BINARY_CURVEFS_TOOL     = "dingo-tool"
 	BINARY_CURVE_TOOL_V2    = "curve"
 	METAFILE_CHUNKFILE_POOL = "chunkfilepool.meta"
 	METAFILE_CHUNKSERVER_ID = "chunkserver.dat"
@@ -229,7 +230,7 @@ type (
 		ToolsBinaryPath     string // /curvebs/tools/sbin/curvebs-tool
 
 		// tools-v2
-		ToolsV2ConfSrcPath    string // /curvefs/conf/dingo.yaml
+		ToolsV2ConfSrcPath    string // /dingofs/conf/dingo.yaml
 		ToolsV2ConfSystemPath string // /etc/dingo/dingo.yaml
 		ToolsV2BinaryPath     string // /curvebs/tools-v2/sbin/curve
 
@@ -248,7 +249,8 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 	kind := dc.GetKind()
 	role := dc.GetRole()
 	// project
-	root := utils.Choose(kind == KIND_CURVEBS, LAYOUT_CURVEBS_ROOT_DIR, LAYOUT_CURVEFS_ROOT_DIR)
+	curve_root := LAYOUT_CURVEFS_ROOT_DIR
+	root := utils.Choose(kind == KIND_CURVEBS, LAYOUT_CURVEBS_ROOT_DIR, LAYOUT_DINGOFS_ROOT_DIR)
 
 	// service
 	confSrcDir := root + LAYOUT_CONF_SRC_DIR
@@ -263,8 +265,8 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 		})
 	}
 
-	// tools
-	toolsRootDir := root + LAYOUT_TOOLS_DIR
+	// tools, keep 'curvefs' as root dir
+	toolsRootDir := curve_root + LAYOUT_TOOLS_DIR
 	toolsBinDir := toolsRootDir + LAYOUT_SERVICE_BIN_DIR
 	toolsConfDir := toolsRootDir + LAYOUT_SERVICE_CONF_DIR
 	toolsBinaryName := utils.Choose(kind == KIND_CURVEBS, BINARY_CURVEBS_TOOL, BINARY_CURVEFS_TOOL)

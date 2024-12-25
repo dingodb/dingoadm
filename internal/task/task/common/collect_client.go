@@ -24,8 +24,9 @@ package common
 
 import (
 	"fmt"
-	"github.com/dingodb/curveadm/internal/configure/topology"
 	"path"
+
+	"github.com/dingodb/curveadm/internal/configure/topology"
 
 	"github.com/dingodb/curveadm/cli/cli"
 	comm "github.com/dingodb/curveadm/internal/common"
@@ -62,9 +63,9 @@ func NewCollectClientTask(curveadm *cli.CurveAdm, v interface{}) (*task.Task, er
 	localEncryptdTarballPath := path.Join(baseDir, vname.EncryptCompressName) // // /tmp/7b510fb63730_ox1fe-encrypted.tar.gz
 	httpSavePath := path.Join("/", encodeSecret(secret), "client")            // /34701feb224479a20a5090510f648037/client
 	containerLogDir := utils.Choose(client.Kind == topology.KIND_CURVEBS,
-		"/curvebs/nebd/logs", "/curvefs/client/logs")
+		"/curvebs/nebd/logs", "/dingofs/client/logs")
 	containerConfDir := utils.Choose(client.Kind == topology.KIND_CURVEBS,
-		"/curvebs/nebd/conf", "/curvefs/client/conf")
+		"/curvebs/nebd/conf", "/dingofs/client/conf")
 	localOptions := curveadm.ExecOptions()
 	localOptions.ExecInLocal = true
 	t.AddStep(&step.CreateDirectory{
