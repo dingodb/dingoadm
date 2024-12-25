@@ -55,7 +55,7 @@ func getAttchMount(kind, mountPoint string) string {
 	if kind == topology.KIND_CURVEBS {
 		return mount
 	}
-	return fmt.Sprintf(FORMAT_MOUNT_OPTION, mountPoint, "/curvefs/client/mnt")
+	return fmt.Sprintf(FORMAT_MOUNT_OPTION, mountPoint, "/dingofs/client/mnt")
 }
 
 func getMountVolumes(kind string) []step.Volume {

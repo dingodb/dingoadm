@@ -228,7 +228,7 @@ func genDeployPlaybook(curveadm *cli.CurveAdm,
 	} else {
 		steps = CURVEFS_DEPLOY_STEPS
 		if options.useLocalImage {
-			// remote PULL_IMAGE step
+			// remove PULL_IMAGE step
 			for i, item := range steps {
 				if item == PULL_IMAGE {
 					steps = append(steps[:i], steps[i+1:]...)
