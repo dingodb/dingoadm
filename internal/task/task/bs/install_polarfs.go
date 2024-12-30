@@ -138,7 +138,7 @@ func NewInstallPolarFSTask(curveadm *cli.CurveAdm, cc *configure.ClientConfig) (
 		curveadm: curveadm,
 	})
 	t.AddStep(&step.ReadFile{
-		HostSrcPath: "/etc/curve/conf/client.conf.template",
+		HostSrcPath: "/etc/dingo/conf/client.conf.template",
 		Content:     &input,
 		ExecOptions: curveadm.ExecOptions(),
 	})
@@ -150,7 +150,7 @@ func NewInstallPolarFSTask(curveadm *cli.CurveAdm, cc *configure.ClientConfig) (
 	})
 	t.AddStep(&step.InstallFile{
 		Content:      &output,
-		HostDestPath: "/etc/curve/client.conf",
+		HostDestPath: "/etc/dingo/client.conf",
 		ExecOptions:  curveadm.ExecOptions(),
 	})
 	t.AddPostStep(&step.RemoveFile{

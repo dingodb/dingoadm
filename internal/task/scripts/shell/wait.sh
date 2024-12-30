@@ -12,17 +12,17 @@ while ((wait<30))
 do
     for addr in "$@"
     do
-        echo "connect [$addr]..." >> /curvefs/tools/logs/wait.log
+        echo "connect [$addr]..." >> /dingofs/tools/logs/wait.log
         # curl --connect-timeout 3 --max-time 10 $addr -Iso /dev/null
         curl -sfI --connect-timeout 3 --max-time 5 "$addr" > /dev/null 2>&1
         if [ $? == 0 ]; then
-            echo "connect [$addr] success !" >> /curvefs/tools/logs/wait.log
+            echo "connect [$addr] success !" >> /dingofs/tools/logs/wait.log
             exit 0
         fi
     done
     sleep 1s
     wait=$(expr $wait + 1)
-    date >> /curvefs/tools/logs/wait.log
+    date >> /dingofs/tools/logs/wait.log
 done
 echo "wait timeout"
 exit 1

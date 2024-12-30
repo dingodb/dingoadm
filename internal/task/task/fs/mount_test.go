@@ -32,10 +32,10 @@ func TestConfigureEnv_Basic(t *testing.T) {
 	run(t, map[string]interface{}{
 		KEY_KIND:  "curvefs",
 		KEY_ADDRS: "1.1.1.1",
-		KEY_ENV:   "MALLOC_CONF=prof:true,lg_prof_interval:26,prof_prefix:/curvefs/client/logs/jeprof.out",
+		KEY_ENV:   "MALLOC_CONF=prof:true,lg_prof_interval:26,prof_prefix:/dingofs/client/logs/jeprof.out",
 	}, []string{
 		"LD_PRELOAD=/usr/local/lib/libjemalloc.so",
-		"MALLOC_CONF=prof:true,lg_prof_interval:26,prof_prefix:/curvefs/client/logs/jeprof.out",
+		"MALLOC_CONF=prof:true,lg_prof_interval:26,prof_prefix:/dingofs/client/logs/jeprof.out",
 	})
 
 	run(t, map[string]interface{}{

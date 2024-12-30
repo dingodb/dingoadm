@@ -81,7 +81,7 @@ func NewUninstallPolarFSTask(curveadm *cli.CurveAdm, v interface{}) (*task.Task,
 
 	// add step to task
 	t.AddStep(&step.RemoveFile{
-		Files:       []string{"/etc/curve"},
+		Files:       []string{"/etc/dingo"},
 		ExecOptions: curveadm.ExecOptions(),
 	})
 	t.AddPostStep(&step2UninstallPackage{

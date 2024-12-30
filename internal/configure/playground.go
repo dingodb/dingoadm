@@ -28,7 +28,7 @@ import (
 
 const (
 	DEFAULT_CURVEBS_CONTAINER_IMAGE = "opencurvedocker/curvebs-playground:v1.2"
-	DEFAULT_CURVEFS_CONTAINER_IMAGE = "opencurvedocker/curvefs-playground:v2.3"
+	DEFAULT_CURVEFS_CONTAINER_IMAGE = "dingodatabase/dingofs-playground:v2.3"
 )
 
 type (

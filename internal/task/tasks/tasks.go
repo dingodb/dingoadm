@@ -191,12 +191,12 @@ func (ts *Tasks) setMainBarStatus() {
 
 /*
  * Pull Image: [ERROR]
- *   + host=10.0.0.1  image=opencurvedocker/curvefs [1/1] [OK]
- *   + host=10.0.0.2  image=opencurvedocker/curvefs [1/2] [OK]
- *   + host=10.0.0.3  image=opencurvedocker/curvefs [1/10] [ERROR]
- *   + host=10.0.0.1  image=opencurvedocker/curvefs [10/10] [OK]
- *   + host=10.0.0.2  image=opencurvedocker/curvefs [10/10] [OK]
- *   + host=10.0.0.3  image=opencurvedocker/curvefs [1/10] [OK]
+ *   + host=10.0.0.1  image=dingodatabase/dingofs [1/1] [OK]
+ *   + host=10.0.0.2  image=dingodatabase/dingofs [1/2] [OK]
+ *   + host=10.0.0.3  image=dingodatabase/dingofs [1/10] [ERROR]
+ *   + host=10.0.0.1  image=dingodatabase/dingofs [10/10] [OK]
+ *   + host=10.0.0.2  image=dingodatabase/dingofs [10/10] [OK]
+ *   + host=10.0.0.3  image=dingodatabase/dingofs [1/10] [OK]
  */
 func (ts *Tasks) Execute(option ExecOptions) error {
 	if len(ts.tasks) == 0 {

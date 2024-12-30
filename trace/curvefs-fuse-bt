@@ -249,7 +249,7 @@ main() {
         die "No process pid specified by the -p option.\n";
     fi
 
-    local exec_path="/proc/${pid}/root/curvefs/client/sbin/curve-fuse"
+    local exec_path="/proc/${pid}/root/dingofs/client/sbin/curve-fuse"
     if [ ! -f "$exec_path" ]; then
         die "Process $pid is not running or " \
              "you do not have enough permissions.\n"

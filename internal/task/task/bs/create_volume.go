@@ -132,7 +132,7 @@ func NewCreateVolumeTask(curveadm *cli.CurveAdm, cc *configure.ClientConfig) (*t
 	t.AddStep(&step.InstallFile{ // install tools.conf
 		Content:           &toolsConf,
 		ContainerId:       &containerName,
-		ContainerDestPath: "/etc/curve/tools.conf",
+		ContainerDestPath: "/etc/dingo/tools.conf",
 		ExecOptions:       curveadm.ExecOptions(),
 	})
 	t.AddStep(&step.InstallFile{ // install create_volume.sh

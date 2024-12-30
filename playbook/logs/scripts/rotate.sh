@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Usage: bash rotate.sh /mnt/logs/curvefs/client 86400
+# Usage: bash rotate.sh /mnt/logs/dingofs/client 86400
 
 ############################  GLOBAL VARIABLES
 g_log_dir="$1"
