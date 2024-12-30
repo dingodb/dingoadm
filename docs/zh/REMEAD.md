@@ -28,9 +28,9 @@ global:
   ssh_port: 22
   private_key_file: /home/curve/.ssh/id_rsa
   report_usage: true
-  data_dir: /home/${user}/curvefs/data/${service_role}${service_sequence}
-  log_dir: /home/${user}/curvefs/logs/${service_role}${service_sequence}
-  container_image: opencurvedocker/curvefs:latest
+  data_dir: /home/${user}/dingofs/data/${service_role}${service_sequence}
+  log_dir: /home/${user}/dingofs/logs/${service_role}${service_sequence}
+  container_image: dingodatabase/dingofs:latest
   variable:
     target: 10.0.1.1
 
@@ -172,7 +172,7 @@ container_image
 
 > 默认值：
 > 
-> 示例：opencurvedocker/curvefs:latest
+> 示例：dingodatabase/dingofs:latest
 > 
 > 说明：服务镜像
 
@@ -236,7 +236,7 @@ variable
 其他
 ---
 
-* `topology` 中的其余配置项与 `curvefs` 项目中的配置项保持一致，包括默认值，详见 [curvefs/conf](https://github.com/dingodb/curve/tree/fs/curvefs/conf)
+* `topology` 中的其余配置项与 `curvefs` 项目中的配置项保持一致，包括默认值，详见 [curvefs/conf](https://github.com/dingodb/curve/tree/fs/dingofs/conf)
 * 若想修改相关配置，在 `topology` 中修改即可，如修改 metaserver 中的日志等级，你可以在 `topology` 中增加以下配置项：
 ```shell
 metaserver.loglevel: 9

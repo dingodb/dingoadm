@@ -48,8 +48,8 @@ const (
 	LAYOUT_CURVEBS_CHUNKFILE_POOL_DIR        = "chunkfilepool"
 	LAYOUT_CURVEBS_COPYSETS_DIR              = "copysets"
 	LAYOUT_CURVEBS_RECYCLER_DIR              = "recycler"
-	LAYOUT_CURVEBS_TOOLS_CONFIG_SYSTEM_PATH  = "/etc/curve/tools.conf"
-	LAYOUT_CURVEFS_TOOLS_CONFIG_SYSTEM_PATH  = "/etc/curvefs/tools.conf" // TODO: keep tools config path
+	LAYOUT_CURVEBS_TOOLS_CONFIG_SYSTEM_PATH  = "/etc/dingo/tools.conf"
+	LAYOUT_CURVEFS_TOOLS_CONFIG_SYSTEM_PATH  = "/etc/dingofs/tools.conf" // v1 tools config path
 	LAYOUT_CURVE_TOOLS_V2_CONFIG_SYSTEM_PATH = "/etc/dingo/dingo.yaml"
 	LAYOUT_CORE_SYSTEM_DIR                   = "/core"
 
@@ -226,7 +226,7 @@ type (
 		ToolsConfDir        string // /curvebs/tools/conf
 		ToolsConfPath       string // /curvebs/tools/conf/tools.conf
 		ToolsConfSrcPath    string // /curvebs/conf/tools.conf
-		ToolsConfSystemPath string // /etc/curve/tools.conf
+		ToolsConfSystemPath string // /etc/dingofs/tools.conf
 		ToolsBinaryPath     string // /curvebs/tools/sbin/curvebs-tool
 
 		// tools-v2
@@ -249,7 +249,6 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 	kind := dc.GetKind()
 	role := dc.GetRole()
 	// project
-	curve_root := LAYOUT_CURVEFS_ROOT_DIR
 	root := utils.Choose(kind == KIND_CURVEBS, LAYOUT_CURVEBS_ROOT_DIR, LAYOUT_DINGOFS_ROOT_DIR)
 
 	// service
@@ -265,14 +264,12 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 		})
 	}
 
-	// tools, keep 'curvefs' as root dir
-	toolsRootDir := curve_root + LAYOUT_TOOLS_DIR
+	// tools, change 'dingofs' as root dir
+	toolsRootDir := root + LAYOUT_TOOLS_DIR
 	toolsBinDir := toolsRootDir + LAYOUT_SERVICE_BIN_DIR
 	toolsConfDir := toolsRootDir + LAYOUT_SERVICE_CONF_DIR
 	toolsBinaryName := utils.Choose(kind == KIND_CURVEBS, BINARY_CURVEBS_TOOL, BINARY_CURVEFS_TOOL)
-	toolsConfSystemPath := utils.Choose(kind == KIND_CURVEBS,
-		LAYOUT_CURVEBS_TOOLS_CONFIG_SYSTEM_PATH,
-		LAYOUT_CURVEFS_TOOLS_CONFIG_SYSTEM_PATH)
+	toolsConfSystemPath := LAYOUT_CURVEFS_TOOLS_CONFIG_SYSTEM_PATH
 
 	// tools-v2
 	toolsV2RootDir := root + LAYOUT_TOOLS_V2_DIR

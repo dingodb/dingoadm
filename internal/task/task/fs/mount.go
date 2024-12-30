@@ -46,7 +46,7 @@ const (
 
 	KEY_CURVEBS_CLUSTER = "curvebs.cluster"
 
-	CURVEBS_CONF_PATH = "/etc/curve/client.conf"
+	CURVEBS_CONF_PATH = "/etc/dingo/client.conf"
 )
 
 type (

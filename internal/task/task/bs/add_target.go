@@ -75,7 +75,7 @@ func NewAddTargetTask(curveadm *cli.CurveAdm, cc *configure.ClientConfig) (*task
 	t.AddStep(&step.InstallFile{ // install tools.conf
 		Content:           &toolsConf,
 		ContainerId:       &containerId,
-		ContainerDestPath: "/etc/curve/tools.conf",
+		ContainerDestPath: "/etc/dingo/tools.conf",
 		ExecOptions:       curveadm.ExecOptions(),
 	})
 	t.AddStep(&step.InstallFile{ // install target.sh

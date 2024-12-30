@@ -36,7 +36,7 @@ const (
 	// default value
 	DEFAULT_REPORT_USAGE                    = true
 	DEFAULT_CURVEBS_CONTAINER_IMAGE         = "opencurvedocker/curvebs:latest"
-	DEFAULT_CURVEFS_CONTAINER_IMAGE         = "opencurvedocker/curvefs:latest"
+	DEFAULT_CURVEFS_CONTAINER_IMAGE         = "dingodatabase/dingofs:latest"
 	DEFAULT_ETCD_LISTEN_PEER_PORT           = 2380
 	DEFAULT_ETCD_LISTEN_CLIENT_PORT         = 2379
 	DEFAULT_MDS_LISTEN_PORT                 = 6700
