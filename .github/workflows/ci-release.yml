@@ -1,0 +1,54 @@
+name: Release Artifact
+
+on:
+  push:
+    branches: [ "master" ]
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: dingodatabase/dingo-base:rocky9
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Record event type
+        run: |
+          echo "hello dingo eureka" > event.txt
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "EVENT_TYPE=PR" >> $GITHUB_ENV
+          elif [ "${{ github.event_name }}" == "push" ]; then
+            if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+              echo "EVENT_TYPE=TAG" >> $GITHUB_ENV
+              tagInfo=echo "${{ github.ref }}" | sed 's/refs\/tags\///'
+              echo "TAG_NAME=$tagInfo" >> $GITHUB_ENV
+            else
+              echo "EVENT_TYPE=PUSH" >> $GITHUB_ENV
+              echo "TAG_NAME=latest" >> $GITHUB_ENV
+            fi
+          fi
+      
+      - name: Set Safe Dir
+        run: git config --global --add safe.directory $PWD
+
+      - name: Sync submodules
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive
+  
+      - name: Build binary
+        run: |
+          make build
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: ${{ github.event_name == 'push'}}
+        with:
+          files: |
+            bin/dingoadm
+          name: dingoadm
+          tag_name: ${{ env.TAG_NAME }}
+          token: ${{ secrets.GH_TOKEN }}
