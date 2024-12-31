@@ -26,14 +26,14 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/dingodb/curveadm/cli/cli"
-	comm "github.com/dingodb/curveadm/internal/common"
-	"github.com/dingodb/curveadm/internal/errno"
-	"github.com/dingodb/curveadm/internal/task/context"
-	"github.com/dingodb/curveadm/internal/task/step"
-	"github.com/dingodb/curveadm/internal/task/task"
-	tui "github.com/dingodb/curveadm/internal/tui/common"
-	"github.com/dingodb/curveadm/pkg/module"
+	"github.com/dingodb/dingoadm/cli/cli"
+	comm "github.com/dingodb/dingoadm/internal/common"
+	"github.com/dingodb/dingoadm/internal/errno"
+	"github.com/dingodb/dingoadm/internal/task/context"
+	"github.com/dingodb/dingoadm/internal/task/step"
+	"github.com/dingodb/dingoadm/internal/task/task"
+	tui "github.com/dingodb/dingoadm/internal/tui/common"
+	"github.com/dingodb/dingoadm/pkg/module"
 )
 
 const (

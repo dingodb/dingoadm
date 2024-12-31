@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/dingodb/curveadm/internal/configure"
+	"github.com/dingodb/dingoadm/internal/configure"
 	"github.com/stretchr/testify/assert"
 )
 

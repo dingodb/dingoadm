@@ -27,10 +27,10 @@ package common
 import (
 	"fmt"
 
-	"github.com/dingodb/curveadm/cli/cli"
-	"github.com/dingodb/curveadm/internal/configure/topology"
-	"github.com/dingodb/curveadm/internal/task/step"
-	"github.com/dingodb/curveadm/internal/task/task"
+	"github.com/dingodb/dingoadm/cli/cli"
+	"github.com/dingodb/dingoadm/internal/configure/topology"
+	"github.com/dingodb/dingoadm/internal/task/step"
+	"github.com/dingodb/dingoadm/internal/task/task"
 )
 
 func NewPullImageTask(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (*task.Task, error) {

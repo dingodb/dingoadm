@@ -25,8 +25,8 @@
 package playbook
 
 import (
-	"github.com/dingodb/curveadm/cli/cli"
-	"github.com/dingodb/curveadm/internal/tasks"
+	"github.com/dingodb/dingoadm/cli/cli"
+	"github.com/dingodb/dingoadm/internal/tasks"
 )
 
 /*

@@ -30,7 +30,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/dingodb/curveadm/internal/utils"
+	"github.com/dingodb/dingoadm/internal/utils"
 )
 
 type DecorateMessage struct {

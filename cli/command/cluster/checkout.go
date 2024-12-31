@@ -25,10 +25,10 @@
 package cluster
 
 import (
-	"github.com/dingodb/curveadm/cli/cli"
-	"github.com/dingodb/curveadm/internal/errno"
-	cliutil "github.com/dingodb/curveadm/internal/utils"
-	log "github.com/dingodb/curveadm/pkg/log/glg"
+	"github.com/dingodb/dingoadm/cli/cli"
+	"github.com/dingodb/dingoadm/internal/errno"
+	cliutil "github.com/dingodb/dingoadm/internal/utils"
+	log "github.com/dingodb/dingoadm/pkg/log/glg"
 	"github.com/spf13/cobra"
 )
 

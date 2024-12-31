@@ -28,7 +28,7 @@ import (
 	"fmt"
 	"strings"
 
-	tui "github.com/dingodb/curveadm/internal/tui/common"
+	tui "github.com/dingodb/dingoadm/internal/tui/common"
 	"github.com/fatih/color"
 )
 

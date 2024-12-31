@@ -1,4 +1,4 @@
-module github.com/dingodb/curveadm
+module github.com/dingodb/dingoadm
 
 go 1.22
 

@@ -25,11 +25,11 @@
 package hosts
 
 import (
-	"github.com/dingodb/curveadm/cli/cli"
-	"github.com/dingodb/curveadm/internal/configure/hosts"
-	"github.com/dingodb/curveadm/internal/errno"
-	tui "github.com/dingodb/curveadm/internal/tui/common"
-	"github.com/dingodb/curveadm/internal/utils"
+	"github.com/dingodb/dingoadm/cli/cli"
+	"github.com/dingodb/dingoadm/internal/configure/hosts"
+	"github.com/dingodb/dingoadm/internal/errno"
+	tui "github.com/dingodb/dingoadm/internal/tui/common"
+	"github.com/dingodb/dingoadm/internal/utils"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )

@@ -27,9 +27,9 @@ package task
 import (
 	"errors"
 
-	"github.com/dingodb/curveadm/internal/errno"
-	"github.com/dingodb/curveadm/internal/task/context"
-	"github.com/dingodb/curveadm/pkg/module"
+	"github.com/dingodb/dingoadm/internal/errno"
+	"github.com/dingodb/dingoadm/internal/task/context"
+	"github.com/dingodb/dingoadm/pkg/module"
 	"github.com/google/uuid"
 )
 

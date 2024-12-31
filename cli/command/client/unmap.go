@@ -23,12 +23,12 @@
 package client
 
 import (
-	"github.com/dingodb/curveadm/cli/cli"
-	comm "github.com/dingodb/curveadm/internal/common"
-	"github.com/dingodb/curveadm/internal/configure"
-	"github.com/dingodb/curveadm/internal/playbook"
-	"github.com/dingodb/curveadm/internal/task/task/bs"
-	"github.com/dingodb/curveadm/internal/utils"
+	"github.com/dingodb/dingoadm/cli/cli"
+	comm "github.com/dingodb/dingoadm/internal/common"
+	"github.com/dingodb/dingoadm/internal/configure"
+	"github.com/dingodb/dingoadm/internal/playbook"
+	"github.com/dingodb/dingoadm/internal/task/task/bs"
+	"github.com/dingodb/dingoadm/internal/utils"
 	"github.com/spf13/cobra"
 )
 

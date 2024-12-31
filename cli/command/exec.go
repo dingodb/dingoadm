@@ -25,10 +25,10 @@ package command
 import (
 	"strings"
 
-	"github.com/dingodb/curveadm/cli/cli"
-	"github.com/dingodb/curveadm/internal/configure/topology"
-	"github.com/dingodb/curveadm/internal/errno"
-	"github.com/dingodb/curveadm/internal/tools"
+	"github.com/dingodb/dingoadm/cli/cli"
+	"github.com/dingodb/dingoadm/internal/configure/topology"
+	"github.com/dingodb/dingoadm/internal/errno"
+	"github.com/dingodb/dingoadm/internal/tools"
 	"github.com/spf13/cobra"
 )
 

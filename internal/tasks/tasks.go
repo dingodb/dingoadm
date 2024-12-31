@@ -29,8 +29,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/dingodb/curveadm/internal/task/task"
-	tui "github.com/dingodb/curveadm/internal/tui/common"
+	"github.com/dingodb/dingoadm/internal/task/task"
+	tui "github.com/dingodb/dingoadm/internal/tui/common"
 	"github.com/fatih/color"
 	"github.com/vbauerster/mpb/v7"
 	"github.com/vbauerster/mpb/v7/decor"

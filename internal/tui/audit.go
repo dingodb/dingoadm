@@ -25,10 +25,10 @@ package tui
 import (
 	"strconv"
 
-	comm "github.com/dingodb/curveadm/internal/common"
-	"github.com/dingodb/curveadm/internal/storage"
-	tuicommon "github.com/dingodb/curveadm/internal/tui/common"
-	"github.com/dingodb/curveadm/internal/utils"
+	comm "github.com/dingodb/dingoadm/internal/common"
+	"github.com/dingodb/dingoadm/internal/storage"
+	tuicommon "github.com/dingodb/dingoadm/internal/tui/common"
+	"github.com/dingodb/dingoadm/internal/utils"
 	"github.com/fatih/color"
 )
 

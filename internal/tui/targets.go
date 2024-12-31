@@ -25,9 +25,9 @@ package tui
 import (
 	"sort"
 
-	task "github.com/dingodb/curveadm/internal/task/task/bs"
-	"github.com/dingodb/curveadm/internal/tui/common"
-	tuicommon "github.com/dingodb/curveadm/internal/tui/common"
+	task "github.com/dingodb/dingoadm/internal/task/task/bs"
+	"github.com/dingodb/dingoadm/internal/tui/common"
+	tuicommon "github.com/dingodb/dingoadm/internal/tui/common"
 )
 
 func sortTargets(targets []task.Target) {

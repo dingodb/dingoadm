@@ -23,15 +23,15 @@
 package monitor
 
 import (
-	"github.com/dingodb/curveadm/cli/cli"
-	"github.com/dingodb/curveadm/internal/configure"
-	"github.com/dingodb/curveadm/internal/configure/topology"
-	"github.com/dingodb/curveadm/internal/errno"
-	"github.com/dingodb/curveadm/internal/playbook"
-	"github.com/dingodb/curveadm/internal/storage"
-	"github.com/dingodb/curveadm/internal/tasks"
-	"github.com/dingodb/curveadm/internal/utils"
-	cliutil "github.com/dingodb/curveadm/internal/utils"
+	"github.com/dingodb/dingoadm/cli/cli"
+	"github.com/dingodb/dingoadm/internal/configure"
+	"github.com/dingodb/dingoadm/internal/configure/topology"
+	"github.com/dingodb/dingoadm/internal/errno"
+	"github.com/dingodb/dingoadm/internal/playbook"
+	"github.com/dingodb/dingoadm/internal/storage"
+	"github.com/dingodb/dingoadm/internal/tasks"
+	"github.com/dingodb/dingoadm/internal/utils"
+	cliutil "github.com/dingodb/dingoadm/internal/utils"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )

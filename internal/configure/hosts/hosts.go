@@ -28,10 +28,10 @@ import (
 	"bytes"
 	"strings"
 
-	"github.com/dingodb/curveadm/internal/build"
-	"github.com/dingodb/curveadm/internal/configure/os"
-	"github.com/dingodb/curveadm/internal/errno"
-	"github.com/dingodb/curveadm/internal/utils"
+	"github.com/dingodb/dingoadm/internal/build"
+	"github.com/dingodb/dingoadm/internal/configure/os"
+	"github.com/dingodb/dingoadm/internal/errno"
+	"github.com/dingodb/dingoadm/internal/utils"
 	"github.com/spf13/viper"
 )
 

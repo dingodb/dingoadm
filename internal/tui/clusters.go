@@ -27,9 +27,9 @@ package tui
 import (
 	"strconv"
 
-	"github.com/dingodb/curveadm/internal/storage"
-	"github.com/dingodb/curveadm/internal/tui/common"
-	tuicommon "github.com/dingodb/curveadm/internal/tui/common"
+	"github.com/dingodb/dingoadm/internal/storage"
+	"github.com/dingodb/dingoadm/internal/tui/common"
+	tuicommon "github.com/dingodb/dingoadm/internal/tui/common"
 	"github.com/fatih/color"
 )
 

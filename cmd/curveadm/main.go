@@ -23,7 +23,7 @@
 package main
 
 import (
-	"github.com/dingodb/curveadm/cli"
+	"github.com/dingodb/dingoadm/cli"
 )
 
 func main() {
