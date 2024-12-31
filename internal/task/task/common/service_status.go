@@ -43,7 +43,7 @@ import (
 const (
 	SIGNATURE_LEADER          = "leader"
 	URL_CURVEBS_METRIC_LEADER = "http://%s:%d/vars/mds_status?console=1"
-	URL_CURVEFS_METRIC_LEADER = "http://%s:%d/vars/curvefs_mds_status?console=1"
+	URL_CURVEFS_METRIC_LEADER = "http://%s:%d/vars/dingofs_mds_status?console=1"
 	COMMAND_CURL_MDS          = "curl %s --connect-timeout 1 --max-time 3"
 )
 

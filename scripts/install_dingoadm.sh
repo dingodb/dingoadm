@@ -54,7 +54,7 @@ setup() {
 log_level = error
 sudo_alias = "sudo"
 timeout = 300
-auto_upgrade = true
+auto_upgrade = false
 
 [ssh_connections]
 retries = 3
