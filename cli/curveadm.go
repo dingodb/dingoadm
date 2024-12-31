@@ -27,8 +27,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/dingodb/curveadm/cli/cli"
-	"github.com/dingodb/curveadm/cli/command"
+	"github.com/dingodb/dingoadm/cli/cli"
+	"github.com/dingodb/dingoadm/cli/command"
 )
 
 func Execute() {

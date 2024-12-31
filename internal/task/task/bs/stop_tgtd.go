@@ -25,11 +25,11 @@ package bs
 import (
 	"fmt"
 
-	"github.com/dingodb/curveadm/cli/cli"
-	comm "github.com/dingodb/curveadm/internal/common"
-	"github.com/dingodb/curveadm/internal/task/context"
-	"github.com/dingodb/curveadm/internal/task/step"
-	"github.com/dingodb/curveadm/internal/task/task"
+	"github.com/dingodb/dingoadm/cli/cli"
+	comm "github.com/dingodb/dingoadm/internal/common"
+	"github.com/dingodb/dingoadm/internal/task/context"
+	"github.com/dingodb/dingoadm/internal/task/step"
+	"github.com/dingodb/dingoadm/internal/task/task"
 )
 
 func checkTargetDaemonExist(containerId *string) step.LambdaType {

@@ -1,8 +1,9 @@
 package client
 
 import (
-	"github.com/dingodb/curveadm/cli/cli"
 	"testing"
+
+	"github.com/dingodb/dingoadm/cli/cli"
 )
 
 func TestMountConfig(t *testing.T) {

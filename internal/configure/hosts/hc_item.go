@@ -27,8 +27,8 @@ package hosts
 import (
 	"fmt"
 
-	comm "github.com/dingodb/curveadm/internal/configure/common"
-	"github.com/dingodb/curveadm/internal/utils"
+	comm "github.com/dingodb/dingoadm/internal/configure/common"
+	"github.com/dingodb/dingoadm/internal/utils"
 )
 
 const (

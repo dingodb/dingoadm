@@ -29,9 +29,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/dingodb/curveadm/internal/errno"
-	"github.com/dingodb/curveadm/internal/utils"
-	"github.com/dingodb/curveadm/pkg/variable"
+	"github.com/dingodb/dingoadm/internal/errno"
+	"github.com/dingodb/dingoadm/internal/utils"
+	"github.com/dingodb/dingoadm/pkg/variable"
 	"github.com/google/uuid"
 )
 

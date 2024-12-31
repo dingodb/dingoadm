@@ -24,19 +24,20 @@ package gateway
 
 import (
 	"fmt"
-	"github.com/dingodb/curveadm/internal/configure"
 	"strings"
 
-	"github.com/dingodb/curveadm/cli/cli"
-	comm "github.com/dingodb/curveadm/internal/common"
-	"github.com/dingodb/curveadm/internal/configure/topology"
-	"github.com/dingodb/curveadm/internal/errno"
-	"github.com/dingodb/curveadm/internal/task/context"
-	"github.com/dingodb/curveadm/internal/task/scripts"
-	"github.com/dingodb/curveadm/internal/task/step"
-	"github.com/dingodb/curveadm/internal/task/task"
-	"github.com/dingodb/curveadm/internal/task/task/checker"
-	"github.com/dingodb/curveadm/internal/utils"
+	"github.com/dingodb/dingoadm/internal/configure"
+
+	"github.com/dingodb/dingoadm/cli/cli"
+	comm "github.com/dingodb/dingoadm/internal/common"
+	"github.com/dingodb/dingoadm/internal/configure/topology"
+	"github.com/dingodb/dingoadm/internal/errno"
+	"github.com/dingodb/dingoadm/internal/task/context"
+	"github.com/dingodb/dingoadm/internal/task/scripts"
+	"github.com/dingodb/dingoadm/internal/task/step"
+	"github.com/dingodb/dingoadm/internal/task/task"
+	"github.com/dingodb/dingoadm/internal/task/task/checker"
+	"github.com/dingodb/dingoadm/internal/utils"
 )
 
 func NewStartGatewayTask(curveadm *cli.CurveAdm, gc *configure.GatewayConfig) (*task.Task, error) {

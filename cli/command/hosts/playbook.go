@@ -29,11 +29,11 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/dingodb/curveadm/cli/cli"
-	"github.com/dingodb/curveadm/internal/configure/hosts"
-	"github.com/dingodb/curveadm/internal/tools"
-	"github.com/dingodb/curveadm/internal/utils"
-	cliutil "github.com/dingodb/curveadm/internal/utils"
+	"github.com/dingodb/dingoadm/cli/cli"
+	"github.com/dingodb/dingoadm/internal/configure/hosts"
+	"github.com/dingodb/dingoadm/internal/tools"
+	"github.com/dingodb/dingoadm/internal/utils"
+	cliutil "github.com/dingodb/dingoadm/internal/utils"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )

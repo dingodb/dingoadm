@@ -25,10 +25,10 @@ package cluster
 import (
 	"fmt"
 
-	"github.com/dingodb/curveadm/cli/cli"
-	"github.com/dingodb/curveadm/internal/storage"
-	"github.com/dingodb/curveadm/internal/utils"
-	"github.com/dingodb/curveadm/pkg/log/zaplog"
+	"github.com/dingodb/dingoadm/cli/cli"
+	"github.com/dingodb/dingoadm/internal/storage"
+	"github.com/dingodb/dingoadm/internal/utils"
+	"github.com/dingodb/dingoadm/pkg/log/zaplog"
 	"github.com/spf13/cobra"
 )
 

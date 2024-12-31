@@ -25,14 +25,14 @@
 package command
 
 import (
-	"github.com/dingodb/curveadm/cli/cli"
-	comm "github.com/dingodb/curveadm/internal/common"
-	"github.com/dingodb/curveadm/internal/configure/topology"
-	"github.com/dingodb/curveadm/internal/errno"
-	"github.com/dingodb/curveadm/internal/playbook"
-	tui "github.com/dingodb/curveadm/internal/tui/common"
-	cliutil "github.com/dingodb/curveadm/internal/utils"
-	utils "github.com/dingodb/curveadm/internal/utils"
+	"github.com/dingodb/dingoadm/cli/cli"
+	comm "github.com/dingodb/dingoadm/internal/common"
+	"github.com/dingodb/dingoadm/internal/configure/topology"
+	"github.com/dingodb/dingoadm/internal/errno"
+	"github.com/dingodb/dingoadm/internal/playbook"
+	tui "github.com/dingodb/dingoadm/internal/tui/common"
+	cliutil "github.com/dingodb/dingoadm/internal/utils"
+	utils "github.com/dingodb/dingoadm/internal/utils"
 	"github.com/spf13/cobra"
 )
 

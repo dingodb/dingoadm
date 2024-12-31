@@ -23,11 +23,11 @@
 package playbook
 
 import (
-	"github.com/dingodb/curveadm/internal/build"
-	"github.com/dingodb/curveadm/internal/configure"
-	"github.com/dingodb/curveadm/internal/configure/hosts"
-	"github.com/dingodb/curveadm/internal/configure/topology"
-	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/dingoadm/internal/build"
+	"github.com/dingodb/dingoadm/internal/configure"
+	"github.com/dingodb/dingoadm/internal/configure/hosts"
+	"github.com/dingodb/dingoadm/internal/configure/topology"
+	"github.com/dingodb/dingoadm/internal/errno"
 )
 
 const (

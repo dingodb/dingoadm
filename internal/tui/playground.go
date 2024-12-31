@@ -25,10 +25,10 @@ package tui
 import (
 	"sort"
 
-	comm "github.com/dingodb/curveadm/internal/common"
-	pg "github.com/dingodb/curveadm/internal/task/task/playground"
-	"github.com/dingodb/curveadm/internal/tui/common"
-	tuicommon "github.com/dingodb/curveadm/internal/tui/common"
+	comm "github.com/dingodb/dingoadm/internal/common"
+	pg "github.com/dingodb/dingoadm/internal/task/task/playground"
+	"github.com/dingodb/dingoadm/internal/tui/common"
+	tuicommon "github.com/dingodb/dingoadm/internal/tui/common"
 	"github.com/fatih/color"
 )
 

@@ -27,8 +27,8 @@ package topology
 import (
 	"bytes"
 
-	"github.com/dingodb/curveadm/internal/errno"
-	"github.com/dingodb/curveadm/internal/utils"
+	"github.com/dingodb/dingoadm/internal/errno"
+	"github.com/dingodb/dingoadm/internal/utils"
 	"github.com/spf13/viper"
 )
 

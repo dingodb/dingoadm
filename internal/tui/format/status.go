@@ -25,8 +25,8 @@ package format
 import (
 	"sort"
 
-	"github.com/dingodb/curveadm/internal/task/task/bs"
-	tui "github.com/dingodb/curveadm/internal/tui/common"
+	"github.com/dingodb/dingoadm/internal/task/task/bs"
+	tui "github.com/dingodb/dingoadm/internal/tui/common"
 )
 
 func sortStatues(statuses []bs.FormatStatus) {

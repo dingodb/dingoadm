@@ -25,7 +25,7 @@
 package topology
 
 import (
-	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/dingoadm/internal/errno"
 	"github.com/mitchellh/hashstructure/v2"
 )
 

@@ -29,21 +29,21 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/dingodb/curveadm/cli/cli"
-	comm "github.com/dingodb/curveadm/internal/common"
-	"github.com/dingodb/curveadm/internal/configure/topology"
-	"github.com/dingodb/curveadm/internal/task/context"
-	"github.com/dingodb/curveadm/internal/task/step"
-	"github.com/dingodb/curveadm/internal/task/task"
-	tui "github.com/dingodb/curveadm/internal/tui/common"
-	"github.com/dingodb/curveadm/internal/utils"
-	"github.com/dingodb/curveadm/pkg/module"
+	"github.com/dingodb/dingoadm/cli/cli"
+	comm "github.com/dingodb/dingoadm/internal/common"
+	"github.com/dingodb/dingoadm/internal/configure/topology"
+	"github.com/dingodb/dingoadm/internal/task/context"
+	"github.com/dingodb/dingoadm/internal/task/step"
+	"github.com/dingodb/dingoadm/internal/task/task"
+	tui "github.com/dingodb/dingoadm/internal/tui/common"
+	"github.com/dingodb/dingoadm/internal/utils"
+	"github.com/dingodb/dingoadm/pkg/module"
 )
 
 const (
 	SIGNATURE_LEADER          = "leader"
 	URL_CURVEBS_METRIC_LEADER = "http://%s:%d/vars/mds_status?console=1"
-	URL_CURVEFS_METRIC_LEADER = "http://%s:%d/vars/dingofs_mds_status?console=1"
+	URL_DINGOFS_METRIC_LEADER = "http://%s:%d/vars/dingofs_mds_status?console=1"
 	COMMAND_CURL_MDS          = "curl %s --connect-timeout 1 --max-time 3"
 )
 
@@ -182,7 +182,7 @@ func (s *step2GetLeader) Execute(ctx *context.Context) error {
 	}
 
 	url := utils.Choose(dc.GetKind() == topology.KIND_CURVEBS,
-		URL_CURVEBS_METRIC_LEADER, URL_CURVEFS_METRIC_LEADER)
+		URL_CURVEBS_METRIC_LEADER, URL_DINGOFS_METRIC_LEADER)
 	url = fmt.Sprintf(url, dc.GetListenIp(), dc.GetListenDummyPort())
 	command := fmt.Sprintf(COMMAND_CURL_MDS, url)
 	cmd := ctx.Module().DockerCli().ContainerExec(s.containerId, command)

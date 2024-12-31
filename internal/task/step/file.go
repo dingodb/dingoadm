@@ -32,12 +32,12 @@ import (
 	"regexp"
 	"strings"
 
-	comm "github.com/dingodb/curveadm/internal/common"
-	"github.com/dingodb/curveadm/internal/errno"
-	"github.com/dingodb/curveadm/internal/task/context"
-	"github.com/dingodb/curveadm/internal/task/task"
-	"github.com/dingodb/curveadm/internal/utils"
-	"github.com/dingodb/curveadm/pkg/module"
+	comm "github.com/dingodb/dingoadm/internal/common"
+	"github.com/dingodb/dingoadm/internal/errno"
+	"github.com/dingodb/dingoadm/internal/task/context"
+	"github.com/dingodb/dingoadm/internal/task/task"
+	"github.com/dingodb/dingoadm/internal/utils"
+	"github.com/dingodb/dingoadm/pkg/module"
 )
 
 const (

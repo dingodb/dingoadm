@@ -25,9 +25,9 @@ package service
 import (
 	"sort"
 
-	comm "github.com/dingodb/curveadm/internal/common"
-	task "github.com/dingodb/curveadm/internal/task/task/common"
-	tui "github.com/dingodb/curveadm/internal/tui/common"
+	comm "github.com/dingodb/dingoadm/internal/common"
+	task "github.com/dingodb/dingoadm/internal/task/task/common"
+	tui "github.com/dingodb/dingoadm/internal/tui/common"
 	"github.com/fatih/color"
 )
 

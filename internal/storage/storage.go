@@ -27,7 +27,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/dingodb/curveadm/internal/storage/driver"
+	"github.com/dingodb/dingoadm/internal/storage/driver"
 	_ "github.com/mattn/go-sqlite3"
 )
 

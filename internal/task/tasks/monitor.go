@@ -25,7 +25,7 @@ package tasks
 import (
 	"sync"
 
-	"github.com/dingodb/curveadm/internal/task/task"
+	"github.com/dingodb/dingoadm/internal/task/task"
 )
 
 const (

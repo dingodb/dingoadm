@@ -23,11 +23,11 @@
 package playground
 
 import (
-	"github.com/dingodb/curveadm/cli/cli"
-	"github.com/dingodb/curveadm/internal/errno"
-	"github.com/dingodb/curveadm/internal/playbook"
-	"github.com/dingodb/curveadm/internal/storage"
-	cliutil "github.com/dingodb/curveadm/internal/utils"
+	"github.com/dingodb/dingoadm/cli/cli"
+	"github.com/dingodb/dingoadm/internal/errno"
+	"github.com/dingodb/dingoadm/internal/playbook"
+	"github.com/dingodb/dingoadm/internal/storage"
+	cliutil "github.com/dingodb/dingoadm/internal/utils"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )

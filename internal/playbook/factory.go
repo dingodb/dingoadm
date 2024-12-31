@@ -25,16 +25,16 @@
 package playbook
 
 import (
-	"github.com/dingodb/curveadm/internal/errno"
-	"github.com/dingodb/curveadm/internal/task/task"
-	"github.com/dingodb/curveadm/internal/task/task/bs"
-	"github.com/dingodb/curveadm/internal/task/task/checker"
-	comm "github.com/dingodb/curveadm/internal/task/task/common"
-	"github.com/dingodb/curveadm/internal/task/task/fs"
-	"github.com/dingodb/curveadm/internal/task/task/gateway"
-	"github.com/dingodb/curveadm/internal/task/task/monitor"
-	pg "github.com/dingodb/curveadm/internal/task/task/playground"
-	"github.com/dingodb/curveadm/internal/tasks"
+	"github.com/dingodb/dingoadm/internal/errno"
+	"github.com/dingodb/dingoadm/internal/task/task"
+	"github.com/dingodb/dingoadm/internal/task/task/bs"
+	"github.com/dingodb/dingoadm/internal/task/task/checker"
+	comm "github.com/dingodb/dingoadm/internal/task/task/common"
+	"github.com/dingodb/dingoadm/internal/task/task/fs"
+	"github.com/dingodb/dingoadm/internal/task/task/gateway"
+	"github.com/dingodb/dingoadm/internal/task/task/monitor"
+	pg "github.com/dingodb/dingoadm/internal/task/task/playground"
+	"github.com/dingodb/dingoadm/internal/tasks"
 )
 
 const (

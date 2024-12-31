@@ -27,20 +27,20 @@ package command
 import (
 	"fmt"
 
-	"github.com/dingodb/curveadm/cli/command/gateway"
+	"github.com/dingodb/dingoadm/cli/command/gateway"
 
-	"github.com/dingodb/curveadm/cli/cli"
-	"github.com/dingodb/curveadm/cli/command/client"
-	"github.com/dingodb/curveadm/cli/command/cluster"
-	"github.com/dingodb/curveadm/cli/command/config"
-	"github.com/dingodb/curveadm/cli/command/hosts"
-	"github.com/dingodb/curveadm/cli/command/monitor"
-	"github.com/dingodb/curveadm/cli/command/pfs"
-	"github.com/dingodb/curveadm/cli/command/playground"
-	"github.com/dingodb/curveadm/cli/command/target"
-	"github.com/dingodb/curveadm/internal/errno"
-	tools "github.com/dingodb/curveadm/internal/tools/upgrade"
-	cliutil "github.com/dingodb/curveadm/internal/utils"
+	"github.com/dingodb/dingoadm/cli/cli"
+	"github.com/dingodb/dingoadm/cli/command/client"
+	"github.com/dingodb/dingoadm/cli/command/cluster"
+	"github.com/dingodb/dingoadm/cli/command/config"
+	"github.com/dingodb/dingoadm/cli/command/hosts"
+	"github.com/dingodb/dingoadm/cli/command/monitor"
+	"github.com/dingodb/dingoadm/cli/command/pfs"
+	"github.com/dingodb/dingoadm/cli/command/playground"
+	"github.com/dingodb/dingoadm/cli/command/target"
+	"github.com/dingodb/dingoadm/internal/errno"
+	tools "github.com/dingodb/dingoadm/internal/tools/upgrade"
+	cliutil "github.com/dingodb/dingoadm/internal/utils"
 	"github.com/spf13/cobra"
 )
 

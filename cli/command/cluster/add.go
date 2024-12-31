@@ -25,13 +25,13 @@
 package cluster
 
 import (
-	"github.com/dingodb/curveadm/cli/cli"
-	comm "github.com/dingodb/curveadm/internal/common"
-	"github.com/dingodb/curveadm/internal/configure/topology"
-	"github.com/dingodb/curveadm/internal/errno"
-	"github.com/dingodb/curveadm/internal/playbook"
-	"github.com/dingodb/curveadm/internal/utils"
-	log "github.com/dingodb/curveadm/pkg/log/glg"
+	"github.com/dingodb/dingoadm/cli/cli"
+	comm "github.com/dingodb/dingoadm/internal/common"
+	"github.com/dingodb/dingoadm/internal/configure/topology"
+	"github.com/dingodb/dingoadm/internal/errno"
+	"github.com/dingodb/dingoadm/internal/playbook"
+	"github.com/dingodb/dingoadm/internal/utils"
+	log "github.com/dingodb/dingoadm/pkg/log/glg"
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 )

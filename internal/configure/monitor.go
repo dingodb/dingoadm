@@ -28,11 +28,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/dingodb/curveadm/cli/cli"
-	"github.com/dingodb/curveadm/internal/common"
-	"github.com/dingodb/curveadm/internal/configure/hosts"
-	"github.com/dingodb/curveadm/internal/configure/topology"
-	"github.com/dingodb/curveadm/internal/errno"
+	"github.com/dingodb/dingoadm/cli/cli"
+	"github.com/dingodb/dingoadm/internal/common"
+	"github.com/dingodb/dingoadm/internal/configure/hosts"
+	"github.com/dingodb/dingoadm/internal/configure/topology"
+	"github.com/dingodb/dingoadm/internal/errno"
 	"github.com/spf13/viper"
 )
 

@@ -33,7 +33,7 @@ import (
 	"text/template"
 	"time"
 
-	log "github.com/dingodb/curveadm/pkg/log/glg"
+	log "github.com/dingodb/dingoadm/pkg/log/glg"
 	"github.com/melbahja/goph"
 )
 

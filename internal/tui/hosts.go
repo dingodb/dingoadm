@@ -28,10 +28,10 @@ import (
 	"strconv"
 	"strings"
 
-	configure "github.com/dingodb/curveadm/internal/configure/hosts"
-	"github.com/dingodb/curveadm/internal/tui/common"
-	tuicommon "github.com/dingodb/curveadm/internal/tui/common"
-	"github.com/dingodb/curveadm/internal/utils"
+	configure "github.com/dingodb/dingoadm/internal/configure/hosts"
+	"github.com/dingodb/dingoadm/internal/tui/common"
+	tuicommon "github.com/dingodb/dingoadm/internal/tui/common"
+	"github.com/dingodb/dingoadm/internal/utils"
 )
 
 const (
