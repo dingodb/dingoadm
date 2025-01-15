@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,7 +27,7 @@ package hosts
 
 import (
 	comm "github.com/dingodb/dingoadm/internal/configure/common"
-	"github.com/dingodb/dingoadm/internal/configure/curveadm"
+	"github.com/dingodb/dingoadm/internal/configure/dingoadm"
 	"github.com/dingodb/dingoadm/internal/utils"
 	"github.com/dingodb/dingoadm/pkg/module"
 )
@@ -105,7 +106,7 @@ func (hc *HostConfig) GetSSHConfig() *module.SSHConfig {
 		BecomeMethod:      "sudo",
 		BecomeFlags:       "-iu",
 		BecomeUser:        hc.GetBecomeUser(),
-		ConnectTimeoutSec: curveadm.GlobalCurveAdmConfig.GetSSHTimeout(),
-		ConnectRetries:    curveadm.GlobalCurveAdmConfig.GetSSHRetries(),
+		ConnectTimeoutSec: dingoadm.GlobalCurveAdmConfig.GetSSHTimeout(),
+		ConnectRetries:    dingoadm.GlobalCurveAdmConfig.GetSSHRetries(),
 	}
 }

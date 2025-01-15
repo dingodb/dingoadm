@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -44,7 +45,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var curveadmExample = `Examples:
+var dingoadmExample = `Examples:
   $ dingoadm playground run --kind dingofs  # Run a dingoFS playground quickly
   $ dingoadm cluster add c1                 # Add a cluster named 'c1'
   $ dingoadm deploy                         # Deploy current cluster
@@ -58,68 +59,68 @@ type rootOptions struct {
 	upgrade bool
 }
 
-func addSubCommands(cmd *cobra.Command, curveadm *cli.CurveAdm) {
+func addSubCommands(cmd *cobra.Command, dingoadm *cli.DingoAdm) {
 	cmd.AddCommand(
-		client.NewClientCommand(curveadm),         // curveadm client
-		cluster.NewClusterCommand(curveadm),       // curveadm cluster ...
-		config.NewConfigCommand(curveadm),         // curveadm config ...
-		hosts.NewHostsCommand(curveadm),           // curveadm hosts ...
-		playground.NewPlaygroundCommand(curveadm), // curveadm playground ...
-		target.NewTargetCommand(curveadm),         // curveadm target ...
-		pfs.NewPFSCommand(curveadm),               // curveadm pfs ...
-		monitor.NewMonitorCommand(curveadm),       // curveadm monitor ...
-		gateway.NewGatewayCommand(curveadm),       // curveadm gateway ...
+		client.NewClientCommand(dingoadm),         // dingoadm client
+		cluster.NewClusterCommand(dingoadm),       // dingoadm cluster ...
+		config.NewConfigCommand(dingoadm),         // dingoadm config ...
+		hosts.NewHostsCommand(dingoadm),           // dingoadm hosts ...
+		playground.NewPlaygroundCommand(dingoadm), // dingoadm playground ...
+		target.NewTargetCommand(dingoadm),         // dingoadm target ...
+		pfs.NewPFSCommand(dingoadm),               // dingoadm pfs ...
+		monitor.NewMonitorCommand(dingoadm),       // dingoadm monitor ...
+		gateway.NewGatewayCommand(dingoadm),       // dingoadm gateway ...
 
-		NewAuditCommand(curveadm),      // curveadm audit
-		NewCleanCommand(curveadm),      // curveadm clean
-		NewCompletionCommand(curveadm), // curveadm completion
-		NewDeployCommand(curveadm),     // curveadm deploy
-		NewEnterCommand(curveadm),      // curveadm enter
-		NewExecCommand(curveadm),       // curveadm exec
-		NewFormatCommand(curveadm),     // curveadm format
-		NewMigrateCommand(curveadm),    // curveadm migrate
-		NewPrecheckCommand(curveadm),   // curveadm precheck
-		NewReloadCommand(curveadm),     // curveadm reload
-		NewRestartCommand(curveadm),    // curveadm restart
-		NewScaleOutCommand(curveadm),   // curveadm scale-out
-		NewStartCommand(curveadm),      // curveadm start
-		NewStatusCommand(curveadm),     // curveadm status
-		NewStopCommand(curveadm),       // curveadm stop
-		NewSupportCommand(curveadm),    // curveadm support
-		NewUpgradeCommand(curveadm),    // curveadm upgrade
+		NewAuditCommand(dingoadm),      // dingoadm audit
+		NewCleanCommand(dingoadm),      // dingoadm clean
+		NewCompletionCommand(dingoadm), // dingoadm completion
+		NewDeployCommand(dingoadm),     // dingoadm deploy
+		NewEnterCommand(dingoadm),      // dingoadm enter
+		NewExecCommand(dingoadm),       // dingoadm exec
+		NewFormatCommand(dingoadm),     // dingoadm format
+		NewMigrateCommand(dingoadm),    // dingoadm migrate
+		NewPrecheckCommand(dingoadm),   // dingoadm precheck
+		NewReloadCommand(dingoadm),     // dingoadm reload
+		NewRestartCommand(dingoadm),    // dingoadm restart
+		NewScaleOutCommand(dingoadm),   // dingoadm scale-out
+		NewStartCommand(dingoadm),      // dingoadm start
+		NewStatusCommand(dingoadm),     // dingoadm status
+		NewStopCommand(dingoadm),       // dingoadm stop
+		NewSupportCommand(dingoadm),    // dingoadm support
+		NewUpgradeCommand(dingoadm),    // dingoadm upgrade
 		// commonly used shorthands
-		hosts.NewSSHCommand(curveadm),      // curveadm ssh
-		hosts.NewPlaybookCommand(curveadm), // curveadm playbook
-		client.NewMapCommand(curveadm),     // curveadm map
-		client.NewMountCommand(curveadm),   // curveadm mount
-		client.NewUnmapCommand(curveadm),   // curveadm unmap
-		client.NewUmountCommand(curveadm),  // curveadm umount
+		hosts.NewSSHCommand(dingoadm),      // dingoadm ssh
+		hosts.NewPlaybookCommand(dingoadm), // dingoadm playbook
+		client.NewMapCommand(dingoadm),     // dingoadm map
+		client.NewMountCommand(dingoadm),   // dingoadm mount
+		client.NewUnmapCommand(dingoadm),   // dingoadm unmap
+		client.NewUmountCommand(dingoadm),  // dingoadm umount
 	)
 }
 
-func setupRootCommand(cmd *cobra.Command, curveadm *cli.CurveAdm) {
+func setupRootCommand(cmd *cobra.Command, dingoadm *cli.DingoAdm) {
 	cmd.SetVersionTemplate("{{.Version}}\n")
 	cliutil.SetFlagErrorFunc(cmd)
 	cliutil.SetHelpTemplate(cmd)
 	cliutil.SetUsageTemplate(cmd)
-	cliutil.SetErr(cmd, curveadm)
+	cliutil.SetErr(cmd, dingoadm)
 }
 
-func NewCurveAdmCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewCurveAdmCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options rootOptions
 
 	cmd := &cobra.Command{
 		Use:     "dingoadm [OPTIONS] COMMAND [ARGS...]",
 		Short:   "Deploy and manage dingoFS cluster",
 		Version: fmt.Sprintf("dingoadm v%s, build %s", cli.Version, cli.CommitId),
-		Example: curveadmExample,
+		Example: dingoadmExample,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if options.debug {
 				return errno.List()
 			} else if options.upgrade {
 				return tools.Upgrade2Latest(cli.Version)
 			} else if len(args) == 0 {
-				return cliutil.ShowHelp(curveadm.Err())(cmd, args)
+				return cliutil.ShowHelp(dingoadm.Err())(cmd, args)
 			}
 
 			return fmt.Errorf("dingoadm: '%s' is not a dingoadm command.\n"+
@@ -132,10 +133,10 @@ func NewCurveAdmCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	cmd.Flags().BoolP("version", "v", false, "Print version information and quit")
 	cmd.PersistentFlags().BoolP("help", "h", false, "Print usage")
 	cmd.Flags().BoolVarP(&options.debug, "debug", "d", false, "Print debug information")
-	cmd.Flags().BoolVarP(&options.upgrade, "upgrade", "u", false, "Upgrade curveadm itself to the latest version")
+	cmd.Flags().BoolVarP(&options.upgrade, "upgrade", "u", false, "Upgrade dingoadm itself to the latest version")
 
-	addSubCommands(cmd, curveadm)
-	setupRootCommand(cmd, curveadm)
+	addSubCommands(cmd, dingoadm)
+	setupRootCommand(cmd, dingoadm)
 
 	return cmd
 }

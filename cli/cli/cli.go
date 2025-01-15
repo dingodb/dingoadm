@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -32,7 +33,7 @@ import (
 	"time"
 
 	comm "github.com/dingodb/dingoadm/internal/common"
-	configure "github.com/dingodb/dingoadm/internal/configure/curveadm"
+	configure "github.com/dingodb/dingoadm/internal/configure/dingoadm"
 	"github.com/dingodb/dingoadm/internal/configure/hosts"
 	"github.com/dingodb/dingoadm/internal/configure/topology"
 	"github.com/dingodb/dingoadm/internal/errno"
@@ -45,7 +46,7 @@ import (
 	"github.com/dingodb/dingoadm/pkg/module"
 )
 
-type CurveAdm struct {
+type DingoAdm struct {
 	// project layout
 	rootDir   string
 	dataDir   string
@@ -81,14 +82,14 @@ type CurveAdm struct {
  *   - /logs/2006-01-02_15-04-05.log
  *   - /temp/
  */
-func NewCurveAdm() (*CurveAdm, error) {
+func NewCurveAdm() (*DingoAdm, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return nil, errno.ERR_GET_USER_HOME_DIR_FAILED.E(err)
 	}
 
 	rootDir := fmt.Sprintf("%s/.dingoadm", home)
-	curveadm := &CurveAdm{
+	dingoadm := &DingoAdm{
 		rootDir:   rootDir,
 		dataDir:   path.Join(rootDir, "data"),
 		pluginDir: path.Join(rootDir, "plugins"),
@@ -96,23 +97,23 @@ func NewCurveAdm() (*CurveAdm, error) {
 		tempDir:   path.Join(rootDir, "temp"),
 	}
 
-	err = curveadm.init()
+	err = dingoadm.init()
 	if err != nil {
 		return nil, err
 	}
 
-	go curveadm.detectVersion()
-	return curveadm, nil
+	go dingoadm.detectVersion()
+	return dingoadm, nil
 }
 
-func (curveadm *CurveAdm) init() error {
+func (dingoadm *DingoAdm) init() error {
 	// (1) Create directory
 	dirs := []string{
-		curveadm.rootDir,
-		curveadm.dataDir,
-		curveadm.pluginDir,
-		curveadm.logDir,
-		curveadm.tempDir,
+		dingoadm.rootDir,
+		dingoadm.dataDir,
+		dingoadm.pluginDir,
+		dingoadm.logDir,
+		dingoadm.tempDir,
 	}
 	for _, dir := range dirs {
 		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
@@ -121,7 +122,7 @@ func (curveadm *CurveAdm) init() error {
 	}
 
 	// (2) Parse dingoadm.cfg
-	confpath := fmt.Sprintf("%s/dingoadm.cfg", curveadm.rootDir)
+	confpath := fmt.Sprintf("%s/dingoadm.cfg", dingoadm.rootDir)
 	config, err := configure.ParseCurveAdmConfig(confpath)
 	if err != nil {
 		return err
@@ -130,7 +131,7 @@ func (curveadm *CurveAdm) init() error {
 
 	// (3) Init logger
 	now := time.Now().Format("2006-01-02_15-04-05")
-	logpath := fmt.Sprintf("%s/dingoadm-%s.log", curveadm.logDir, now)
+	logpath := fmt.Sprintf("%s/dingoadm-%s.log", dingoadm.logDir, now)
 	if err := log.Init(config.GetLogLevel(), logpath); err != nil {
 		return errno.ERR_INIT_LOGGER_FAILED.E(err)
 	} else {
@@ -181,31 +182,31 @@ func (curveadm *CurveAdm) init() error {
 		return errno.ERR_GET_MONITOR_FAILED.E(err)
 	}
 
-	curveadm.logpath = logpath
-	curveadm.config = config
-	curveadm.in = os.Stdin
-	curveadm.out = os.Stdout
-	curveadm.err = os.Stderr
-	curveadm.storage = s
-	curveadm.memStorage = utils.NewSafeMap()
-	curveadm.hosts = hosts.Data
-	curveadm.clusterId = cluster.Id
-	curveadm.clusterUUId = cluster.UUId
-	curveadm.clusterName = cluster.Name
-	curveadm.clusterTopologyData = cluster.Topology
-	curveadm.clusterPoolData = cluster.Pool
-	curveadm.monitor = monitor
+	dingoadm.logpath = logpath
+	dingoadm.config = config
+	dingoadm.in = os.Stdin
+	dingoadm.out = os.Stdout
+	dingoadm.err = os.Stderr
+	dingoadm.storage = s
+	dingoadm.memStorage = utils.NewSafeMap()
+	dingoadm.hosts = hosts.Data
+	dingoadm.clusterId = cluster.Id
+	dingoadm.clusterUUId = cluster.UUId
+	dingoadm.clusterName = cluster.Name
+	dingoadm.clusterTopologyData = cluster.Topology
+	dingoadm.clusterPoolData = cluster.Pool
+	dingoadm.monitor = monitor
 
 	return nil
 }
 
-func (curveadm *CurveAdm) detectVersion() {
+func (dingoadm *DingoAdm) detectVersion() {
 	latestVersion, err := tools.GetLatestVersion(Version)
 	if err != nil || len(latestVersion) == 0 {
 		return
 	}
 
-	versions, err := curveadm.Storage().GetVersions()
+	versions, err := dingoadm.Storage().GetVersions()
 	if err != nil {
 		return
 	} else if len(versions) > 0 {
@@ -215,15 +216,15 @@ func (curveadm *CurveAdm) detectVersion() {
 		}
 	}
 
-	curveadm.Storage().SetVersion(latestVersion, "")
+	dingoadm.Storage().SetVersion(latestVersion, "")
 }
 
-func (curveadm *CurveAdm) Upgrade() (bool, error) {
-	if curveadm.config.GetAutoUpgrade() == false {
+func (dingoadm *DingoAdm) Upgrade() (bool, error) {
+	if dingoadm.config.GetAutoUpgrade() == false {
 		return false, nil
 	}
 
-	versions, err := curveadm.Storage().GetVersions()
+	versions, err := dingoadm.Storage().GetVersions()
 	if err != nil || len(versions) == 0 {
 		return false, nil
 	}
@@ -242,7 +243,7 @@ func (curveadm *CurveAdm) Upgrade() (bool, error) {
 		return false, nil
 	}
 
-	curveadm.Storage().SetVersion(latestVersion, day)
+	dingoadm.Storage().SetVersion(latestVersion, day)
 	pass := tui.ConfirmYes(tui.PromptAutoUpgrade(latestVersion))
 	if !pass {
 		return false, errno.ERR_CANCEL_OPERATION
@@ -255,35 +256,35 @@ func (curveadm *CurveAdm) Upgrade() (bool, error) {
 	return true, nil
 }
 
-func (curveadm *CurveAdm) RootDir() string                   { return curveadm.rootDir }
-func (curveadm *CurveAdm) DataDir() string                   { return curveadm.dataDir }
-func (curveadm *CurveAdm) PluginDir() string                 { return curveadm.pluginDir }
-func (curveadm *CurveAdm) LogDir() string                    { return curveadm.logDir }
-func (curveadm *CurveAdm) TempDir() string                   { return curveadm.tempDir }
-func (curveadm *CurveAdm) LogPath() string                   { return curveadm.logpath }
-func (curveadm *CurveAdm) Config() *configure.CurveAdmConfig { return curveadm.config }
-func (curveadm *CurveAdm) SudoAlias() string                 { return curveadm.config.GetSudoAlias() }
-func (curveadm *CurveAdm) SSHTimeout() int                   { return curveadm.config.GetSSHTimeout() }
-func (curveadm *CurveAdm) Engine() string                    { return curveadm.config.GetEngine() }
-func (curveadm *CurveAdm) In() io.Reader                     { return curveadm.in }
-func (curveadm *CurveAdm) Out() io.Writer                    { return curveadm.out }
-func (curveadm *CurveAdm) Err() io.Writer                    { return curveadm.err }
-func (curveadm *CurveAdm) Storage() *storage.Storage         { return curveadm.storage }
-func (curveadm *CurveAdm) MemStorage() *utils.SafeMap        { return curveadm.memStorage }
-func (curveadm *CurveAdm) Hosts() string                     { return curveadm.hosts }
-func (curveadm *CurveAdm) ClusterId() int                    { return curveadm.clusterId }
-func (curveadm *CurveAdm) ClusterUUId() string               { return curveadm.clusterUUId }
-func (curveadm *CurveAdm) ClusterName() string               { return curveadm.clusterName }
-func (curveadm *CurveAdm) ClusterTopologyData() string       { return curveadm.clusterTopologyData }
-func (curveadm *CurveAdm) ClusterPoolData() string           { return curveadm.clusterPoolData }
-func (curveadm *CurveAdm) Monitor() storage.Monitor          { return curveadm.monitor }
+func (dingoadm *DingoAdm) RootDir() string                   { return dingoadm.rootDir }
+func (dingoadm *DingoAdm) DataDir() string                   { return dingoadm.dataDir }
+func (dingoadm *DingoAdm) PluginDir() string                 { return dingoadm.pluginDir }
+func (dingoadm *DingoAdm) LogDir() string                    { return dingoadm.logDir }
+func (dingoadm *DingoAdm) TempDir() string                   { return dingoadm.tempDir }
+func (dingoadm *DingoAdm) LogPath() string                   { return dingoadm.logpath }
+func (dingoadm *DingoAdm) Config() *configure.CurveAdmConfig { return dingoadm.config }
+func (dingoadm *DingoAdm) SudoAlias() string                 { return dingoadm.config.GetSudoAlias() }
+func (dingoadm *DingoAdm) SSHTimeout() int                   { return dingoadm.config.GetSSHTimeout() }
+func (dingoadm *DingoAdm) Engine() string                    { return dingoadm.config.GetEngine() }
+func (dingoadm *DingoAdm) In() io.Reader                     { return dingoadm.in }
+func (dingoadm *DingoAdm) Out() io.Writer                    { return dingoadm.out }
+func (dingoadm *DingoAdm) Err() io.Writer                    { return dingoadm.err }
+func (dingoadm *DingoAdm) Storage() *storage.Storage         { return dingoadm.storage }
+func (dingoadm *DingoAdm) MemStorage() *utils.SafeMap        { return dingoadm.memStorage }
+func (dingoadm *DingoAdm) Hosts() string                     { return dingoadm.hosts }
+func (dingoadm *DingoAdm) ClusterId() int                    { return dingoadm.clusterId }
+func (dingoadm *DingoAdm) ClusterUUId() string               { return dingoadm.clusterUUId }
+func (dingoadm *DingoAdm) ClusterName() string               { return dingoadm.clusterName }
+func (dingoadm *DingoAdm) ClusterTopologyData() string       { return dingoadm.clusterTopologyData }
+func (dingoadm *DingoAdm) ClusterPoolData() string           { return dingoadm.clusterPoolData }
+func (dingoadm *DingoAdm) Monitor() storage.Monitor          { return dingoadm.monitor }
 
-func (curveadm *CurveAdm) GetHost(host string) (*hosts.HostConfig, error) {
-	if len(curveadm.Hosts()) == 0 {
+func (dingoadm *DingoAdm) GetHost(host string) (*hosts.HostConfig, error) {
+	if len(dingoadm.Hosts()) == 0 {
 		return nil, errno.ERR_HOST_NOT_FOUND.
 			F("host: %s", host)
 	}
-	hcs, err := hosts.ParseHosts(curveadm.Hosts())
+	hcs, err := hosts.ParseHosts(dingoadm.Hosts())
 	if err != nil {
 		return nil, err
 	}
@@ -297,9 +298,9 @@ func (curveadm *CurveAdm) GetHost(host string) (*hosts.HostConfig, error) {
 		F("host: %s", host)
 }
 
-func (curveadm *CurveAdm) ParseTopologyData(data string) ([]*topology.DeployConfig, error) {
+func (dingoadm *DingoAdm) ParseTopologyData(data string) ([]*topology.DeployConfig, error) {
 	ctx := topology.NewContext()
-	hcs, err := hosts.ParseHosts(curveadm.Hosts())
+	hcs, err := hosts.ParseHosts(dingoadm.Hosts())
 	if err != nil {
 		return nil, err
 	}
@@ -316,21 +317,21 @@ func (curveadm *CurveAdm) ParseTopologyData(data string) ([]*topology.DeployConf
 	return dcs, err
 }
 
-func (curveadm *CurveAdm) ParseTopology() ([]*topology.DeployConfig, error) {
-	if curveadm.ClusterId() == -1 {
+func (dingoadm *DingoAdm) ParseTopology() ([]*topology.DeployConfig, error) {
+	if dingoadm.ClusterId() == -1 {
 		return nil, errno.ERR_NO_CLUSTER_SPECIFIED
 	}
-	return curveadm.ParseTopologyData(curveadm.ClusterTopologyData())
+	return dingoadm.ParseTopologyData(dingoadm.ClusterTopologyData())
 }
 
-func (curveadm *CurveAdm) FilterDeployConfig(deployConfigs []*topology.DeployConfig,
+func (dingoadm *DingoAdm) FilterDeployConfig(deployConfigs []*topology.DeployConfig,
 	options topology.FilterOption) []*topology.DeployConfig {
 	dcs := []*topology.DeployConfig{}
 	for _, dc := range deployConfigs {
 		dcId := dc.GetId()
 		role := dc.GetRole()
 		host := dc.GetHost()
-		serviceId := curveadm.GetServiceId(dcId)
+		serviceId := dingoadm.GetServiceId(dcId)
 		if (options.Id == "*" || options.Id == serviceId) &&
 			(options.Role == "*" || options.Role == role) &&
 			(options.Host == "*" || options.Host == host) {
@@ -341,7 +342,7 @@ func (curveadm *CurveAdm) FilterDeployConfig(deployConfigs []*topology.DeployCon
 	return dcs
 }
 
-func (curveadm *CurveAdm) FilterDeployConfigByGateway(deployConfigs []*topology.DeployConfig,
+func (dingoadm *DingoAdm) FilterDeployConfigByGateway(deployConfigs []*topology.DeployConfig,
 	options topology.FilterOption) *topology.DeployConfig {
 	for _, dc := range deployConfigs {
 		host := dc.GetHost()
@@ -353,19 +354,19 @@ func (curveadm *CurveAdm) FilterDeployConfigByGateway(deployConfigs []*topology.
 	return nil
 }
 
-func (curveadm *CurveAdm) FilterDeployConfigByRole(dcs []*topology.DeployConfig,
+func (dingoadm *DingoAdm) FilterDeployConfigByRole(dcs []*topology.DeployConfig,
 	role string) []*topology.DeployConfig {
 	options := topology.FilterOption{Id: "*", Role: role, Host: "*"}
-	return curveadm.FilterDeployConfig(dcs, options)
+	return dingoadm.FilterDeployConfig(dcs, options)
 }
 
-func (curveadm *CurveAdm) GetServiceId(dcId string) string {
-	serviceId := fmt.Sprintf("%s_%s", curveadm.ClusterUUId(), dcId)
+func (dingoadm *DingoAdm) GetServiceId(dcId string) string {
+	serviceId := fmt.Sprintf("%s_%s", dingoadm.ClusterUUId(), dcId)
 	return utils.MD5Sum(serviceId)[:12]
 }
 
-func (curveadm *CurveAdm) GetContainerId(serviceId string) (string, error) {
-	containerId, err := curveadm.Storage().GetContainerId(serviceId)
+func (dingoadm *DingoAdm) GetContainerId(serviceId string) (string, error) {
+	containerId, err := dingoadm.Storage().GetContainerId(serviceId)
 	if err != nil {
 		return "", errno.ERR_GET_SERVICE_CONTAINER_ID_FAILED
 	} else if len(containerId) == 0 {
@@ -375,34 +376,34 @@ func (curveadm *CurveAdm) GetContainerId(serviceId string) (string, error) {
 }
 
 // FIXME
-func (curveadm *CurveAdm) IsSkip(dc *topology.DeployConfig) bool {
-	serviceId := curveadm.GetServiceId(dc.GetId())
-	containerId, err := curveadm.Storage().GetContainerId(serviceId)
+func (dingoadm *DingoAdm) IsSkip(dc *topology.DeployConfig) bool {
+	serviceId := dingoadm.GetServiceId(dc.GetId())
+	containerId, err := dingoadm.Storage().GetContainerId(serviceId)
 	return err == nil && len(containerId) == 0 && dc.GetRole() == topology.ROLE_SNAPSHOTCLONE
 }
 
-func (curveadm *CurveAdm) GetVolumeId(host, user, volume string) string {
+func (dingoadm *DingoAdm) GetVolumeId(host, user, volume string) string {
 	volumeId := fmt.Sprintf("curvebs_volume_%s_%s_%s", host, user, volume)
 	return utils.MD5Sum(volumeId)[:12]
 }
 
-func (curveadm *CurveAdm) GetFilesystemId(host, mountPoint string) string {
+func (dingoadm *DingoAdm) GetFilesystemId(host, mountPoint string) string {
 	filesystemId := fmt.Sprintf("curvefs_filesystem_%s_%s", host, mountPoint)
 	return utils.MD5Sum(filesystemId)[:12]
 }
 
-func (curveadm *CurveAdm) ExecOptions() module.ExecOptions {
+func (dingoadm *DingoAdm) ExecOptions() module.ExecOptions {
 	return module.ExecOptions{
 		ExecWithSudo:   true,
 		ExecInLocal:    false,
-		ExecSudoAlias:  curveadm.config.GetSudoAlias(),
-		ExecTimeoutSec: curveadm.config.GetTimeout(),
-		ExecWithEngine: curveadm.config.GetEngine(),
+		ExecSudoAlias:  dingoadm.config.GetSudoAlias(),
+		ExecTimeoutSec: dingoadm.config.GetTimeout(),
+		ExecWithEngine: dingoadm.config.GetEngine(),
 	}
 }
 
-func (curveadm *CurveAdm) CheckId(id string) error {
-	services, err := curveadm.Storage().GetServices(curveadm.ClusterId())
+func (dingoadm *DingoAdm) CheckId(id string) error {
+	services, err := dingoadm.Storage().GetServices(dingoadm.ClusterId())
 	if err != nil {
 		return err
 	}
@@ -414,8 +415,8 @@ func (curveadm *CurveAdm) CheckId(id string) error {
 	return errno.ERR_ID_NOT_FOUND.F("id: %s", id)
 }
 
-func (curveadm *CurveAdm) CheckRole(role string) error {
-	dcs, err := curveadm.ParseTopology()
+func (dingoadm *DingoAdm) CheckRole(role string) error {
+	dcs, err := dingoadm.ParseTopology()
 	if err != nil {
 		return err
 	}
@@ -437,29 +438,29 @@ func (curveadm *CurveAdm) CheckRole(role string) error {
 	return nil
 }
 
-func (curveadm *CurveAdm) CheckHost(host string) error {
-	_, err := curveadm.GetHost(host)
+func (dingoadm *DingoAdm) CheckHost(host string) error {
+	_, err := dingoadm.GetHost(host)
 	return err
 }
 
 // writer for cobra command error
-func (curveadm *CurveAdm) Write(p []byte) (int, error) {
+func (dingoadm *DingoAdm) Write(p []byte) (int, error) {
 	// trim prefix which generate by cobra
 	p = p[len(cliutil.PREFIX_COBRA_COMMAND_ERROR):]
-	return curveadm.WriteOut(string(p))
+	return dingoadm.WriteOut(string(p))
 }
 
-func (curveadm *CurveAdm) WriteOut(format string, a ...interface{}) (int, error) {
+func (dingoadm *DingoAdm) WriteOut(format string, a ...interface{}) (int, error) {
 	output := fmt.Sprintf(format, a...)
-	return curveadm.out.Write([]byte(output))
+	return dingoadm.out.Write([]byte(output))
 }
 
-func (curveadm *CurveAdm) WriteOutln(format string, a ...interface{}) (int, error) {
+func (dingoadm *DingoAdm) WriteOutln(format string, a ...interface{}) (int, error) {
 	output := fmt.Sprintf(format, a...) + "\n"
-	return curveadm.out.Write([]byte(output))
+	return dingoadm.out.Write([]byte(output))
 }
 
-func (curveadm *CurveAdm) IsSameRole(dcs []*topology.DeployConfig) bool {
+func (dingoadm *DingoAdm) IsSameRole(dcs []*topology.DeployConfig) bool {
 	role := dcs[0].GetRole()
 	for _, dc := range dcs {
 		if dc.GetRole() != role {
@@ -469,9 +470,9 @@ func (curveadm *CurveAdm) IsSameRole(dcs []*topology.DeployConfig) bool {
 	return true
 }
 
-func (curveadm *CurveAdm) DiffTopology(data1, data2 string) ([]topology.TopologyDiff, error) {
+func (dingoadm *DingoAdm) DiffTopology(data1, data2 string) ([]topology.TopologyDiff, error) {
 	ctx := topology.NewContext()
-	hcs, err := hosts.ParseHosts(curveadm.Hosts())
+	hcs, err := hosts.ParseHosts(dingoadm.Hosts())
 	if err != nil {
 		return nil, err
 	}
@@ -493,7 +494,7 @@ func (curveadm *CurveAdm) DiffTopology(data1, data2 string) ([]topology.Topology
 	return topology.DiffTopology(data1, data2, ctx)
 }
 
-func (curveadm *CurveAdm) PreAudit(now time.Time, args []string) int64 {
+func (dingoadm *DingoAdm) PreAudit(now time.Time, args []string) int64 {
 	if len(args) == 0 {
 		return -1
 	} else if args[0] == "audit" || args[0] == "__complete" {
@@ -501,8 +502,8 @@ func (curveadm *CurveAdm) PreAudit(now time.Time, args []string) int64 {
 	}
 
 	cwd, _ := os.Getwd()
-	command := fmt.Sprintf("curveadm %s", strings.Join(args, " "))
-	id, err := curveadm.Storage().InsertAuditLog(
+	command := fmt.Sprintf("dingoadm %s", strings.Join(args, " "))
+	id, err := dingoadm.Storage().InsertAuditLog(
 		now, cwd, command, comm.AUDIT_STATUS_ABORT)
 	if err != nil {
 		log.Error("Insert audit log failed",
@@ -512,12 +513,12 @@ func (curveadm *CurveAdm) PreAudit(now time.Time, args []string) int64 {
 	return id
 }
 
-func (curveadm *CurveAdm) PostAudit(id int64, ec error) {
+func (dingoadm *DingoAdm) PostAudit(id int64, ec error) {
 	if id < 0 {
 		return
 	}
 
-	auditLogs, err := curveadm.Storage().GetAuditLog(id)
+	auditLogs, err := dingoadm.Storage().GetAuditLog(id)
 	if err != nil {
 		log.Error("Get audit log failed",
 			log.Field("Error", err))
@@ -540,7 +541,7 @@ func (curveadm *CurveAdm) PostAudit(id int64, ec error) {
 		}
 	}
 
-	err = curveadm.Storage().SetAuditLogStatus(id, status, errorCode)
+	err = dingoadm.Storage().SetAuditLogStatus(id, status, errorCode)
 	if err != nil {
 		log.Error("Set audit log status failed",
 			log.Field("Error", err))

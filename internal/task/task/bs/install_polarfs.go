@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -51,7 +52,7 @@ const (
 type step2InstallPackage struct {
 	root     string
 	release  string
-	curveadm *cli.CurveAdm
+	curveadm *cli.DingoAdm
 }
 
 func (s *step2InstallPackage) Execute(ctx *context.Context) error {
@@ -86,7 +87,7 @@ func (s *step2InstallPackage) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func getRelease(curveadm *cli.CurveAdm) string {
+func getRelease(curveadm *cli.DingoAdm) string {
 	v := curveadm.MemStorage().Get(comm.KEY_OS_RELEASE)
 	if v == nil {
 		return comm.OS_RELEASE_UNKNOWN
@@ -94,7 +95,7 @@ func getRelease(curveadm *cli.CurveAdm) string {
 	return v.(string)
 }
 
-func NewInstallPolarFSTask(curveadm *cli.CurveAdm, cc *configure.ClientConfig) (*task.Task, error) {
+func NewInstallPolarFSTask(curveadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.Task, error) {
 	host := curveadm.MemStorage().Get(comm.KEY_POLARFS_HOST).(string)
 	hc, err := curveadm.GetHost(host)
 	if err != nil {

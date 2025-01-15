@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -54,7 +55,7 @@ type commitOptions struct {
 	force    bool
 }
 
-func NewCommitCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewCommitCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options commitOptions
 
 	cmd := &cobra.Command{
@@ -84,7 +85,7 @@ func skipError(err error) bool {
 	return false
 }
 
-func checkDiff(curveadm *cli.CurveAdm, newData string) error {
+func checkDiff(curveadm *cli.DingoAdm, newData string) error {
 	diffs, err := curveadm.DiffTopology(curveadm.ClusterTopologyData(), newData)
 	if err != nil && !skipError(err) {
 		return err
@@ -104,7 +105,7 @@ func checkDiff(curveadm *cli.CurveAdm, newData string) error {
 	return nil
 }
 
-func genCheckTopologyPlaybook(curveadm *cli.CurveAdm,
+func genCheckTopologyPlaybook(curveadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options commitOptions) (*playbook.Playbook, error) {
 	steps := CHECK_TOPOLOGY_PLAYBOOK_STEPS
@@ -128,7 +129,7 @@ func genCheckTopologyPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func readTopology(curveadm *cli.CurveAdm, options commitOptions) (string, error) {
+func readTopology(curveadm *cli.DingoAdm, options commitOptions) (string, error) {
 	filename := options.filename
 	if len(filename) == 0 {
 		return "", nil
@@ -150,7 +151,7 @@ func readTopology(curveadm *cli.CurveAdm, options commitOptions) (string, error)
 	return data, nil
 }
 
-func checkTopology(curveadm *cli.CurveAdm, data string, options commitOptions) error {
+func checkTopology(curveadm *cli.DingoAdm, data string, options commitOptions) error {
 	if options.force {
 		return nil
 	}
@@ -182,7 +183,7 @@ func checkTopology(curveadm *cli.CurveAdm, data string, options commitOptions) e
 	return nil
 }
 
-func runCommit(curveadm *cli.CurveAdm, options commitOptions) error {
+func runCommit(curveadm *cli.DingoAdm, options commitOptions) error {
 	// 1) parse cluster topology
 	_, err := curveadm.ParseTopology()
 	if err != nil && !skipError(err) {

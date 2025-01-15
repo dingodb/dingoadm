@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -40,7 +41,7 @@ type diffOptions struct {
 	filename string
 }
 
-func NewDiffCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewDiffCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options diffOptions
 
 	cmd := &cobra.Command{
@@ -58,7 +59,7 @@ func NewDiffCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func runDiff(curveadm *cli.CurveAdm, options diffOptions) error {
+func runDiff(curveadm *cli.DingoAdm, options diffOptions) error {
 	// 1) data1: current cluster topology data
 	data1 := curveadm.ClusterTopologyData()
 

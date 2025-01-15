@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -32,7 +33,7 @@ import (
 
 type showOptions struct{}
 
-func NewShowCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewShowCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options showOptions
 
 	cmd := &cobra.Command{
@@ -48,7 +49,7 @@ func NewShowCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func runShow(curveadm *cli.CurveAdm, options showOptions) error {
+func runShow(curveadm *cli.DingoAdm, options showOptions) error {
 	hosts := curveadm.Hosts()
 	if len(hosts) == 0 {
 		curveadm.WriteOutln("<empty hosts>")

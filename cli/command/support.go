@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -53,7 +54,7 @@ type supportOptions struct {
 	ids []string
 }
 
-func NewSupportCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewSupportCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options supportOptions
 
 	cmd := &cobra.Command{
@@ -72,7 +73,7 @@ func NewSupportCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func getClients(curveadm *cli.CurveAdm,
+func getClients(curveadm *cli.DingoAdm,
 	options supportOptions) ([]storage.Client, error) {
 	out := []storage.Client{}
 	for _, id := range options.ids {
@@ -88,7 +89,7 @@ func getClients(curveadm *cli.CurveAdm,
 	return out, nil
 }
 
-func genSupportPlaybook(curveadm *cli.CurveAdm,
+func genSupportPlaybook(curveadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options supportOptions) (*playbook.Playbook, error) {
 	clients, err := getClients(curveadm, options)
@@ -131,7 +132,7 @@ func genSupportPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func runSupport(curveadm *cli.CurveAdm, options supportOptions) error {
+func runSupport(curveadm *cli.DingoAdm, options supportOptions) error {
 	// 1) parse cluster topology
 	dcs, err := curveadm.ParseTopology()
 	if err != nil {

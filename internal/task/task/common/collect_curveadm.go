@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -34,7 +35,7 @@ import (
 	"github.com/dingodb/dingoadm/internal/utils"
 )
 
-func NewCollectCurveAdmTask(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (*task.Task, error) {
+func NewCollectCurveAdmTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
 	// NOTE: we think it's not a good idae to collect curveadm's datbase file...
 	// new task
 	kind := dc.GetKind()

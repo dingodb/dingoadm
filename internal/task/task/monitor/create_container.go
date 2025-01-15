@@ -111,7 +111,7 @@ func getEnvironments(cfg *configure.MonitorConfig) []string {
 	return []string{}
 }
 
-func NewCreateContainerTask(curveadm *cli.CurveAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
+func NewCreateContainerTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
 	host := cfg.GetHost()
 	hc, err := curveadm.GetHost(host)
 	if err != nil {

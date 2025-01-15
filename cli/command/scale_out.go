@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -121,7 +122,7 @@ type scaleOutOptions struct {
 	poolsetDiskType string
 }
 
-func NewScaleOutCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewScaleOutCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options scaleOutOptions
 
 	cmd := &cobra.Command{
@@ -144,7 +145,7 @@ func NewScaleOutCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func readTopology(curveadm *cli.CurveAdm, filename string) (string, error) {
+func readTopology(curveadm *cli.DingoAdm, filename string) (string, error) {
 	if !utils.PathExist(filename) {
 		return "", errno.ERR_TOPOLOGY_FILE_NOT_FOUND.
 			F("%s: no such file", utils.AbsPath(filename))
@@ -160,7 +161,7 @@ func readTopology(curveadm *cli.CurveAdm, filename string) (string, error) {
 	return data, nil
 }
 
-func diffTopology(curveadm *cli.CurveAdm, data string) (map[int][]*topology.DeployConfig, error) {
+func diffTopology(curveadm *cli.DingoAdm, data string) (map[int][]*topology.DeployConfig, error) {
 	diffs, err := curveadm.DiffTopology(curveadm.ClusterTopologyData(), data)
 	if err != nil {
 		return nil, err
@@ -187,7 +188,7 @@ func getHostNum(dcs []*topology.DeployConfig) int {
 	return num
 }
 
-func checkScaleOutTopology(curveadm *cli.CurveAdm, data string) error {
+func checkScaleOutTopology(curveadm *cli.DingoAdm, data string) error {
 	diffs, err := diffTopology(curveadm, data)
 	if err != nil {
 		return err
@@ -223,7 +224,7 @@ func checkScaleOutTopology(curveadm *cli.CurveAdm, data string) error {
 	return nil
 }
 
-func genScaleOutPrecheckPlaybook(curveadm *cli.CurveAdm, data string) (*playbook.Playbook, error) {
+func genScaleOutPrecheckPlaybook(curveadm *cli.DingoAdm, data string) (*playbook.Playbook, error) {
 	dcsAll, _ := curveadm.ParseTopologyData(data)
 	kind := dcsAll[0].GetKind()
 	steps := CURVEFS_PRECHECK_STEPS
@@ -283,7 +284,7 @@ func genScaleOutPrecheckPlaybook(curveadm *cli.CurveAdm, data string) (*playbook
 	return pb, nil
 }
 
-func precheckBeforeScaleOut(curveadm *cli.CurveAdm, options scaleOutOptions, data string) error {
+func precheckBeforeScaleOut(curveadm *cli.DingoAdm, options scaleOutOptions, data string) error {
 	// 1) skip precheck
 	if options.insecure {
 		return nil
@@ -310,7 +311,7 @@ func precheckBeforeScaleOut(curveadm *cli.CurveAdm, options scaleOutOptions, dat
 	return nil
 }
 
-func genScaleOutPlaybook(curveadm *cli.CurveAdm,
+func genScaleOutPlaybook(curveadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	data string,
 	options scaleOutOptions) (*playbook.Playbook, error) {
@@ -366,7 +367,7 @@ func genScaleOutPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func displayScaleOutTitle(curveadm *cli.CurveAdm, data string) {
+func displayScaleOutTitle(curveadm *cli.DingoAdm, data string) {
 	diffs, _ := diffTopology(curveadm, data)
 	dcs := diffs[topology.DIFF_ADD]
 	curveadm.WriteOutln("")
@@ -376,7 +377,7 @@ func displayScaleOutTitle(curveadm *cli.CurveAdm, data string) {
 		dcs[0].GetRole(), len(dcs)))
 }
 
-func runScaleOut(curveadm *cli.CurveAdm, options scaleOutOptions) error {
+func runScaleOut(curveadm *cli.DingoAdm, options scaleOutOptions) error {
 	// 1) parse cluster topology
 	dcs, err := curveadm.ParseTopology()
 	if err != nil {

@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,7 +23,7 @@
 
 // __SIGN_BY_WINE93__
 
-package curveadm
+package dingoadm
 
 import (
 	"fmt"
@@ -111,7 +112,7 @@ func newDefault() *CurveAdmConfig {
 		AutoUpgrade: true,
 		SSHRetries:  3,
 		SSHTimeout:  10,
-		DBUrl:       fmt.Sprintf("sqlite://%s/.curveadm/data/curveadm.db", home),
+		DBUrl:       fmt.Sprintf("sqlite://%s/.dingoadm/data/dingoadm.db", home),
 	}
 	return cfg
 }

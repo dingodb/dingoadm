@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -42,7 +43,7 @@ type stopOptions struct {
 	host string
 }
 
-func NewStopCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewStopCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options stopOptions
 
 	cmd := &cobra.Command{
@@ -61,7 +62,7 @@ func NewStopCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genStopPlaybook(curveadm *cli.CurveAdm, options stopOptions) (*playbook.Playbook, error) {
+func genStopPlaybook(curveadm *cli.DingoAdm, options stopOptions) (*playbook.Playbook, error) {
 	steps := STOP_PLAYBOOK_STEPS
 	pb := playbook.NewPlaybook(curveadm)
 	for _, step := range steps {
@@ -78,7 +79,7 @@ func genStopPlaybook(curveadm *cli.CurveAdm, options stopOptions) (*playbook.Pla
 	return pb, nil
 }
 
-func runStop(curveadm *cli.CurveAdm, options stopOptions) error {
+func runStop(curveadm *cli.DingoAdm, options stopOptions) error {
 	// 1) generate stop playbook
 	pb, err := genStopPlaybook(curveadm, options)
 	if err != nil {

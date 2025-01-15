@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -64,7 +65,7 @@ type cleanOptions struct {
 	force          bool
 }
 
-func checkCleanOptions(curveadm *cli.CurveAdm, options cleanOptions) error {
+func checkCleanOptions(curveadm *cli.DingoAdm, options cleanOptions) error {
 	supported := utils.Slice2Map(CLEAN_ITEMS)
 	for _, item := range options.only {
 		if !supported[item] {
@@ -75,7 +76,7 @@ func checkCleanOptions(curveadm *cli.CurveAdm, options cleanOptions) error {
 	return checkCommonOptions(curveadm, options.id, options.role, options.host)
 }
 
-func NewCleanCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewCleanCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options cleanOptions
 
 	cmd := &cobra.Command{
@@ -103,7 +104,7 @@ func NewCleanCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genCleanPlaybook(curveadm *cli.CurveAdm,
+func genCleanPlaybook(curveadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options cleanOptions) (*playbook.Playbook, error) {
 	dcs = curveadm.FilterDeployConfig(dcs, topology.FilterOption{
@@ -130,7 +131,7 @@ func genCleanPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func runClean(curveadm *cli.CurveAdm, options cleanOptions) error {
+func runClean(curveadm *cli.DingoAdm, options cleanOptions) error {
 	// 1) parse cluster topology
 	dcs, err := curveadm.ParseTopology()
 	if err != nil {

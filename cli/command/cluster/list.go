@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -37,7 +38,7 @@ type listOptions struct {
 	verbose bool
 }
 
-func NewListCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewListCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options listOptions
 
 	cmd := &cobra.Command{
@@ -57,7 +58,7 @@ func NewListCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func runList(curveadm *cli.CurveAdm, options listOptions) error {
+func runList(curveadm *cli.DingoAdm, options listOptions) error {
 	// 1) get all clusters
 	storage := curveadm.Storage()
 	clusters, err := storage.GetClusters("%")

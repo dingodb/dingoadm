@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -45,7 +46,7 @@ type commitOptions struct {
 	force    bool
 }
 
-func NewCommitCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewCommitCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options commitOptions
 
 	cmd := &cobra.Command{
@@ -67,7 +68,7 @@ func NewCommitCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func readAndCheckHosts(curveadm *cli.CurveAdm, options commitOptions) (string, error) {
+func readAndCheckHosts(curveadm *cli.DingoAdm, options commitOptions) (string, error) {
 	// 1) read hosts from file
 	if !utils.PathExist(options.filename) {
 		return "", errno.ERR_HOSTS_FILE_NOT_FOUND.
@@ -90,7 +91,7 @@ func readAndCheckHosts(curveadm *cli.CurveAdm, options commitOptions) (string, e
 	return data, err
 }
 
-func runCommit(curveadm *cli.CurveAdm, options commitOptions) error {
+func runCommit(curveadm *cli.DingoAdm, options commitOptions) error {
 	// 1) read and check hosts
 	data, err := readAndCheckHosts(curveadm, options)
 	if err != nil {

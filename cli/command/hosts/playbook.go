@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -56,7 +57,7 @@ type playbookOptions struct {
 	labels   []string
 }
 
-func checkPlaybookOptions(curveadm *cli.CurveAdm, options playbookOptions) error {
+func checkPlaybookOptions(curveadm *cli.DingoAdm, options playbookOptions) error {
 	// TODO: added error code
 	if !utils.PathExist(options.filepath) {
 		return fmt.Errorf("%s: no such file", options.filepath)
@@ -64,7 +65,7 @@ func checkPlaybookOptions(curveadm *cli.CurveAdm, options playbookOptions) error
 	return nil
 }
 
-func NewPlaybookCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewPlaybookCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options playbookOptions
 
 	cmd := &cobra.Command{
@@ -89,7 +90,7 @@ func NewPlaybookCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func execute(curveadm *cli.CurveAdm, options playbookOptions, idx int, hc *hosts.HostConfig) {
+func execute(curveadm *cli.DingoAdm, options playbookOptions, idx int, hc *hosts.HostConfig) {
 	defer func() { wg.Done() }()
 	name := hc.GetHost()
 	target := path.Join("/tmp", utils.RandString(8))
@@ -114,7 +115,7 @@ func execute(curveadm *cli.CurveAdm, options playbookOptions, idx int, hc *hosts
 	retC <- result{index: idx, host: name, out: out, err: err}
 }
 
-func output(curveadm *cli.CurveAdm, ret *result) {
+func output(curveadm *cli.DingoAdm, ret *result) {
 	curveadm.WriteOutln("")
 	out, err := ret.out, ret.err
 	curveadm.WriteOutln("%s [%s]", color.YellowString(ret.host),
@@ -128,7 +129,7 @@ func output(curveadm *cli.CurveAdm, ret *result) {
 	}
 }
 
-func receiver(curveadm *cli.CurveAdm, total int) {
+func receiver(curveadm *cli.DingoAdm, total int) {
 	curveadm.WriteOutln("TOTAL: %d hosts", total)
 	current := 0
 	rets := map[int]result{}
@@ -145,7 +146,7 @@ func receiver(curveadm *cli.CurveAdm, total int) {
 	}
 }
 
-func runPlaybook(curveadm *cli.CurveAdm, options playbookOptions) error {
+func runPlaybook(curveadm *cli.DingoAdm, options playbookOptions) error {
 	var hcs []*hosts.HostConfig
 	var err error
 	hosts := curveadm.Hosts()

@@ -40,7 +40,7 @@ import (
 	"github.com/dingodb/dingoadm/internal/utils"
 )
 
-func NewStartGatewayTask(curveadm *cli.CurveAdm, gc *configure.GatewayConfig) (*task.Task, error) {
+func NewStartGatewayTask(curveadm *cli.DingoAdm, gc *configure.GatewayConfig) (*task.Task, error) {
 	host := curveadm.MemStorage().Get(comm.GATEWAY_HOST).(string)
 	hc, err := curveadm.GetHost(host)
 	if err != nil {

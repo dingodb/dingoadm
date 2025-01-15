@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -42,7 +43,7 @@ type uninstallOptions struct {
 	host string
 }
 
-func NewUninstallCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewUninstallCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options uninstallOptions
 
 	cmd := &cobra.Command{
@@ -61,7 +62,7 @@ func NewUninstallCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genUninstallPlaybook(curveadm *cli.CurveAdm,
+func genUninstallPlaybook(curveadm *cli.DingoAdm,
 	v interface{}, options uninstallOptions) (*playbook.Playbook, error) {
 	steps := UNINSTALL_PFS_PLAYBOOK_STEPS
 	pb := playbook.NewPlaybook(curveadm)
@@ -77,7 +78,7 @@ func genUninstallPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func runUninstall(curveadm *cli.CurveAdm, options uninstallOptions) error {
+func runUninstall(curveadm *cli.DingoAdm, options uninstallOptions) error {
 	// 1) generate map playbook
 	pb, err := genUninstallPlaybook(curveadm, nil, options)
 	if err != nil {

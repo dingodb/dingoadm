@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -62,7 +63,7 @@ type mountOptions struct {
 	useLocalImage bool
 }
 
-func checkMountOptions(curveadm *cli.CurveAdm, options mountOptions) error {
+func checkMountOptions(curveadm *cli.DingoAdm, options mountOptions) error {
 	if !strings.HasPrefix(options.mountPoint, "/") {
 		return errno.ERR_FS_MOUNTPOINT_REQUIRE_ABSOLUTE_PATH.
 			F("mount point: %s", options.mountPoint)
@@ -70,7 +71,7 @@ func checkMountOptions(curveadm *cli.CurveAdm, options mountOptions) error {
 	return nil
 }
 
-func NewMountCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewMountCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options mountOptions
 
 	cmd := &cobra.Command{
@@ -101,7 +102,7 @@ func NewMountCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genMountPlaybook(curveadm *cli.CurveAdm,
+func genMountPlaybook(curveadm *cli.DingoAdm,
 	ccs []*configure.ClientConfig,
 	options mountOptions) (*playbook.Playbook, error) {
 	steps := MOUNT_PLAYBOOK_STEPS
@@ -134,7 +135,7 @@ func genMountPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func runMount(curveadm *cli.CurveAdm, options mountOptions) error {
+func runMount(curveadm *cli.DingoAdm, options mountOptions) error {
 	// 1) parse client configure
 	cc, err := configure.ParseClientConfig(options.filename)
 	if err != nil {

@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -45,7 +46,7 @@ type (
 	}
 
 	step2InsertPlayGround struct {
-		curveadm *cli.CurveAdm
+		curveadm *cli.DingoAdm
 		cfg      *configure.PlaygroundConfig
 	}
 )
@@ -70,7 +71,7 @@ func getMountVolumes(kind string) []step.Volume {
 	}
 }
 
-func execOptions(curveadm *cli.CurveAdm) module.ExecOptions {
+func execOptions(curveadm *cli.DingoAdm) module.ExecOptions {
 	options := curveadm.ExecOptions()
 	options.ExecInLocal = true
 	options.ExecWithSudo = false
@@ -92,7 +93,7 @@ func (s *step2InsertPlayGround) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func NewCreatePlaygroundTask(curveadm *cli.CurveAdm, cfg *configure.PlaygroundConfig) (*task.Task, error) {
+func NewCreatePlaygroundTask(curveadm *cli.DingoAdm, cfg *configure.PlaygroundConfig) (*task.Task, error) {
 	kind := cfg.GetKind()
 	name := cfg.GetName()
 	containerImage := cfg.GetContainIamge()

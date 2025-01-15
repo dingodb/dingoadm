@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -53,7 +54,7 @@ type addOptions struct {
 	blocksize string
 }
 
-func checkAddOptions(curveadm *cli.CurveAdm, options addOptions) error {
+func checkAddOptions(curveadm *cli.DingoAdm, options addOptions) error {
 	if _, _, err := client.ParseImage(options.image); err != nil {
 		return err
 	} else if _, err = client.ParseSize(options.size); err != nil {
@@ -67,7 +68,7 @@ func checkAddOptions(curveadm *cli.CurveAdm, options addOptions) error {
 	return nil
 }
 
-func NewAddCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewAddCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options addOptions
 
 	cmd := &cobra.Command{
@@ -94,7 +95,7 @@ func NewAddCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genAddPlaybook(curveadm *cli.CurveAdm,
+func genAddPlaybook(curveadm *cli.DingoAdm,
 	ccs []*configure.ClientConfig,
 	options addOptions) (*playbook.Playbook, error) {
 	user, name, _ := client.ParseImage(options.image)
@@ -121,7 +122,7 @@ func genAddPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func runAdd(curveadm *cli.CurveAdm, options addOptions) error {
+func runAdd(curveadm *cli.DingoAdm, options addOptions) error {
 	// 1) parse client configure
 	cc, err := configure.ParseClientConfig(options.filename)
 	if err != nil {

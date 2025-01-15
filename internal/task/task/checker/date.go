@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -52,7 +53,7 @@ func step2Pre(start *int64) step.LambdaType {
 	}
 }
 
-func newIfNil(curveadm *cli.CurveAdm) map[string]Time {
+func newIfNil(curveadm *cli.DingoAdm) map[string]Time {
 	m := curveadm.MemStorage().Get(comm.KEY_ALL_HOST_DATE)
 	if m != nil {
 		return m.(map[string]Time)
@@ -60,7 +61,7 @@ func newIfNil(curveadm *cli.CurveAdm) map[string]Time {
 	return map[string]Time{}
 }
 
-func step2Post(curveadm *cli.CurveAdm, dc *topology.DeployConfig, start *int64, out *string) step.LambdaType {
+func step2Post(curveadm *cli.DingoAdm, dc *topology.DeployConfig, start *int64, out *string) step.LambdaType {
 	return func(ctx *context.Context) error {
 		if len(*out) == 0 {
 			return errno.ERR_INVALID_DATE_FORMAT.
@@ -80,7 +81,7 @@ func step2Post(curveadm *cli.CurveAdm, dc *topology.DeployConfig, start *int64, 
 	}
 }
 
-func NewGetHostDate(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (*task.Task, error) {
+func NewGetHostDate(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
 	hc, err := curveadm.GetHost(dc.GetHost())
 	if err != nil {
 		return nil, err
@@ -106,7 +107,7 @@ func NewGetHostDate(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (*task.Ta
 	return t, nil
 }
 
-func checkDate(curveadm *cli.CurveAdm) step.LambdaType {
+func checkDate(curveadm *cli.DingoAdm) step.LambdaType {
 	return func(ctx *context.Context) error {
 		var minT, maxT Time
 		min, max := int64(0), int64(0)
@@ -131,7 +132,7 @@ func checkDate(curveadm *cli.CurveAdm) step.LambdaType {
 	}
 }
 
-func NewCheckDate(curveadm *cli.CurveAdm, c interface{}) (*task.Task, error) {
+func NewCheckDate(curveadm *cli.DingoAdm, c interface{}) (*task.Task, error) {
 	t := task.NewTask("Check Host Date <date>", "", nil)
 	t.AddStep(&step.Lambda{
 		Lambda: checkDate(curveadm),

@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -40,7 +41,7 @@ var GET_PLAYGROUND_STATUS_PLAYBOOK_STEPS = []int{
 	playbook.GET_PLAYGROUND_STATUS,
 }
 
-func NewListCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewListCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options listOptions
 
 	cmd := &cobra.Command{
@@ -57,7 +58,7 @@ func NewListCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genListPlaybook(curveadm *cli.CurveAdm,
+func genListPlaybook(curveadm *cli.DingoAdm,
 	playgrounds []storage.Playground) (*playbook.Playbook, error) {
 	configs := []interface{}{}
 	for _, playground := range playgrounds {
@@ -77,7 +78,7 @@ func genListPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func displayPlaygrounds(curveadm *cli.CurveAdm) {
+func displayPlaygrounds(curveadm *cli.DingoAdm) {
 	statuses := []pg.PlaygroundStatus{}
 	value := curveadm.MemStorage().Get(comm.KEY_ALL_PLAYGROUNDS_STATUS)
 	if value != nil {
@@ -91,7 +92,7 @@ func displayPlaygrounds(curveadm *cli.CurveAdm) {
 	curveadm.WriteOut(output)
 }
 
-func runList(curveadm *cli.CurveAdm, options listOptions) error {
+func runList(curveadm *cli.DingoAdm, options listOptions) error {
 	// 1) get playgrounds
 	playgrounds, err := curveadm.Storage().GetPlaygrounds("%")
 	if err != nil {

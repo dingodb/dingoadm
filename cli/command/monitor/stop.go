@@ -44,7 +44,7 @@ type stopOptions struct {
 	host string
 }
 
-func NewStopCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewStopCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options stopOptions
 	cmd := &cobra.Command{
 		Use:   "stop [OPTIONS]",
@@ -64,7 +64,7 @@ func NewStopCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genStopPlaybook(curveadm *cli.CurveAdm,
+func genStopPlaybook(curveadm *cli.DingoAdm,
 	mcs []*configure.MonitorConfig,
 	options stopOptions) (*playbook.Playbook, error) {
 	mcs = configure.FilterMonitorConfig(curveadm, mcs, configure.FilterMonitorOption{
@@ -87,7 +87,7 @@ func genStopPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func runStop(curveadm *cli.CurveAdm, options stopOptions) error {
+func runStop(curveadm *cli.DingoAdm, options stopOptions) error {
 	// 1) parse monitor config
 	mcs, err := parseMonitorConfig(curveadm)
 	if err != nil {

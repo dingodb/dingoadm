@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -40,7 +41,7 @@ var REMOVE_PLAYGROUND_PLAYBOOK_STEPS = []int{
 	playbook.REMOVE_PLAYGROUND,
 }
 
-func NewRemoveCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewRemoveCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options removeOptions
 
 	cmd := &cobra.Command{
@@ -58,7 +59,7 @@ func NewRemoveCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genRemovePlaybook(curveadm *cli.CurveAdm,
+func genRemovePlaybook(curveadm *cli.DingoAdm,
 	playgrounds []storage.Playground) (*playbook.Playbook, error) {
 	configs := []interface{}{}
 	for _, playground := range playgrounds {
@@ -75,7 +76,7 @@ func genRemovePlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func runRemove(curveadm *cli.CurveAdm, options removeOptions) error {
+func runRemove(curveadm *cli.DingoAdm, options removeOptions) error {
 	// 1) get playground
 	id := options.id
 	playgrounds, err := curveadm.Storage().GetPlaygroundById(id)

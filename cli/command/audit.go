@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -37,7 +38,7 @@ type auditOptions struct {
 	verbose bool
 }
 
-func NewAuditCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewAuditCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options auditOptions
 
 	cmd := &cobra.Command{
@@ -57,7 +58,7 @@ func NewAuditCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func runAudit(curveadm *cli.CurveAdm, options auditOptions) error {
+func runAudit(curveadm *cli.DingoAdm, options auditOptions) error {
 	auditLogs, err := curveadm.Storage().GetAuditLogs()
 	if err != nil {
 		return errno.ERR_GET_AUDIT_LOGS_FAILE.E(err)

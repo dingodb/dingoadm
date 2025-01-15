@@ -48,7 +48,7 @@ type reloadOptions struct {
 	host string
 }
 
-func NewReloadCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewReloadCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options reloadOptions
 	cmd := &cobra.Command{
 		Use:   "reload [OPTIONS]",
@@ -68,7 +68,7 @@ func NewReloadCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genReloadPlaybook(curveadm *cli.CurveAdm,
+func genReloadPlaybook(curveadm *cli.DingoAdm,
 	mcs []*configure.MonitorConfig,
 	options reloadOptions) (*playbook.Playbook, error) {
 	mcs = configure.FilterMonitorConfig(curveadm, mcs, configure.FilterMonitorOption{
@@ -102,7 +102,7 @@ func genReloadPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func runReload(curveadm *cli.CurveAdm, options reloadOptions) error {
+func runReload(curveadm *cli.DingoAdm, options reloadOptions) error {
 	// 1) parse monitor configure
 	mcs, err := parseMonitorConfig(curveadm)
 	if err != nil {

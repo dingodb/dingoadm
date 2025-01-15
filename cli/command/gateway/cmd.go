@@ -28,7 +28,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewGatewayCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewGatewayCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "gateway",
 		Short: "Manage gateway",

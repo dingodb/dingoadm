@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -41,7 +42,7 @@ func checkTargetDaemonExist(containerId *string) step.LambdaType {
 	}
 }
 
-func NewStopTargetDaemonTask(curveadm *cli.CurveAdm, v interface{}) (*task.Task, error) {
+func NewStopTargetDaemonTask(curveadm *cli.DingoAdm, v interface{}) (*task.Task, error) {
 	options := curveadm.MemStorage().Get(comm.KEY_TARGET_OPTIONS).(TargetOption)
 	hc, err := curveadm.GetHost(options.Host)
 	if err != nil {

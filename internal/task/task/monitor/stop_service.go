@@ -33,7 +33,7 @@ import (
 	tui "github.com/dingodb/dingoadm/internal/tui/common"
 )
 
-func NewStopServiceTask(curveadm *cli.CurveAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
+func NewStopServiceTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
 	serviceId := curveadm.GetServiceId(cfg.GetId())
 	containerId, err := curveadm.GetContainerId(serviceId)
 	if IsSkip(cfg, []string{ROLE_MONITOR_CONF}) {

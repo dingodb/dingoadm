@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -43,7 +44,7 @@ func skipStopFormat(containerId *string) step.LambdaType {
 
 type stopContainer struct {
 	containerId *string
-	curveadm    *cli.CurveAdm
+	curveadm    *cli.DingoAdm
 }
 
 func (s *stopContainer) Execute(ctx *context.Context) error {
@@ -66,7 +67,7 @@ func (s *stopContainer) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func NewStopFormatTask(curveadm *cli.CurveAdm, fc *configure.FormatConfig) (*task.Task, error) {
+func NewStopFormatTask(curveadm *cli.DingoAdm, fc *configure.FormatConfig) (*task.Task, error) {
 	host := fc.GetHost()
 	hc, err := curveadm.GetHost(host)
 	if err != nil {

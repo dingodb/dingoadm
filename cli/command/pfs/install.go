@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -47,7 +48,7 @@ type installOptions struct {
 	filename string
 }
 
-func checkInstallOptions(curveadm *cli.CurveAdm, options installOptions) error {
+func checkInstallOptions(curveadm *cli.DingoAdm, options installOptions) error {
 	if !utils.PathExist(options.filename) {
 		return errno.ERR_CLIENT_CONFIGURE_FILE_NOT_EXIST.
 			F("%s: no such file", utils.AbsPath(options.filename))
@@ -55,7 +56,7 @@ func checkInstallOptions(curveadm *cli.CurveAdm, options installOptions) error {
 	return nil
 }
 
-func NewInstallCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewInstallCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options installOptions
 
 	cmd := &cobra.Command{
@@ -78,7 +79,7 @@ func NewInstallCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genInstallPlaybook(curveadm *cli.CurveAdm,
+func genInstallPlaybook(curveadm *cli.DingoAdm,
 	ccs []*configure.ClientConfig,
 	options installOptions) (*playbook.Playbook, error) {
 	steps := INSTALL_PFS_PLAYBOOK_STEPS
@@ -95,7 +96,7 @@ func genInstallPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func runInstall(curveadm *cli.CurveAdm, options installOptions) error {
+func runInstall(curveadm *cli.DingoAdm, options installOptions) error {
 	// 1) parse client configure
 	cc, err := configure.ParseClientConfig(options.filename)
 	if err != nil {

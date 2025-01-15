@@ -44,7 +44,7 @@ type startOptions struct {
 	host string
 }
 
-func NewStartCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewStartCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options startOptions
 	cmd := &cobra.Command{
 		Use:   "start [OPTIONS]",
@@ -64,7 +64,7 @@ func NewStartCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genStartPlaybook(curveadm *cli.CurveAdm,
+func genStartPlaybook(curveadm *cli.DingoAdm,
 	mcs []*configure.MonitorConfig,
 	options startOptions) (*playbook.Playbook, error) {
 	mcs = configure.FilterMonitorConfig(curveadm, mcs, configure.FilterMonitorOption{
@@ -87,7 +87,7 @@ func genStartPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func runStart(curveadm *cli.CurveAdm, options startOptions) error {
+func runStart(curveadm *cli.DingoAdm, options startOptions) error {
 	// 1) parse monitor configure
 	mcs, err := parseMonitorConfig(curveadm)
 	if err != nil {

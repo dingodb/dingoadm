@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -77,7 +78,7 @@ func joinPorts(dc *topology.DeployConfig, addresses []Address) string {
 	return strings.Join(ports, ",")
 }
 
-func getCheckPortContainerName(curveadm *cli.CurveAdm, dc *topology.DeployConfig) string {
+func getCheckPortContainerName(curveadm *cli.DingoAdm, dc *topology.DeployConfig) string {
 	return fmt.Sprintf("%s-%s-%s",
 		CHECK_PORT_CONTAINER_NAME,
 		dc.GetRole(),
@@ -88,7 +89,7 @@ type step2CheckPortStatus struct {
 	containerId *string
 	success     *bool
 	dc          *topology.DeployConfig
-	curveadm    *cli.CurveAdm
+	curveadm    *cli.DingoAdm
 	port        int
 }
 
@@ -125,7 +126,7 @@ func (s *step2CheckPortStatus) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func NewCheckPortInUseTask(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (*task.Task, error) {
+func NewCheckPortInUseTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
 	hc, err := curveadm.GetHost(dc.GetHost())
 	if err != nil {
 		return nil, err
@@ -193,7 +194,7 @@ func checkReachable(success *bool, out *string) step.LambdaType {
 	}
 }
 
-func NewCheckDestinationReachableTask(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (*task.Task, error) {
+func NewCheckDestinationReachableTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
 	hc, err := curveadm.GetHost(dc.GetHost())
 	if err != nil {
 		return nil, err
@@ -234,7 +235,7 @@ func getNginxListens(dc *topology.DeployConfig) string {
 	return strings.Join(listens, " ")
 }
 
-func getHTTPServerContainerName(curveadm *cli.CurveAdm, dc *topology.DeployConfig) string {
+func getHTTPServerContainerName(curveadm *cli.DingoAdm, dc *topology.DeployConfig) string {
 	return fmt.Sprintf("%s-%s-%s",
 		HTTP_SERVER_CONTAINER_NAME,
 		dc.GetRole(),
@@ -248,7 +249,7 @@ func waitNginxStarted(seconds int) step.LambdaType {
 	}
 }
 
-func NewStartHTTPServerTask(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (*task.Task, error) {
+func NewStartHTTPServerTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
 	hc, err := curveadm.GetHost(dc.GetHost())
 	if err != nil {
 		return nil, err
@@ -318,7 +319,7 @@ func (s *step2CheckConnectStatus) Execute(ctx *context.Context) error {
 			s.dc.GetRole(), s.dc.GetHost(), s.address.IP, s.address.Port)
 }
 
-func NewCheckNetworkFirewallTask(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (*task.Task, error) {
+func NewCheckNetworkFirewallTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
 	hc, err := curveadm.GetHost(dc.GetHost())
 	if err != nil {
 		return nil, err
@@ -357,7 +358,7 @@ func NewCheckNetworkFirewallTask(curveadm *cli.CurveAdm, dc *topology.DeployConf
 type step2StopContainer struct {
 	containerId *string
 	dc          *topology.DeployConfig
-	curveadm    *cli.CurveAdm
+	curveadm    *cli.DingoAdm
 }
 
 func (s *step2StopContainer) Execute(ctx *context.Context) error {
@@ -387,7 +388,7 @@ func (s *step2StopContainer) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func NewCleanEnvironmentTask(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (*task.Task, error) {
+func NewCleanEnvironmentTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
 	hc, err := curveadm.GetHost(dc.GetHost())
 	if err != nil {
 		return nil, err

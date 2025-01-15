@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -131,7 +132,7 @@ func (s *step2CheckClientS3Configure) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func NewCheckChunkfilePoolTask(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (*task.Task, error) {
+func NewCheckChunkfilePoolTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
 	hc, err := curveadm.GetHost(dc.GetHost())
 	if err != nil {
 		return nil, err
@@ -148,7 +149,7 @@ func NewCheckChunkfilePoolTask(curveadm *cli.CurveAdm, dc *topology.DeployConfig
 	return t, nil
 }
 
-func NewCheckS3Task(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (*task.Task, error) {
+func NewCheckS3Task(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
 	subname := fmt.Sprintf("host=%s role=%s", dc.GetHost(), dc.GetRole())
 	t := task.NewTask("Check S3", subname, nil)
 
@@ -162,7 +163,7 @@ func NewCheckS3Task(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (*task.Ta
 	return t, nil
 }
 
-func NewCheckMdsAddressTask(curveadm *cli.CurveAdm, cc *configure.ClientConfig) (*task.Task, error) {
+func NewCheckMdsAddressTask(curveadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.Task, error) {
 	host := curveadm.MemStorage().Get(comm.KEY_CLIENT_HOST).(string)
 	hc, err := curveadm.GetHost(host)
 	if err != nil {
@@ -176,7 +177,7 @@ func NewCheckMdsAddressTask(curveadm *cli.CurveAdm, cc *configure.ClientConfig) 
 	return t, nil
 }
 
-func NewClientS3ConfigureTask(curveadm *cli.CurveAdm, cc *configure.ClientConfig) (*task.Task, error) {
+func NewClientS3ConfigureTask(curveadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.Task, error) {
 	t := task.NewTask("Check S3 Configure <service>", "", nil)
 
 	t.AddStep(&step2CheckClientS3Configure{
@@ -186,6 +187,6 @@ func NewClientS3ConfigureTask(curveadm *cli.CurveAdm, cc *configure.ClientConfig
 	return t, nil
 }
 
-func NewCheckDiskUsageTask(curveadm *cli.CurveAdm, cc *configure.ClientConfig) (*task.Task, error) {
+func NewCheckDiskUsageTask(curveadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.Task, error) {
 	return nil, nil
 }

@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -40,7 +41,7 @@ func wait(seconds int) step.LambdaType {
 	}
 }
 
-func NewStartPlaygroundTask(curveadm *cli.CurveAdm, cfg *configure.PlaygroundConfig) (*task.Task, error) {
+func NewStartPlaygroundTask(curveadm *cli.DingoAdm, cfg *configure.PlaygroundConfig) (*task.Task, error) {
 	// new task
 	subname := fmt.Sprintf("kind=%s name=%s", cfg.GetKind(), cfg.GetName())
 	t := task.NewTask("Start Playground", subname, nil)

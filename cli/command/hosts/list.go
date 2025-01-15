@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -37,7 +38,7 @@ type listOptions struct {
 	labels  string
 }
 
-func NewListCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewListCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options listOptions
 
 	cmd := &cobra.Command{
@@ -153,7 +154,7 @@ func filter(data string, labels []string) ([]*hosts.HostConfig, error) {
 	return out, nil
 }
 
-func runList(curveadm *cli.CurveAdm, options listOptions) error {
+func runList(curveadm *cli.DingoAdm, options listOptions) error {
 	var hcs []*hosts.HostConfig
 	var err error
 	data := curveadm.Hosts()
