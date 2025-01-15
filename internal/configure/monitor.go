@@ -235,7 +235,7 @@ func parsePrometheusTarget(dcs []*topology.DeployConfig) (string, error) {
 	return string(target), nil
 }
 
-func ParseMonitorConfig(curveadm *cli.CurveAdm, filename string, data string, hs []string,
+func ParseMonitorConfig(curveadm *cli.DingoAdm, filename string, data string, hs []string,
 	hostIps []string, dcs []*topology.DeployConfig) (
 	[]*MonitorConfig, error) {
 	parser := viper.NewWithOptions(viper.KeyDelimiter("::"))
@@ -341,7 +341,7 @@ func ParseMonitorConfig(curveadm *cli.CurveAdm, filename string, data string, hs
 	return ret, nil
 }
 
-func FilterMonitorConfig(curveadm *cli.CurveAdm, mcs []*MonitorConfig,
+func FilterMonitorConfig(curveadm *cli.DingoAdm, mcs []*MonitorConfig,
 	options FilterMonitorOption) []*MonitorConfig {
 	ret := []*MonitorConfig{}
 	for _, mc := range mcs {

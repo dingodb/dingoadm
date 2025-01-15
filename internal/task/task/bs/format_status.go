@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -112,7 +113,7 @@ func (s *step2FormatStatus) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func NewGetFormatStatusTask(curveadm *cli.CurveAdm, fc *configure.FormatConfig) (*task.Task, error) {
+func NewGetFormatStatusTask(curveadm *cli.DingoAdm, fc *configure.FormatConfig) (*task.Task, error) {
 	host := fc.GetHost()
 	hc, err := curveadm.GetHost(host)
 	if err != nil {

@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -33,7 +34,7 @@ import (
 	"github.com/dingodb/dingoadm/internal/task/task"
 )
 
-func NewInitSupportTask(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (*task.Task, error) {
+func NewInitSupportTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
 	// new task
 	kind := dc.GetKind()
 	subname := fmt.Sprintf("cluster=%s kind=%s",

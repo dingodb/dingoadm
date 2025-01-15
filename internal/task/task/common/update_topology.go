@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -33,7 +34,7 @@ import (
 	"github.com/dingodb/dingoadm/internal/task/task"
 )
 
-func updateTopology(curveadm *cli.CurveAdm) step.LambdaType {
+func updateTopology(curveadm *cli.DingoAdm) step.LambdaType {
 	return func(ctx *context.Context) error {
 		topology := curveadm.MemStorage().Get(comm.KEY_NEW_TOPOLOGY_DATA).(string)
 		err := curveadm.Storage().SetClusterTopology(curveadm.ClusterId(), topology)
@@ -44,7 +45,7 @@ func updateTopology(curveadm *cli.CurveAdm) step.LambdaType {
 	}
 }
 
-func NewUpdateTopologyTask(curveadm *cli.CurveAdm, v interface{}) (*task.Task, error) {
+func NewUpdateTopologyTask(curveadm *cli.DingoAdm, v interface{}) (*task.Task, error) {
 	t := task.NewTask("Update Topology", "", nil)
 
 	// add step to task

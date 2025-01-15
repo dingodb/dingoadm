@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -47,7 +48,7 @@ type importOptions struct {
 	dbfile string
 }
 
-func NewImportCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewImportCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options importOptions
 
 	cmd := &cobra.Command{
@@ -120,7 +121,7 @@ func importCluster(storage *storage.Storage, dbfile, name string) error {
 	return nil
 }
 
-func runImport(curveadm *cli.CurveAdm, options importOptions) error {
+func runImport(curveadm *cli.DingoAdm, options importOptions) error {
 	name := options.name
 	storage := curveadm.Storage()
 	clusters, err := storage.GetClusters(name)

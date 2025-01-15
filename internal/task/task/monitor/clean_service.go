@@ -54,7 +54,7 @@ func getCleanFiles(clean map[string]bool, mc *configure.MonitorConfig) []string 
 	return files
 }
 
-func NewCleanMonitorTask(curveadm *cli.CurveAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
+func NewCleanMonitorTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
 	serviceId := curveadm.GetServiceId(cfg.GetId())
 	containerId, err := curveadm.GetContainerId(serviceId)
 	if err != nil {

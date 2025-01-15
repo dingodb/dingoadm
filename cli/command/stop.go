@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -49,7 +50,7 @@ type stopOptions struct {
 	force bool
 }
 
-func NewStopCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewStopCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options stopOptions
 
 	cmd := &cobra.Command{
@@ -74,7 +75,7 @@ func NewStopCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genStopPlaybook(curveadm *cli.CurveAdm,
+func genStopPlaybook(curveadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options stopOptions) (*playbook.Playbook, error) {
 	dcs = curveadm.FilterDeployConfig(dcs, topology.FilterOption{
@@ -97,7 +98,7 @@ func genStopPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func runStop(curveadm *cli.CurveAdm, options stopOptions) error {
+func runStop(curveadm *cli.DingoAdm, options stopOptions) error {
 	// 1) parse cluster topology
 	dcs, err := curveadm.ParseTopology()
 	if err != nil {

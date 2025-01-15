@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -45,18 +46,18 @@ type (
 		containerId string
 		status      *string
 		mountPoint  string
-		curveadm    *cli.CurveAdm
+		curveadm    *cli.DingoAdm
 	}
 
 	step2RemoveContainer struct {
 		status      *string
 		containerId string
-		curveadm    *cli.CurveAdm
+		curveadm    *cli.DingoAdm
 	}
 
 	step2DeleteClient struct {
 		fsId     string
-		curveadm *cli.CurveAdm
+		curveadm *cli.DingoAdm
 	}
 )
 
@@ -126,7 +127,7 @@ func (s *step2RemoveContainer) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func NewUmountFSTask(curveadm *cli.CurveAdm, v interface{}) (*task.Task, error) {
+func NewUmountFSTask(curveadm *cli.DingoAdm, v interface{}) (*task.Task, error) {
 	options := curveadm.MemStorage().Get(comm.KEY_MOUNT_OPTIONS).(MountOptions)
 	fsId := curveadm.GetFilesystemId(options.Host, options.MountPoint)
 	hc, err := curveadm.GetHost(options.Host)

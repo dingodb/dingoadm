@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -48,7 +49,7 @@ type reloadOptions struct {
 	host string
 }
 
-func NewReloadCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewReloadCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options reloadOptions
 
 	cmd := &cobra.Command{
@@ -72,7 +73,7 @@ func NewReloadCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genReloadPlaybook(curveadm *cli.CurveAdm,
+func genReloadPlaybook(curveadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options reloadOptions) (*playbook.Playbook, error) {
 	dcs = curveadm.FilterDeployConfig(dcs, topology.FilterOption{
@@ -95,7 +96,7 @@ func genReloadPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func runReload(curveadm *cli.CurveAdm, options reloadOptions) error {
+func runReload(curveadm *cli.DingoAdm, options reloadOptions) error {
 	// 1) parse cluster topology
 	dcs, err := curveadm.ParseTopology()
 	if err != nil {

@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -131,7 +132,7 @@ func getCleanFiles(clean map[string]bool, dc *topology.DeployConfig, recycle boo
 	return files
 }
 
-func NewCleanServiceTask(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (*task.Task, error) {
+func NewCleanServiceTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
 	serviceId := curveadm.GetServiceId(dc.GetId())
 	containerId, err := curveadm.GetContainerId(serviceId)
 	if curveadm.IsSkip(dc) {

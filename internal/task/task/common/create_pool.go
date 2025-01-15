@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -43,19 +44,19 @@ import (
 )
 
 type step2SetClusterPool struct {
-	curveadm    *cli.CurveAdm
+	curveadm    *cli.DingoAdm
 	clusterPool string
 	storage     *storage.Storage
 }
 
-func getPoolset(curveadm *cli.CurveAdm, kind string) configure.Poolset {
+func getPoolset(curveadm *cli.DingoAdm, kind string) configure.Poolset {
 	if kind == configure.KIND_CURVEFS || kind == configure.KIND_DINGOFS {
 		return configure.Poolset{}
 	}
 	return curveadm.MemStorage().Get(comm.KEY_POOLSET).(configure.Poolset)
 }
 
-func getClusterPool(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (configure.CurveClusterTopo, error) {
+func getClusterPool(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (configure.CurveClusterTopo, error) {
 	poolset := getPoolset(curveadm, dc.GetKind())
 	oldPool := configure.CurveClusterTopo{}
 	dcs, err := curveadm.ParseTopology()
@@ -95,7 +96,7 @@ func getClusterPool(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (configur
 	return oldPool, err
 }
 
-func prepare(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (clusterPoolJson, clusterMDSAddrs string, err error) {
+func prepare(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (clusterPoolJson, clusterMDSAddrs string, err error) {
 	// 1. get origin cluster pool
 	var clusterPool configure.CurveClusterTopo
 	clusterPool, err = getClusterPool(curveadm, dc)
@@ -181,7 +182,7 @@ func (s *step2SetClusterPool) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func NewCreateTopologyTask(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (*task.Task, error) {
+func NewCreateTopologyTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
 	serviceId := curveadm.GetServiceId(dc.GetId())
 	containerId, err := curveadm.GetContainerId(serviceId)
 	if curveadm.IsSkip(dc) {

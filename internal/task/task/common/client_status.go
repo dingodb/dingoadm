@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -64,7 +65,7 @@ type (
 	}
 )
 
-func dumpCfg(curveadm *cli.CurveAdm, id string, cfgPath *string) step.LambdaType {
+func dumpCfg(curveadm *cli.DingoAdm, id string, cfgPath *string) step.LambdaType {
 	return func(ctx *context.Context) error {
 		*cfgPath = MISSING_CLIENT_CONFIG
 		cfgs, err := curveadm.Storage().GetClientConfig(id)
@@ -136,7 +137,7 @@ func (s *step2FormatClientStatus) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func NewInitClientStatusTask(curveadm *cli.CurveAdm, v interface{}) (*task.Task, error) {
+func NewInitClientStatusTask(curveadm *cli.DingoAdm, v interface{}) (*task.Task, error) {
 	client := v.(storage.Client)
 
 	t := task.NewTask("Init Client Status", "", nil)
@@ -154,7 +155,7 @@ func NewInitClientStatusTask(curveadm *cli.CurveAdm, v interface{}) (*task.Task,
 	return t, nil
 }
 
-func NewGetClientStatusTask(curveadm *cli.CurveAdm, v interface{}) (*task.Task, error) {
+func NewGetClientStatusTask(curveadm *cli.DingoAdm, v interface{}) (*task.Task, error) {
 	client := v.(storage.Client)
 	hc, err := curveadm.GetHost(client.Host)
 	if err != nil {

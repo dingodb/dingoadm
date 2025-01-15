@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -45,7 +46,7 @@ type (
 		files       *[]string
 		containerId string
 		hostDestDir string
-		curveadm    *cli.CurveAdm
+		curveadm    *cli.DingoAdm
 	}
 )
 
@@ -73,7 +74,7 @@ func (s *step2CopyFilesFromContainer) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func NewCollectServiceTask(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (*task.Task, error) {
+func NewCollectServiceTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
 	serviceId := curveadm.GetServiceId(dc.GetId())
 	containerId, err := curveadm.Storage().GetContainerId(serviceId)
 	if curveadm.IsSkip(dc) {

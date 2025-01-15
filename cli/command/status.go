@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -55,7 +56,7 @@ type statusOptions struct {
 	showInstances bool
 }
 
-func NewStatusCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewStatusCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options statusOptions
 
 	cmd := &cobra.Command{
@@ -103,9 +104,9 @@ func getClusterMdsLeader(statuses []task.ServiceStatus) string {
 	return color.RedString("<no leader>")
 }
 
-func displayStatus(curveadm *cli.CurveAdm, dcs []*topology.DeployConfig, options statusOptions) {
+func displayStatus(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options statusOptions) {
 	statuses := []task.ServiceStatus{}
-	value := curveadm.MemStorage().Get(comm.KEY_ALL_SERVICE_STATUS)
+	value := dingoadm.MemStorage().Get(comm.KEY_ALL_SERVICE_STATUS)
 	if value != nil {
 		m := value.(map[string]task.ServiceStatus)
 		for _, status := range m {
@@ -114,16 +115,16 @@ func displayStatus(curveadm *cli.CurveAdm, dcs []*topology.DeployConfig, options
 	}
 
 	output := tui.FormatStatus(statuses, options.verbose, options.showInstances)
-	curveadm.WriteOutln("")
-	curveadm.WriteOutln("cluster name      : %s", curveadm.ClusterName())
-	curveadm.WriteOutln("cluster kind      : %s", dcs[0].GetKind())
-	curveadm.WriteOutln("cluster mds addr  : %s", getClusterMdsAddr(dcs))
-	curveadm.WriteOutln("cluster mds leader: %s", getClusterMdsLeader(statuses))
-	curveadm.WriteOutln("")
-	curveadm.WriteOut("%s", output)
+	dingoadm.WriteOutln("")
+	dingoadm.WriteOutln("cluster name      : %s", dingoadm.ClusterName())
+	dingoadm.WriteOutln("cluster kind      : %s", dcs[0].GetKind())
+	dingoadm.WriteOutln("cluster mds addr  : %s", getClusterMdsAddr(dcs))
+	dingoadm.WriteOutln("cluster mds leader: %s", getClusterMdsLeader(statuses))
+	dingoadm.WriteOutln("")
+	dingoadm.WriteOut("%s", output)
 }
 
-func genStatusPlaybook(curveadm *cli.CurveAdm,
+func genStatusPlaybook(curveadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options statusOptions) (*playbook.Playbook, error) {
 	dcs = curveadm.FilterDeployConfig(dcs, topology.FilterOption{
@@ -152,15 +153,15 @@ func genStatusPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func runStatus(curveadm *cli.CurveAdm, options statusOptions) error {
+func runStatus(dingoadm *cli.DingoAdm, options statusOptions) error {
 	// 1) parse cluster topology
-	dcs, err := curveadm.ParseTopology()
+	dcs, err := dingoadm.ParseTopology()
 	if err != nil {
 		return err
 	}
 
 	// 2) generate get status playbook
-	pb, err := genStatusPlaybook(curveadm, dcs, options)
+	pb, err := genStatusPlaybook(dingoadm, dcs, options)
 	if err != nil {
 		return err
 	}
@@ -169,6 +170,6 @@ func runStatus(curveadm *cli.CurveAdm, options statusOptions) error {
 	err = pb.Run()
 
 	// 4) display service status
-	displayStatus(curveadm, dcs, options)
+	displayStatus(dingoadm, dcs, options)
 	return err
 }

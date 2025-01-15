@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -49,7 +50,7 @@ type startOptions struct {
 	force bool
 }
 
-func checkCommonOptions(curveadm *cli.CurveAdm, id, role, host string) error {
+func checkCommonOptions(curveadm *cli.DingoAdm, id, role, host string) error {
 	items := []struct {
 		key      string
 		callback func(string) error
@@ -71,7 +72,7 @@ func checkCommonOptions(curveadm *cli.CurveAdm, id, role, host string) error {
 	return nil
 }
 
-func NewStartCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewStartCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options startOptions
 
 	cmd := &cobra.Command{
@@ -96,7 +97,7 @@ func NewStartCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genStartPlaybook(curveadm *cli.CurveAdm,
+func genStartPlaybook(curveadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options startOptions) (*playbook.Playbook, error) {
 	dcs = curveadm.FilterDeployConfig(dcs, topology.FilterOption{
@@ -119,7 +120,7 @@ func genStartPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func runStart(curveadm *cli.CurveAdm, options startOptions) error {
+func runStart(curveadm *cli.DingoAdm, options startOptions) error {
 	// 1) parse cluster topology
 	dcs, err := curveadm.ParseTopology()
 	if err != nil {

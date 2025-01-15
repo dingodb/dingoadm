@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -49,7 +50,7 @@ type restartOptions struct {
 	force bool
 }
 
-func NewRestartCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewRestartCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options restartOptions
 
 	cmd := &cobra.Command{
@@ -74,7 +75,7 @@ func NewRestartCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genRestartPlaybook(curveadm *cli.CurveAdm,
+func genRestartPlaybook(curveadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options restartOptions) (*playbook.Playbook, error) {
 	dcs = curveadm.FilterDeployConfig(dcs, topology.FilterOption{
@@ -97,7 +98,7 @@ func genRestartPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func runRestart(curveadm *cli.CurveAdm, options restartOptions) error {
+func runRestart(curveadm *cli.DingoAdm, options restartOptions) error {
 	// 1) parse cluster topology
 	dcs, err := curveadm.ParseTopology()
 	if err != nil {

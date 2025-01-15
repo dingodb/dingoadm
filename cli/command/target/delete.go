@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -43,7 +44,7 @@ type deleteOptions struct {
 	tid  string
 }
 
-func NewDeleteCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewDeleteCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options deleteOptions
 
 	cmd := &cobra.Command{
@@ -64,7 +65,7 @@ func NewDeleteCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genDeletePlaybook(curveadm *cli.CurveAdm, options deleteOptions) (*playbook.Playbook, error) {
+func genDeletePlaybook(curveadm *cli.DingoAdm, options deleteOptions) (*playbook.Playbook, error) {
 	steps := DELETE_PLAYBOOK_STEPS
 	pb := playbook.NewPlaybook(curveadm)
 	for _, step := range steps {
@@ -82,7 +83,7 @@ func genDeletePlaybook(curveadm *cli.CurveAdm, options deleteOptions) (*playbook
 	return pb, nil
 }
 
-func runDelete(curveadm *cli.CurveAdm, options deleteOptions) error {
+func runDelete(curveadm *cli.DingoAdm, options deleteOptions) error {
 	// 1) generate list playbook
 	pb, err := genDeletePlaybook(curveadm, options)
 	if err != nil {

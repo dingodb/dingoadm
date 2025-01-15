@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -101,7 +102,7 @@ func prepare(dcs []*topology.DeployConfig, poolset configure.Poolset) (string, e
 	return string(bytes), err
 }
 
-func NewInitPlaygroundTask(curveadm *cli.CurveAdm, cfg *configure.PlaygroundConfig) (*task.Task, error) {
+func NewInitPlaygroundTask(curveadm *cli.DingoAdm, cfg *configure.PlaygroundConfig) (*task.Task, error) {
 	// new task
 	kind := cfg.GetKind()
 	name := cfg.GetName()

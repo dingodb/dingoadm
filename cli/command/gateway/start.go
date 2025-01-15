@@ -50,7 +50,7 @@ var (
 	}
 )
 
-func NewStartGatewayCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewStartGatewayCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options startOptions
 
 	cmd := &cobra.Command{
@@ -74,7 +74,7 @@ func NewStartGatewayCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func runStart(curveadm *cli.CurveAdm, options startOptions) error {
+func runStart(curveadm *cli.DingoAdm, options startOptions) error {
 
 	// 1) generate mount playbook
 	pb, err := genStartPlaybook(curveadm, options)
@@ -95,7 +95,7 @@ func runStart(curveadm *cli.CurveAdm, options startOptions) error {
 	return nil
 }
 
-func genStartPlaybook(curveadm *cli.CurveAdm, options startOptions) (*playbook.Playbook, error) {
+func genStartPlaybook(curveadm *cli.DingoAdm, options startOptions) (*playbook.Playbook, error) {
 	steps := START_GATEWAY_PLAYBOOK_STEPS
 	pb := playbook.NewPlaybook(curveadm)
 

@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -63,7 +64,7 @@ type formatOptions struct {
 	concurrent uint
 }
 
-func NewFormatCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewFormatCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options formatOptions
 
 	cmd := &cobra.Command{
@@ -86,7 +87,7 @@ func NewFormatCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genFormatPlaybook(curveadm *cli.CurveAdm,
+func genFormatPlaybook(curveadm *cli.DingoAdm,
 	fcs []*configure.FormatConfig,
 	options formatOptions) (*playbook.Playbook, error) {
 	if len(fcs) == 0 {
@@ -118,7 +119,7 @@ func genFormatPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func displayFormatStatus(curveadm *cli.CurveAdm, fcs []*configure.FormatConfig, options formatOptions) {
+func displayFormatStatus(curveadm *cli.DingoAdm, fcs []*configure.FormatConfig, options formatOptions) {
 	statuses := []bs.FormatStatus{}
 	v := curveadm.MemStorage().Get(comm.KEY_ALL_FORMAT_STATUS)
 	if v != nil {
@@ -134,7 +135,7 @@ func displayFormatStatus(curveadm *cli.CurveAdm, fcs []*configure.FormatConfig, 
 	return
 }
 
-func runFormat(curveadm *cli.CurveAdm, options formatOptions) error {
+func runFormat(curveadm *cli.DingoAdm, options formatOptions) error {
 	// 1) parse format config
 	fcs, err := configure.ParseFormat(options.filename)
 	if err != nil {

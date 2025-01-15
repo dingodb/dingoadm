@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,9 +26,9 @@
 package os
 
 const (
-	PATH_FSTAB = "/etc/fstab"
+	PATH_FSTAB      = "/etc/fstab"
 	PATH_OS_RELEASE = "/etc/os-release"
-	MAX_PORT   = 65535
+	MAX_PORT        = 65535
 )
 
 func GetFSTabPath() string     { return PATH_FSTAB }

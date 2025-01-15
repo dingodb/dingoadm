@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -79,7 +80,7 @@ func (s *step2FormatPlaygroundStatus) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func NewGetPlaygroundStatusTask(curveadm *cli.CurveAdm, v interface{}) (*task.Task, error) {
+func NewGetPlaygroundStatusTask(curveadm *cli.DingoAdm, v interface{}) (*task.Task, error) {
 	// new task
 	playground := v.(storage.Playground)
 	subname := fmt.Sprintf("id=%d name=%s", playground.Id, playground.Name)

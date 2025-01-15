@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -36,7 +37,7 @@ type checkoutOptions struct {
 	clusterName string
 }
 
-func NewCheckoutCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewCheckoutCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options checkoutOptions
 
 	cmd := &cobra.Command{
@@ -53,7 +54,7 @@ func NewCheckoutCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func runCheckout(curveadm *cli.CurveAdm, options checkoutOptions) error {
+func runCheckout(curveadm *cli.DingoAdm, options checkoutOptions) error {
 	// 1) get cluster by name
 	clusterName := options.clusterName
 	storage := curveadm.Storage()

@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -49,13 +50,13 @@ type (
 	}
 
 	step2RemoveContainer struct {
-		curveadm    *cli.CurveAdm
+		curveadm    *cli.DingoAdm
 		status      *string
 		containerId string
 	}
 
 	step2DeleteClient struct {
-		curveadm *cli.CurveAdm
+		curveadm *cli.DingoAdm
 		volumeId string
 	}
 )
@@ -130,7 +131,7 @@ func (s *step2DeleteClient) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func NewUnmapTask(curveadm *cli.CurveAdm, v interface{}) (*task.Task, error) {
+func NewUnmapTask(curveadm *cli.DingoAdm, v interface{}) (*task.Task, error) {
 	options := curveadm.MemStorage().Get(comm.KEY_MAP_OPTIONS).(MapOptions)
 	volumeId := curveadm.GetVolumeId(options.Host, options.User, options.Volume)
 	containerId, err := curveadm.Storage().GetClientContainerId(volumeId)

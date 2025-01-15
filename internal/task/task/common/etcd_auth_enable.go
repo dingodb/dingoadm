@@ -44,7 +44,7 @@ func checkEnableEtcdAuthStatus(success *bool, out *string) step.LambdaType {
 	}
 }
 
-func NewEnableEtcdAuthTask(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (*task.Task, error) {
+func NewEnableEtcdAuthTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
 	serviceId := curveadm.GetServiceId(dc.GetId())
 	containerId, err := curveadm.GetContainerId(serviceId)
 	if curveadm.IsSkip(dc) {

@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -35,7 +36,7 @@ type enterOptions struct {
 	id string
 }
 
-func NewEnterCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewEnterCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options enterOptions
 
 	cmd := &cobra.Command{
@@ -52,7 +53,7 @@ func NewEnterCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func runEnter(curveadm *cli.CurveAdm, options enterOptions) error {
+func runEnter(curveadm *cli.DingoAdm, options enterOptions) error {
 	// 1) get container id
 	clients, err := curveadm.Storage().GetClient(options.id)
 	if err != nil {

@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -44,7 +45,7 @@ type step2ParseOSRelease struct {
 	host     string
 	success  *bool
 	out      *string
-	curveadm *cli.CurveAdm
+	curveadm *cli.DingoAdm
 }
 
 func (s *step2ParseOSRelease) Execute(ctx *context.Context) error {
@@ -64,7 +65,7 @@ func (s *step2ParseOSRelease) Execute(ctx *context.Context) error {
 	return errno.ERR_GET_OS_REELASE_FAILED.S(*s.out)
 }
 
-func NewDetectOSReleaseTask(curveadm *cli.CurveAdm, v interface{}) (*task.Task, error) {
+func NewDetectOSReleaseTask(curveadm *cli.DingoAdm, v interface{}) (*task.Task, error) {
 	host := curveadm.MemStorage().Get(comm.KEY_POLARFS_HOST).(string)
 	hc, err := curveadm.GetHost(host)
 	if err != nil {

@@ -54,7 +54,7 @@ func getNodeExporterAddrs(hosts []string, port int) string {
 	return fmt.Sprintf("[%s]", strings.Join(endpoint, ","))
 }
 
-func NewSyncConfigTask(curveadm *cli.CurveAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
+func NewSyncConfigTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
 	serviceId := curveadm.GetServiceId(cfg.GetId())
 	containerId, err := curveadm.GetContainerId(serviceId)
 	if IsSkip(cfg, []string{ROLE_MONITOR_CONF, ROLE_NODE_EXPORTER}) {

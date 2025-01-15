@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -111,7 +112,7 @@ func (s *step2FormatTarget) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func NewListTargetsTask(curveadm *cli.CurveAdm, v interface{}) (*task.Task, error) {
+func NewListTargetsTask(curveadm *cli.DingoAdm, v interface{}) (*task.Task, error) {
 	options := curveadm.MemStorage().Get(comm.KEY_TARGET_OPTIONS).(TargetOption)
 	hc, err := curveadm.GetHost(options.Host)
 	if err != nil {

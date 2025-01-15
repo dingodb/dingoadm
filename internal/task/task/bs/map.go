@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -71,7 +72,7 @@ func getMapOptions(options MapOptions) string {
 	return strings.Join(mapOptions, " ")
 }
 
-func NewMapTask(curveadm *cli.CurveAdm, cc *configure.ClientConfig) (*task.Task, error) {
+func NewMapTask(curveadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.Task, error) {
 	options := curveadm.MemStorage().Get(comm.KEY_MAP_OPTIONS).(MapOptions)
 	hc, err := curveadm.GetHost(options.Host)
 	if err != nil {

@@ -31,7 +31,7 @@ import (
 	"github.com/dingodb/dingoadm/internal/task/task"
 )
 
-func NewPullImageTask(curveadm *cli.CurveAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
+func NewPullImageTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
 	image := cfg.GetImage()
 	host := cfg.GetHost()
 	hc, err := curveadm.GetHost(host)

@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -131,7 +132,7 @@ func checkDeployOptions(options deployOptions) error {
 	return nil
 }
 
-func NewDeployCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewDeployCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options deployOptions
 
 	cmd := &cobra.Command{
@@ -182,7 +183,7 @@ func skipDeploySteps(dcs []*topology.DeployConfig, deploySteps []int, options de
 	return steps
 }
 
-func precheckBeforeDeploy(curveadm *cli.CurveAdm,
+func precheckBeforeDeploy(curveadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options deployOptions) error {
 	// 1) skip precheck
@@ -213,12 +214,12 @@ func precheckBeforeDeploy(curveadm *cli.CurveAdm,
 	return nil
 }
 
-func calcNumOfChunkserver(curveadm *cli.CurveAdm, dcs []*topology.DeployConfig) int {
+func calcNumOfChunkserver(curveadm *cli.DingoAdm, dcs []*topology.DeployConfig) int {
 	services := curveadm.FilterDeployConfigByRole(dcs, topology.ROLE_CHUNKSERVER)
 	return len(services)
 }
 
-func genDeployPlaybook(curveadm *cli.CurveAdm,
+func genDeployPlaybook(curveadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options deployOptions) (*playbook.Playbook, error) {
 	var steps []int
@@ -309,7 +310,7 @@ func serviceStats(dcs []*topology.DeployConfig) string {
 	return serviceStats
 }
 
-func displayDeployTitle(curveadm *cli.CurveAdm, dcs []*topology.DeployConfig) {
+func displayDeployTitle(curveadm *cli.DingoAdm, dcs []*topology.DeployConfig) {
 	curveadm.WriteOutln("Cluster Name    : %s", curveadm.ClusterName())
 	curveadm.WriteOutln("Cluster Kind    : %s", dcs[0].GetKind())
 	curveadm.WriteOutln("Cluster Services: %s", serviceStats(dcs))
@@ -330,7 +331,7 @@ func displayDeployTitle(curveadm *cli.CurveAdm, dcs []*topology.DeployConfig) {
  *   5) create logical pool
  *   6) balance leader rapidly
  */
-func runDeploy(curveadm *cli.CurveAdm, options deployOptions) error {
+func runDeploy(curveadm *cli.DingoAdm, options deployOptions) error {
 	// 1) parse cluster topology
 	dcs, err := curveadm.ParseTopology()
 	if err != nil {

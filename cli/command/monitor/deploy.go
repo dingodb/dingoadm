@@ -65,7 +65,7 @@ type deployOptions struct {
  *     4.2) start prometheus container
  *     4.3) start grafana container
  */
-func NewDeployCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewDeployCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options deployOptions
 
 	cmd := &cobra.Command{
@@ -84,7 +84,7 @@ func NewDeployCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genDeployPlaybook(curveadm *cli.CurveAdm,
+func genDeployPlaybook(curveadm *cli.DingoAdm,
 	mcs []*configure.MonitorConfig) (*playbook.Playbook, error) {
 	steps := MONITOR_DEPLOY_STEPS
 	pb := playbook.NewPlaybook(curveadm)
@@ -108,7 +108,7 @@ func genDeployPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func parseTopology(curveadm *cli.CurveAdm) ([]string, []string, []*topology.DeployConfig, error) {
+func parseTopology(curveadm *cli.DingoAdm) ([]string, []string, []*topology.DeployConfig, error) {
 	dcs, err := curveadm.ParseTopology()
 	if err != nil || len(dcs) == 0 {
 		return nil, nil, nil, err
@@ -130,7 +130,7 @@ func parseTopology(curveadm *cli.CurveAdm) ([]string, []string, []*topology.Depl
 	return hosts, hostIps, dcs, nil
 }
 
-func runDeploy(curveadm *cli.CurveAdm, options deployOptions) error {
+func runDeploy(curveadm *cli.DingoAdm, options deployOptions) error {
 	// 1) parse cluster topology and get services' hosts
 	hosts, hostIps, dcs, err := parseTopology(curveadm)
 	if err != nil {

@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -38,7 +39,7 @@ type showOptions struct {
 	showPool bool
 }
 
-func NewShowCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewShowCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options showOptions
 
 	cmd := &cobra.Command{
@@ -70,7 +71,7 @@ func decodePoolJSON(data string) (string, error) {
 	return string(bytes), nil
 }
 
-func runShow(curveadm *cli.CurveAdm, options showOptions) error {
+func runShow(curveadm *cli.DingoAdm, options showOptions) error {
 	// 1) check whether cluster exist
 	if curveadm.ClusterId() == -1 {
 		return errno.ERR_NO_CLUSTER_SPECIFIED

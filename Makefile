@@ -25,7 +25,7 @@ OUTPUT := bin/dingoadm
 # build flags
 LDFLAGS := -s -w
 LDFLAGS += -extldflags "-static -fpic"
-LDFLAGS += -X github.com/dingodb/curveadm/cli/cli.CommitId=$(shell git rev-parse --short HEAD)
+LDFLAGS += -X github.com/dingodb/dingoadm/cli/cli.CommitId=$(shell git rev-parse --short HEAD)
 
 BUILD_FLAGS := -a
 BUILD_FLAGS += -trimpath
@@ -51,7 +51,7 @@ TEST_FLAGS += $(DEBUG_FLAGS)
 TEST_FLAGS += -run $(CASE)
 
 # packages
-PACKAGES := $(PWD)/cmd/curveadm/main.go
+PACKAGES := $(PWD)/cmd/dingoadm/main.go
 
 # tar
 VERSION := "unknown"
@@ -63,7 +63,7 @@ debug:
 	$(GOENV) $(GO) build -o $(OUTPUT) $(DEBUG_FLAGS) $(PACKAGES)
 
 install:
-	cp bin/dingoadm ~/.curveadm/bin
+	cp bin/dingoadm ~/.dingoadm/bin
 
 test:
 	$(GO_TEST) $(TEST_FLAGS) ./...

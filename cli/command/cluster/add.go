@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -55,7 +56,7 @@ type addOptions struct {
 	filename    string
 }
 
-func NewAddCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewAddCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options addOptions
 
 	cmd := &cobra.Command{
@@ -92,7 +93,7 @@ func readTopology(filename string) (string, error) {
 	return data, nil
 }
 
-func genCheckTopologyPlaybook(curveadm *cli.CurveAdm,
+func genCheckTopologyPlaybook(curveadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options addOptions) (*playbook.Playbook, error) {
 	steps := CHECK_TOPOLOGY_PLAYBOOK_STEPS
@@ -117,7 +118,7 @@ func genCheckTopologyPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func checkTopology(curveadm *cli.CurveAdm, data string, options addOptions) error {
+func checkTopology(curveadm *cli.DingoAdm, data string, options addOptions) error {
 	if len(options.filename) == 0 {
 		return nil
 	}
@@ -134,7 +135,7 @@ func checkTopology(curveadm *cli.CurveAdm, data string, options addOptions) erro
 	return pb.Run()
 }
 
-func runAdd(curveadm *cli.CurveAdm, options addOptions) error {
+func runAdd(curveadm *cli.DingoAdm, options addOptions) error {
 	// 1) check wether cluster already exist
 	name := options.name
 	storage := curveadm.Storage()

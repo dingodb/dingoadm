@@ -115,7 +115,7 @@ func (s *step2FormatMonitorStatus) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func NewInitMonitorStatusTask(curveadm *cli.CurveAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
+func NewInitMonitorStatusTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
 	serviceId := curveadm.GetServiceId(cfg.GetId())
 	containerId, err := curveadm.GetContainerId(serviceId)
 	if IsSkip(cfg, []string{ROLE_MONITOR_CONF}) {
@@ -138,7 +138,7 @@ func NewInitMonitorStatusTask(curveadm *cli.CurveAdm, cfg *configure.MonitorConf
 	return t, nil
 }
 
-func NewGetMonitorStatusTask(curveadm *cli.CurveAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
+func NewGetMonitorStatusTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
 	serviceId := curveadm.GetServiceId(cfg.GetId())
 	containerId, err := curveadm.GetContainerId(serviceId)
 	if IsSkip(cfg, []string{ROLE_MONITOR_CONF}) {

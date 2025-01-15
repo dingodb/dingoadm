@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -45,7 +46,7 @@ type statusOptions struct {
 	verbose bool
 }
 
-func NewStatusCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewStatusCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options statusOptions
 
 	cmd := &cobra.Command{
@@ -64,7 +65,7 @@ func NewStatusCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genStatusPlaybook(curveadm *cli.CurveAdm,
+func genStatusPlaybook(curveadm *cli.DingoAdm,
 	clients []storage.Client,
 	options statusOptions) (*playbook.Playbook, error) {
 	config := []interface{}{}
@@ -91,7 +92,7 @@ func genStatusPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func displayStatus(curveadm *cli.CurveAdm, clients []storage.Client, options statusOptions) {
+func displayStatus(curveadm *cli.DingoAdm, clients []storage.Client, options statusOptions) {
 	statuses := []task.ClientStatus{}
 	v := curveadm.MemStorage().Get(comm.KEY_ALL_CLIENT_STATUS)
 	if v != nil {
@@ -108,7 +109,7 @@ func displayStatus(curveadm *cli.CurveAdm, clients []storage.Client, options sta
 	curveadm.WriteOut(output)
 }
 
-func runStatus(curveadm *cli.CurveAdm, options statusOptions) error {
+func runStatus(curveadm *cli.DingoAdm, options statusOptions) error {
 	// 1) get all clients
 	clients, err := curveadm.Storage().GetClients()
 	if err != nil {

@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -32,7 +33,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewCompletionCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewCompletionCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var completionCmd = &cobra.Command{
 		Use:   "completion [bash|zsh|fish|powershell]",
 		Short: "Generate completion script",

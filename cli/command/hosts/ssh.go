@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -36,7 +37,7 @@ type sshOptions struct {
 	become bool
 }
 
-func NewSSHCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewSSHCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options sshOptions
 
 	cmd := &cobra.Command{
@@ -56,6 +57,6 @@ func NewSSHCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func runSSH(curveadm *cli.CurveAdm, options sshOptions) error {
+func runSSH(curveadm *cli.DingoAdm, options sshOptions) error {
 	return tools.AttachRemoteHost(curveadm, options.host, options.become)
 }

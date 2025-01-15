@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -47,7 +48,7 @@ type umountOptions struct {
 	mountPoint string
 }
 
-func checkUmountOptions(curveadm *cli.CurveAdm, options umountOptions) error {
+func checkUmountOptions(curveadm *cli.DingoAdm, options umountOptions) error {
 	if !strings.HasPrefix(options.mountPoint, "/") {
 		return errno.ERR_FS_MOUNTPOINT_REQUIRE_ABSOLUTE_PATH.
 			F("mount point: %s", options.mountPoint)
@@ -55,7 +56,7 @@ func checkUmountOptions(curveadm *cli.CurveAdm, options umountOptions) error {
 	return nil
 }
 
-func NewUmountCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewUmountCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options umountOptions
 
 	cmd := &cobra.Command{
@@ -79,7 +80,7 @@ func NewUmountCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genUnmountPlaybook(curveadm *cli.CurveAdm,
+func genUnmountPlaybook(curveadm *cli.DingoAdm,
 	ccs []*configure.ClientConfig,
 	options umountOptions) (*playbook.Playbook, error) {
 	steps := UMOUNT_PLAYBOOK_STEPS
@@ -99,7 +100,7 @@ func genUnmountPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func runUmount(curveadm *cli.CurveAdm, options umountOptions) error {
+func runUmount(curveadm *cli.DingoAdm, options umountOptions) error {
 	// 1) generate unmap playbook
 	pb, err := genUnmountPlaybook(curveadm, nil, options)
 	if err != nil {

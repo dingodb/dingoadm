@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -45,7 +46,7 @@ const (
 	TEMPLATE_COMMAND_EXEC_CONTAINER_NOATTACH = `{{.sudo}} {{.engine}} exec -t {{.container_id}} /bin/bash -c "{{.command}}"`
 )
 
-func prepareOptions(curveadm *cli.CurveAdm, host string, become bool, extra map[string]interface{}) (map[string]interface{}, error) {
+func prepareOptions(curveadm *cli.DingoAdm, host string, become bool, extra map[string]interface{}) (map[string]interface{}, error) {
 	options := map[string]interface{}{}
 	hc, err := curveadm.GetHost(host)
 	if err != nil {
@@ -77,7 +78,7 @@ func prepareOptions(curveadm *cli.CurveAdm, host string, become bool, extra map[
 	return options, nil
 }
 
-func newCommand(curveadm *cli.CurveAdm, text string, options map[string]interface{}) (*exec.Cmd, error) {
+func newCommand(curveadm *cli.DingoAdm, text string, options map[string]interface{}) (*exec.Cmd, error) {
 	tmpl := template.Must(template.New(utils.MD5Sum(text)).Parse(text))
 	buffer := bytes.NewBufferString("")
 	if err := tmpl.Execute(buffer, options); err != nil {
@@ -88,7 +89,7 @@ func newCommand(curveadm *cli.CurveAdm, text string, options map[string]interfac
 	return exec.Command(items[0], items[1:]...), nil
 }
 
-func runCommand(curveadm *cli.CurveAdm, text string, options map[string]interface{}) error {
+func runCommand(curveadm *cli.DingoAdm, text string, options map[string]interface{}) error {
 	cmd, err := newCommand(curveadm, text, options)
 	if err != nil {
 		return err
@@ -99,7 +100,7 @@ func runCommand(curveadm *cli.CurveAdm, text string, options map[string]interfac
 	return cmd.Run()
 }
 
-func runCommandOutput(curveadm *cli.CurveAdm, text string, options map[string]interface{}) (string, error) {
+func runCommandOutput(curveadm *cli.DingoAdm, text string, options map[string]interface{}) (string, error) {
 	cmd, err := newCommand(curveadm, text, options)
 	if err != nil {
 		return "", err
@@ -108,7 +109,7 @@ func runCommandOutput(curveadm *cli.CurveAdm, text string, options map[string]in
 	return string(out), err
 }
 
-func ssh(curveadm *cli.CurveAdm, options map[string]interface{}) error {
+func ssh(curveadm *cli.DingoAdm, options map[string]interface{}) error {
 	err := runCommand(curveadm, TEMPLATE_SSH_ATTACH, options)
 	if err != nil && !strings.HasPrefix(err.Error(), "exit status") {
 		return errno.ERR_CONNECT_REMOTE_HOST_WITH_INTERACT_BY_SSH_FAILED.E(err)
@@ -116,17 +117,17 @@ func ssh(curveadm *cli.CurveAdm, options map[string]interface{}) error {
 	return nil
 }
 
-func scp(curveadm *cli.CurveAdm, options map[string]interface{}) error {
+func scp(curveadm *cli.DingoAdm, options map[string]interface{}) error {
 	// TODO: added error code
 	_, err := runCommandOutput(curveadm, TEMPLATE_SCP, options)
 	return err
 }
 
-func execute(curveadm *cli.CurveAdm, options map[string]interface{}) (string, error) {
+func execute(curveadm *cli.DingoAdm, options map[string]interface{}) (string, error) {
 	return runCommandOutput(curveadm, TEMPLATE_SSH_COMMAND, options)
 }
 
-func AttachRemoteHost(curveadm *cli.CurveAdm, host string, become bool) error {
+func AttachRemoteHost(curveadm *cli.DingoAdm, host string, become bool) error {
 	options, err := prepareOptions(curveadm, host, become,
 		map[string]interface{}{"command": "/bin/bash"})
 	if err != nil {
@@ -135,7 +136,7 @@ func AttachRemoteHost(curveadm *cli.CurveAdm, host string, become bool) error {
 	return ssh(curveadm, options)
 }
 
-func AttachRemoteContainer(curveadm *cli.CurveAdm, host, containerId, home string) error {
+func AttachRemoteContainer(curveadm *cli.DingoAdm, host, containerId, home string) error {
 	data := map[string]interface{}{
 		"sudo":         curveadm.Config().GetSudoAlias(),
 		"engine":       curveadm.Config().GetEngine(),
@@ -157,7 +158,7 @@ func AttachRemoteContainer(curveadm *cli.CurveAdm, host, containerId, home strin
 	return ssh(curveadm, options)
 }
 
-func AttachLocalContainer(curveadm *cli.CurveAdm, containerId string) error {
+func AttachLocalContainer(curveadm *cli.DingoAdm, containerId string) error {
 	data := map[string]interface{}{
 		"container_id": containerId,
 		"engine":       curveadm.Config().GetEngine(),
@@ -171,7 +172,7 @@ func AttachLocalContainer(curveadm *cli.CurveAdm, containerId string) error {
 	return runCommand(curveadm, command, map[string]interface{}{})
 }
 
-func ExecCmdInRemoteContainer(curveadm *cli.CurveAdm, host, containerId, cmd string) error {
+func ExecCmdInRemoteContainer(curveadm *cli.DingoAdm, host, containerId, cmd string) error {
 	data := map[string]interface{}{
 		"sudo":         curveadm.Config().GetSudoAlias(),
 		"engine":       curveadm.Config().GetEngine(),
@@ -193,7 +194,7 @@ func ExecCmdInRemoteContainer(curveadm *cli.CurveAdm, host, containerId, cmd str
 	return ssh(curveadm, options)
 }
 
-func Scp(curveadm *cli.CurveAdm, host, source, target string) error {
+func Scp(curveadm *cli.DingoAdm, host, source, target string) error {
 	options, err := prepareOptions(curveadm, host, false,
 		map[string]interface{}{
 			"source": source,
@@ -205,7 +206,7 @@ func Scp(curveadm *cli.CurveAdm, host, source, target string) error {
 	return scp(curveadm, options)
 }
 
-func ExecuteRemoteCommand(curveadm *cli.CurveAdm, host, command string) (string, error) {
+func ExecuteRemoteCommand(curveadm *cli.DingoAdm, host, command string) (string, error) {
 	options, err := prepareOptions(curveadm, host, true,
 		map[string]interface{}{"command": command})
 	if err != nil {

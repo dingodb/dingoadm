@@ -43,7 +43,7 @@ func IsSkip(mc *configure.MonitorConfig, roles []string) bool {
 	return false
 }
 
-func NewStartServiceTask(curveadm *cli.CurveAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
+func NewStartServiceTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
 	serviceId := curveadm.GetServiceId(cfg.GetId())
 	containerId, err := curveadm.GetContainerId(serviceId)
 	if IsSkip(cfg, []string{ROLE_MONITOR_CONF}) {

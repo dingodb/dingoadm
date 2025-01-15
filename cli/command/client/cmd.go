@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -28,7 +29,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewClientCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewClientCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "client",
 		Short: "Manage client",

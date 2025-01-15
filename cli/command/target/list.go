@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -42,7 +43,7 @@ type listOptions struct {
 	host string
 }
 
-func NewListCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewListCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options listOptions
 
 	cmd := &cobra.Command{
@@ -62,7 +63,7 @@ func NewListCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genListPlaybook(curveadm *cli.CurveAdm, options listOptions) (*playbook.Playbook, error) {
+func genListPlaybook(curveadm *cli.DingoAdm, options listOptions) (*playbook.Playbook, error) {
 	steps := LIST_PLAYBOOK_STEPS
 	pb := playbook.NewPlaybook(curveadm)
 	for _, step := range steps {
@@ -79,7 +80,7 @@ func genListPlaybook(curveadm *cli.CurveAdm, options listOptions) (*playbook.Pla
 	return pb, nil
 }
 
-func displayTargets(curveadm *cli.CurveAdm) {
+func displayTargets(curveadm *cli.DingoAdm) {
 	targets := []bs.Target{}
 	value := curveadm.MemStorage().Get(comm.KEY_ALL_TARGETS)
 	if value != nil {
@@ -94,7 +95,7 @@ func displayTargets(curveadm *cli.CurveAdm) {
 	curveadm.WriteOut(output)
 }
 
-func runList(curveadm *cli.CurveAdm, options listOptions) error {
+func runList(curveadm *cli.DingoAdm, options listOptions) error {
 	// 1) generate list playbook
 	pb, err := genListPlaybook(curveadm, options)
 	if err != nil {
