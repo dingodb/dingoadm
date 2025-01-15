@@ -33,7 +33,7 @@ import (
 )
 
 func Execute() {
-	curveadm, err := cli.NewCurveAdm()
+	curveadm, err := cli.NewDingoAdm()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

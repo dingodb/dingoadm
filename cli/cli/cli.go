@@ -82,7 +82,7 @@ type DingoAdm struct {
  *   - /logs/2006-01-02_15-04-05.log
  *   - /temp/
  */
-func NewCurveAdm() (*DingoAdm, error) {
+func NewDingoAdm() (*DingoAdm, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return nil, errno.ERR_GET_USER_HOME_DIR_FAILED.E(err)
