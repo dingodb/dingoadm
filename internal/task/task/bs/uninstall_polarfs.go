@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -35,7 +36,7 @@ import (
 
 type step2UninstallPackage struct {
 	release  string
-	curveadm *cli.CurveAdm
+	curveadm *cli.DingoAdm
 }
 
 func (s *step2UninstallPackage) Execute(ctx *context.Context) error {
@@ -67,7 +68,7 @@ func (s *step2UninstallPackage) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func NewUninstallPolarFSTask(curveadm *cli.CurveAdm, v interface{}) (*task.Task, error) {
+func NewUninstallPolarFSTask(curveadm *cli.DingoAdm, v interface{}) (*task.Task, error) {
 	host := curveadm.MemStorage().Get(comm.KEY_POLARFS_HOST).(string)
 	hc, err := curveadm.GetHost(host)
 	if err != nil {

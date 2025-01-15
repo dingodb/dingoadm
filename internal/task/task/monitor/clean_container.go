@@ -29,7 +29,7 @@ import (
 	"github.com/dingodb/dingoadm/internal/task/task/common"
 )
 
-func NewCleanConfigContainerTask(curveadm *cli.CurveAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
+func NewCleanConfigContainerTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
 	role := cfg.GetRole()
 	if role != ROLE_MONITOR_CONF {
 		return nil, nil

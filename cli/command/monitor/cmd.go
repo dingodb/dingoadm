@@ -28,7 +28,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewMonitorCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewMonitorCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "monitor",
 		Short: "Manage monitor",

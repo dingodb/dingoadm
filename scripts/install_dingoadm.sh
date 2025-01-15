@@ -8,10 +8,11 @@ g_dingoadm_home="${HOME}/.dingoadm"
 g_bin_dir="${g_dingoadm_home}/bin"
 g_db_path="${g_dingoadm_home}/data/dingoadm.db"
 g_profile="${HOME}/.profile"
-g_root_url="https://work.dingodb.top"
-g_upgrade="${CURVEADM_UPGRADE}"
-g_version="${CURVEADM_VERSION:=$g_latest_version}"
-g_download_url="${g_root_url}/dingoadm.tar.gz"
+g_internal_url="https://work.dingodb.top"
+g_github_url="https://github.com/dingodb/dingoadm/releases/download/latest/dingoadm"
+g_upgrade="${DINGOADM_UPGRADE}"
+g_version="${DINGOADM_VERSION:=$g_latest_version}"
+g_download_url="${g_internal_url}/dingoadm.tar.gz"
 
 ############################  BASIC FUNCTIONS
 msg() {
@@ -66,13 +67,38 @@ __EOF__
     fi
 }
 
-install_binray() {
+install_binary() {
     local ret=1
-    local tempfile="/tmp/dingoadm-$(date +%s%6N).tar.gz"
-    curl "${g_download_url}" -skLo "${tempfile}"
-    if [ $? -eq 0 ]; then
-        tar -zxvf "${tempfile}" -C "${g_bin_dir}" 1>/dev/null
-        ret=$?
+    
+    # curl "${g_download_url}" -skLo "${tempfile}" # internal
+    # wget $g_github_url -O "${tempfile}" # github
+    # if [ $? -eq 0 ]; then
+    #     tar -zxvf "${tempfile}" -C "${g_bin_dir}" 1>/dev/null
+    #     ret=$?
+    # fi
+
+    local source=$1
+    if [ "$source" == "internal" ]; then
+        echo "Downloading from internal source..."
+        local tempfile="/tmp/dingoadm-$(date +%s%6N).tar.gz"
+        # Add your internal download logic here
+        wget --no-check-certificate "${g_download_url}" -O "${tempfile}" # internal
+        if [ $? -eq 0 ]; then
+            tar -zxvf "${tempfile}" -C "${g_bin_dir}" 1>/dev/null
+            ret=$?
+        fi
+    elif [ "$source" == "github" ]; then
+        echo "Downloading from GitHub..."
+        local tempfile="/tmp/dingoadm"
+        # Add your GitHub download logic here
+        wget $g_github_url -O "${tempfile}" # github
+        if [ $? -eq 0 ]; then
+            cp "${tempfile}" "${g_bin_dir}/"
+            ret=$?
+        fi
+    else
+        echo "Invalid source specified. Please choose 'internal' or 'github'."
+        exit 1
     fi
 
     # rm  "${tempfile}"
@@ -111,23 +137,37 @@ print_upgrade_success() {
 }
 
 install() {
+    local source=$1
     backup
     setup
-    install_binray
+    install_binary "$source"
     set_profile
     print_install_success
 }
 
 upgrade() {
-    install_binray
+    local source=$1
+    install_binary "$source"
     print_upgrade_success
 }
 
 main() {
+    local source="github"  # Default source
+    for arg in "$@"; do
+        case $arg in
+            --source=*)
+            source="${arg#*=}"
+            shift
+            ;;
+            *)
+            # Unknown option
+            ;;
+        esac
+    done
     if [ "${g_upgrade}" == "true" ]; then
-        upgrade
+        upgrade "$source"
     else
-        install
+        install "$source"
     fi
 }
 

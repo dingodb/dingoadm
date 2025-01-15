@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -37,7 +38,7 @@ type execOptions struct {
 	cmd string
 }
 
-func NewExecCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewExecCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options execOptions
 
 	cmd := &cobra.Command{
@@ -63,7 +64,7 @@ func NewExecCommand(curveadm *cli.CurveAdm) *cobra.Command {
 //  2. filter service
 //  3. get container id
 //  4. exec cmd in remote container
-func runExec(curveadm *cli.CurveAdm, options execOptions) error {
+func runExec(curveadm *cli.DingoAdm, options execOptions) error {
 	// 1) parse cluster topology
 	dcs, err := curveadm.ParseTopology()
 	if err != nil {

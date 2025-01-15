@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -76,7 +77,7 @@ func checkCreateStatus(out *string) step.LambdaType {
 	}
 }
 
-func setClientAuxInfo(curveadm *cli.CurveAdm, options MapOptions) step.LambdaType {
+func setClientAuxInfo(curveadm *cli.DingoAdm, options MapOptions) step.LambdaType {
 	return func(ctx *context.Context) error {
 		volumeId := curveadm.GetVolumeId(options.Host, options.User, options.Volume)
 
@@ -98,7 +99,7 @@ func setClientAuxInfo(curveadm *cli.CurveAdm, options MapOptions) step.LambdaTyp
 	}
 }
 
-func NewCreateVolumeTask(curveadm *cli.CurveAdm, cc *configure.ClientConfig) (*task.Task, error) {
+func NewCreateVolumeTask(curveadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.Task, error) {
 	options := curveadm.MemStorage().Get(comm.KEY_MAP_OPTIONS).(MapOptions)
 	hc, err := curveadm.GetHost(options.Host)
 	if err != nil {

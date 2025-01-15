@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -39,7 +40,7 @@ type removeOptions struct {
 	force       bool
 }
 
-func NewRemoveCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewRemoveCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options removeOptions
 
 	cmd := &cobra.Command{
@@ -60,7 +61,7 @@ func NewRemoveCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func checkAllServicesRemoved(curveadm *cli.CurveAdm, options removeOptions, clusterId int) error {
+func checkAllServicesRemoved(curveadm *cli.DingoAdm, options removeOptions, clusterId int) error {
 	if options.force {
 		return nil
 	}
@@ -80,7 +81,7 @@ func checkAllServicesRemoved(curveadm *cli.CurveAdm, options removeOptions, clus
 	return nil
 }
 
-func runRemove(curveadm *cli.CurveAdm, options removeOptions) error {
+func runRemove(curveadm *cli.DingoAdm, options removeOptions) error {
 	// 1) get cluster by name
 	storage := curveadm.Storage()
 	clusterName := options.clusterName

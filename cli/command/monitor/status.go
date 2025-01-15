@@ -48,7 +48,7 @@ type statusOptions struct {
 	verbose bool
 }
 
-func NewStatusCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewStatusCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options statusOptions
 	cmd := &cobra.Command{
 		Use:   "status [OPTIONS]",
@@ -68,7 +68,7 @@ func NewStatusCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func parseMonitorConfig(curveadm *cli.CurveAdm) ([]*configure.MonitorConfig, error) {
+func parseMonitorConfig(curveadm *cli.DingoAdm) ([]*configure.MonitorConfig, error) {
 	if curveadm.ClusterId() == -1 {
 		return nil, errno.ERR_NO_CLUSTER_SPECIFIED
 	}
@@ -81,7 +81,7 @@ func parseMonitorConfig(curveadm *cli.CurveAdm) ([]*configure.MonitorConfig, err
 	return configure.ParseMonitorConfig(curveadm, "", monitor.Monitor, hosts, hostIps, dcs)
 }
 
-func genStatusPlaybook(curveadm *cli.CurveAdm,
+func genStatusPlaybook(curveadm *cli.DingoAdm,
 	mcs []*configure.MonitorConfig,
 	options statusOptions) (*playbook.Playbook, error) {
 	mcs = configure.FilterMonitorConfig(curveadm, mcs, configure.FilterMonitorOption{
@@ -109,7 +109,7 @@ func genStatusPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func displayStatus(curveadm *cli.CurveAdm, dcs []*configure.MonitorConfig, options statusOptions) {
+func displayStatus(curveadm *cli.DingoAdm, dcs []*configure.MonitorConfig, options statusOptions) {
 	statuses := []monitor.MonitorStatus{}
 	value := curveadm.MemStorage().Get(comm.KEY_MONITOR_STATUS)
 	if value != nil {
@@ -127,7 +127,7 @@ func displayStatus(curveadm *cli.CurveAdm, dcs []*configure.MonitorConfig, optio
 	curveadm.WriteOut("%s", output)
 }
 
-func runStatus(curveadm *cli.CurveAdm, options statusOptions) error {
+func runStatus(curveadm *cli.DingoAdm, options statusOptions) error {
 	// 1) parse monitor config
 	mcs, err := parseMonitorConfig(curveadm)
 	if err != nil {

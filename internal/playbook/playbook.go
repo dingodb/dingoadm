@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -56,7 +57,7 @@ type (
 	}
 
 	Playbook struct {
-		curveadm  *cli.CurveAdm
+		curveadm  *cli.DingoAdm
 		steps     []*PlaybookStep
 		postSteps []*PlaybookStep
 	}
@@ -64,7 +65,7 @@ type (
 	ExecOptions = tasks.ExecOptions
 )
 
-func NewPlaybook(curveadm *cli.CurveAdm) *Playbook {
+func NewPlaybook(curveadm *cli.DingoAdm) *Playbook {
 	return &Playbook{
 		curveadm: curveadm,
 		steps:    []*PlaybookStep{},

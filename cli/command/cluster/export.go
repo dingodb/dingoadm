@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -52,7 +53,7 @@ type exportOptions struct {
 	outfile string
 }
 
-func NewExportCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewExportCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options exportOptions
 
 	cmd := &cobra.Command{
@@ -124,7 +125,7 @@ func exportCluster(cluster storage.Cluster, services []storage.Service, filename
 	return nil
 }
 
-func runExport(curveadm *cli.CurveAdm, options exportOptions) error {
+func runExport(curveadm *cli.DingoAdm, options exportOptions) error {
 	name := options.name
 	storage := curveadm.Storage()
 	clusters, err := storage.GetClusters(name)

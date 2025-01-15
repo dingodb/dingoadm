@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -46,7 +47,7 @@ type startOptions struct {
 	filename string
 }
 
-func NewStartCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewStartCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options startOptions
 
 	cmd := &cobra.Command{
@@ -66,7 +67,7 @@ func NewStartCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genStartPlaybook(curveadm *cli.CurveAdm,
+func genStartPlaybook(curveadm *cli.DingoAdm,
 	ccs []*configure.ClientConfig,
 	options startOptions) (*playbook.Playbook, error) {
 	steps := START_PLAYBOOK_STEPS
@@ -85,7 +86,7 @@ func genStartPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func runStart(curveadm *cli.CurveAdm, options startOptions) error {
+func runStart(curveadm *cli.DingoAdm, options startOptions) error {
 	// 1) parse client configure
 	cc, err := configure.ParseClientConfig(options.filename)
 	if err != nil {

@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -129,7 +130,7 @@ func checkPrecheckOptions(options precheckOptions) error {
 	return nil
 }
 
-func NewPrecheckCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewPrecheckCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options precheckOptions
 
 	cmd := &cobra.Command{
@@ -166,7 +167,7 @@ func skipPrecheckSteps(precheckSteps []int, options precheckOptions) []int {
 	return out
 }
 
-func genPrecheckPlaybook(curveadm *cli.CurveAdm,
+func genPrecheckPlaybook(curveadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options precheckOptions) (*playbook.Playbook, error) {
 	kind := dcs[0].GetKind()
@@ -221,7 +222,7 @@ func genPrecheckPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func runPrecheck(curveadm *cli.CurveAdm, options precheckOptions) error {
+func runPrecheck(curveadm *cli.DingoAdm, options precheckOptions) error {
 	// 1) parse cluster topology
 	dcs, err := curveadm.ParseTopology()
 	if err != nil {

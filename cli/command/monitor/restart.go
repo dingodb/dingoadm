@@ -44,7 +44,7 @@ type restartOptions struct {
 	host string
 }
 
-func NewRestartCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewRestartCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options restartOptions
 	cmd := &cobra.Command{
 		Use:   "restart [OPTIONS]",
@@ -64,7 +64,7 @@ func NewRestartCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genRestartPlaybook(curveadm *cli.CurveAdm,
+func genRestartPlaybook(curveadm *cli.DingoAdm,
 	mcs []*configure.MonitorConfig,
 	options restartOptions) (*playbook.Playbook, error) {
 	mcs = configure.FilterMonitorConfig(curveadm, mcs, configure.FilterMonitorOption{
@@ -87,7 +87,7 @@ func genRestartPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func runRestart(curveadm *cli.CurveAdm, options restartOptions) error {
+func runRestart(curveadm *cli.DingoAdm, options restartOptions) error {
 	// 1) parse monitor configure
 	mcs, err := parseMonitorConfig(curveadm)
 	if err != nil {

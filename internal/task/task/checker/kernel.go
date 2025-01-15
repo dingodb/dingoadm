@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -97,7 +98,7 @@ func checkKernelModule(name string, success *bool, out *string) step.LambdaType 
 	}
 }
 
-func NewCheckKernelVersionTask(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (*task.Task, error) {
+func NewCheckKernelVersionTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
 	hc, err := curveadm.GetHost(dc.GetHost())
 	if err != nil {
 		return nil, err
@@ -122,7 +123,7 @@ func NewCheckKernelVersionTask(curveadm *cli.CurveAdm, dc *topology.DeployConfig
 	return t, nil
 }
 
-func NewCheckKernelModuleTask(curveadm *cli.CurveAdm, cc *configure.ClientConfig) (*task.Task, error) {
+func NewCheckKernelModuleTask(curveadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.Task, error) {
 	host := curveadm.MemStorage().Get(comm.KEY_CLIENT_HOST).(string)
 	hc, err := curveadm.GetHost(host)
 	if err != nil {

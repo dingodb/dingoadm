@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,12 +21,36 @@
  * Author: Jingli Chen (Wine93)
  */
 
-package main
+package cli
 
 import (
-	"github.com/dingodb/dingoadm/cli"
+	"fmt"
+	"os"
+	"time"
+
+	"github.com/dingodb/dingoadm/cli/cli"
+	"github.com/dingodb/dingoadm/cli/command"
 )
 
-func main() {
-	cli.Execute()
+func Execute() {
+	curveadm, err := cli.NewDingoAdm()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	yes, err := curveadm.Upgrade()
+	if err != nil {
+		os.Exit(1)
+	} else if yes {
+		os.Exit(0)
+	}
+
+	id := curveadm.PreAudit(time.Now(), os.Args[1:])
+	cmd := command.NewCurveAdmCommand(curveadm)
+	err = cmd.Execute()
+	curveadm.PostAudit(id, err)
+	if err != nil {
+		os.Exit(1)
+	}
 }

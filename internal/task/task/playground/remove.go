@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -37,12 +38,12 @@ type (
 	step2RemoveContainer struct {
 		containerId *string
 		plaground   storage.Playground
-		curveadm    *cli.CurveAdm
+		curveadm    *cli.DingoAdm
 	}
 
 	step2DeletePlayground struct {
 		plaground storage.Playground
-		curveadm  *cli.CurveAdm
+		curveadm  *cli.DingoAdm
 	}
 )
 
@@ -91,7 +92,7 @@ func (s *step2DeletePlayground) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func NewRemovePlaygroundTask(curveadm *cli.CurveAdm, v interface{}) (*task.Task, error) {
+func NewRemovePlaygroundTask(curveadm *cli.DingoAdm, v interface{}) (*task.Task, error) {
 	// new task
 	playground := v.(storage.Playground)
 	subname := fmt.Sprintf("name=%s", playground.Name)

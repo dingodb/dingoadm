@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -42,7 +43,7 @@ func genBackupCommand(dc *topology.DeployConfig) string {
 	return command
 }
 
-func NewBackupEtcdDataTask(curveadm *cli.CurveAdm, dc *topology.DeployConfig) (*task.Task, error) {
+func NewBackupEtcdDataTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
 	serviceId := curveadm.GetServiceId(dc.GetId())
 	containerId, err := curveadm.GetContainerId(serviceId)
 	if curveadm.IsSkip(dc) {

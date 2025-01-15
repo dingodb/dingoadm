@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -66,7 +67,7 @@ type runOptions struct {
 	containerImage string
 }
 
-func checkRunOptions(curveadm *cli.CurveAdm, options runOptions) error {
+func checkRunOptions(curveadm *cli.DingoAdm, options runOptions) error {
 	kind := options.kind
 	mountPoint := options.mountPoint
 	if !supportKind[kind] {
@@ -91,7 +92,7 @@ func checkRunOptions(curveadm *cli.CurveAdm, options runOptions) error {
 	return nil
 }
 
-func NewRunCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewRunCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options runOptions
 
 	cmd := &cobra.Command{
@@ -117,7 +118,7 @@ func NewRunCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genRunPlaybook(curveadm *cli.CurveAdm,
+func genRunPlaybook(curveadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	cc *configure.ClientConfig,
 	options runOptions) (*playbook.Playbook, error) {
@@ -142,7 +143,7 @@ func genRunPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func runRun(curveadm *cli.CurveAdm, options runOptions) error {
+func runRun(curveadm *cli.DingoAdm, options runOptions) error {
 	// 1) print prompt
 	curveadm.WriteOutln(color.GreenString("Start to run playground '%s', it will takes 1~2 minutes\n"), options.name)
 

@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -30,7 +31,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewClusterCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewClusterCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "cluster",
 		Short: "Manage clusters",

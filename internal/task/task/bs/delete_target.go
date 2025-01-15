@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -50,7 +51,7 @@ func (s *step2CheckTgtdStatus) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func NewDeleteTargetTask(curveadm *cli.CurveAdm, cc *client.ClientConfig) (*task.Task, error) {
+func NewDeleteTargetTask(curveadm *cli.DingoAdm, cc *client.ClientConfig) (*task.Task, error) {
 	options := curveadm.MemStorage().Get(common.KEY_TARGET_OPTIONS).(TargetOption)
 	hc, err := curveadm.GetHost(options.Host)
 	if err != nil {

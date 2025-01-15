@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -108,7 +109,7 @@ type migrateOptions struct {
 	poolsetDiskType string
 }
 
-func NewMigrateCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewMigrateCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options migrateOptions
 
 	cmd := &cobra.Command{
@@ -130,7 +131,7 @@ func NewMigrateCommand(curveadm *cli.CurveAdm) *cobra.Command {
 }
 
 // NOTE: you can only migrate same role whole host services ervey time
-func checkMigrateTopology(curveadm *cli.CurveAdm, data string) error {
+func checkMigrateTopology(curveadm *cli.DingoAdm, data string) error {
 	diffs, err := curveadm.DiffTopology(curveadm.ClusterTopologyData(), data)
 	if err != nil {
 		return err
@@ -165,7 +166,7 @@ func checkMigrateTopology(curveadm *cli.CurveAdm, data string) error {
 	return nil
 }
 
-func getMigrates(curveadm *cli.CurveAdm, data string) []*configure.MigrateServer {
+func getMigrates(curveadm *cli.DingoAdm, data string) []*configure.MigrateServer {
 	diffs, _ := diffTopology(curveadm, data)
 	dcs2add := diffs[topology.DIFF_ADD]
 	dcs2del := diffs[topology.DIFF_DELETE]
@@ -183,7 +184,7 @@ func getMigrates(curveadm *cli.CurveAdm, data string) []*configure.MigrateServer
 	return migrates
 }
 
-func genMigratePlaybook(curveadm *cli.CurveAdm,
+func genMigratePlaybook(curveadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig, options migrateOptions, data string) (*playbook.Playbook, error) {
 	diffs, _ := diffTopology(curveadm, data)
 	dcs2add := diffs[topology.DIFF_ADD]
@@ -242,7 +243,7 @@ func genMigratePlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func displayMigrateTitle(curveadm *cli.CurveAdm, data string) {
+func displayMigrateTitle(curveadm *cli.DingoAdm, data string) {
 	migrates := getMigrates(curveadm, data)
 	from := migrates[0].From
 	to := migrates[0].To
@@ -252,7 +253,7 @@ func displayMigrateTitle(curveadm *cli.CurveAdm, data string) {
 	curveadm.WriteOutln(color.YellowString("  - Migrate host: from %s to %s", from.GetHost(), to.GetHost()))
 }
 
-func runMigrate(curveadm *cli.CurveAdm, options migrateOptions) error {
+func runMigrate(curveadm *cli.DingoAdm, options migrateOptions) error {
 	// TODO(P0): added prechek for target host
 	// 1) parse cluster topology
 	dcs, err := curveadm.ParseTopology()

@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -48,12 +49,12 @@ type unmapOptions struct {
 	image string
 }
 
-func checkUnmapOptions(curveadm *cli.CurveAdm, options unmapOptions) error {
+func checkUnmapOptions(curveadm *cli.DingoAdm, options unmapOptions) error {
 	_, _, err := ParseImage(options.image)
 	return err
 }
 
-func NewUnmapCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewUnmapCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options unmapOptions
 
 	cmd := &cobra.Command{
@@ -78,7 +79,7 @@ func NewUnmapCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genUnmapPlaybook(curveadm *cli.CurveAdm,
+func genUnmapPlaybook(curveadm *cli.DingoAdm,
 	ccs []*configure.ClientConfig,
 	options unmapOptions) (*playbook.Playbook, error) {
 	user, name, _ := ParseImage(options.image)
@@ -100,7 +101,7 @@ func genUnmapPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func runUnmap(curveadm *cli.CurveAdm, options unmapOptions) error {
+func runUnmap(curveadm *cli.DingoAdm, options unmapOptions) error {
 	// 1) generate unmap playbook
 	pb, err := genUnmapPlaybook(curveadm, nil, options)
 	if err != nil {

@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -55,7 +56,7 @@ type upgradeOptions struct {
 	force bool
 }
 
-func NewUpgradeCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewUpgradeCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options upgradeOptions
 
 	cmd := &cobra.Command{
@@ -80,7 +81,7 @@ func NewUpgradeCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genUpgradePlaybook(curveadm *cli.CurveAdm,
+func genUpgradePlaybook(curveadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options upgradeOptions) (*playbook.Playbook, error) {
 	dcs = curveadm.FilterDeployConfig(dcs, topology.FilterOption{
@@ -107,7 +108,7 @@ func genUpgradePlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func displayTitle(curveadm *cli.CurveAdm, dcs []*topology.DeployConfig, options upgradeOptions) {
+func displayTitle(curveadm *cli.DingoAdm, dcs []*topology.DeployConfig, options upgradeOptions) {
 	total := len(dcs)
 	if options.force {
 		curveadm.WriteOutln(color.YellowString("Upgrade %d services at once", total))
@@ -117,7 +118,7 @@ func displayTitle(curveadm *cli.CurveAdm, dcs []*topology.DeployConfig, options 
 	curveadm.WriteOutln(color.YellowString("Upgrade services: %s", serviceStats(dcs)))
 }
 
-func upgradeAtOnce(curveadm *cli.CurveAdm, dcs []*topology.DeployConfig, options upgradeOptions) error {
+func upgradeAtOnce(curveadm *cli.DingoAdm, dcs []*topology.DeployConfig, options upgradeOptions) error {
 	// 1) display upgrade title
 	displayTitle(curveadm, dcs, options)
 
@@ -145,7 +146,7 @@ func upgradeAtOnce(curveadm *cli.CurveAdm, dcs []*topology.DeployConfig, options
 	return nil
 }
 
-func upgradeOneByOne(curveadm *cli.CurveAdm, dcs []*topology.DeployConfig, options upgradeOptions) error {
+func upgradeOneByOne(curveadm *cli.DingoAdm, dcs []*topology.DeployConfig, options upgradeOptions) error {
 	// 1) display upgrade title
 	displayTitle(curveadm, dcs, options)
 
@@ -180,7 +181,7 @@ func upgradeOneByOne(curveadm *cli.CurveAdm, dcs []*topology.DeployConfig, optio
 	return nil
 }
 
-func runUpgrade(curveadm *cli.CurveAdm, options upgradeOptions) error {
+func runUpgrade(curveadm *cli.DingoAdm, options upgradeOptions) error {
 	// 1) parse cluster topology
 	dcs, err := curveadm.ParseTopology()
 	if err != nil {

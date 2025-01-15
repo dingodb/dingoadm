@@ -7,7 +7,7 @@ import (
 )
 
 func TestMountConfig(t *testing.T) {
-	curveadm, err := cli.NewCurveAdm()
+	curveadm, err := cli.NewDingoAdm()
 	if err != nil {
 		t.Errorf("Error: %v", err)
 	}

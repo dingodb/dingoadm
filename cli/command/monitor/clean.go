@@ -58,7 +58,7 @@ type cleanOptions struct {
 	only []string
 }
 
-func NewCleanCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewCleanCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options cleanOptions
 
 	cmd := &cobra.Command{
@@ -80,7 +80,7 @@ func NewCleanCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genCleanPlaybook(curveadm *cli.CurveAdm,
+func genCleanPlaybook(curveadm *cli.DingoAdm,
 	mcs []*configure.MonitorConfig,
 	options cleanOptions) (*playbook.Playbook, error) {
 	mcs = configure.FilterMonitorConfig(curveadm, mcs, configure.FilterMonitorOption{
@@ -105,7 +105,7 @@ func genCleanPlaybook(curveadm *cli.CurveAdm,
 	return pb, nil
 }
 
-func runClean(curveadm *cli.CurveAdm, options cleanOptions) error {
+func runClean(curveadm *cli.DingoAdm, options cleanOptions) error {
 	// 1) parse monitor config
 	mcs, err := parseMonitorConfig(curveadm)
 	if err != nil {

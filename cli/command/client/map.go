@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2021 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -125,7 +126,7 @@ func ParseBlockSize(blocksize string) (uint64, error) {
 	}
 	return m, nil
 }
-func checkMapOptions(curveadm *cli.CurveAdm, options mapOptions) error {
+func checkMapOptions(curveadm *cli.DingoAdm, options mapOptions) error {
 	if _, _, err := ParseImage(options.image); err != nil {
 		return err
 	} else if _, err = ParseSize(options.size); err != nil {
@@ -137,7 +138,7 @@ func checkMapOptions(curveadm *cli.CurveAdm, options mapOptions) error {
 	return nil
 }
 
-func NewMapCommand(curveadm *cli.CurveAdm) *cobra.Command {
+func NewMapCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	var options mapOptions
 
 	cmd := &cobra.Command{
@@ -165,7 +166,7 @@ func NewMapCommand(curveadm *cli.CurveAdm) *cobra.Command {
 	return cmd
 }
 
-func genMapPlaybook(curveadm *cli.CurveAdm,
+func genMapPlaybook(curveadm *cli.DingoAdm,
 	ccs []*configure.ClientConfig,
 	options mapOptions) (*playbook.Playbook, error) {
 	user, name, _ := ParseImage(options.image)
@@ -195,7 +196,7 @@ func genMapPlaybook(curveadm *cli.CurveAdm,
 }
 
 // TODO(P1): unmap by id
-func runMap(curveadm *cli.CurveAdm, options mapOptions) error {
+func runMap(curveadm *cli.DingoAdm, options mapOptions) error {
 	// 1) parse client configure
 	cc, err := configure.ParseClientConfig(options.filename)
 	if err != nil {

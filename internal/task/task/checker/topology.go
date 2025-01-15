@@ -1,5 +1,6 @@
 /*
  *  Copyright (c) 2022 NetEase Inc.
+ * 	Copyright (c) 2024 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -44,13 +45,13 @@ type (
 	// check whether host exist
 	step2CheckSSHConfigure struct {
 		dc       *topology.DeployConfig
-		curveadm *cli.CurveAdm
+		curveadm *cli.DingoAdm
 	}
 
 	// check whether the S3 configure is valid
 	step2CheckS3Configure struct {
 		dc       *topology.DeployConfig
-		curveadm *cli.CurveAdm
+		curveadm *cli.DingoAdm
 	}
 
 	// check whether directory path is absolute path
@@ -73,7 +74,7 @@ type (
 	//   (1) each role requires at least 3 services
 	//   (2) each requires at least 3 hosts
 	step2CheckServices struct {
-		curveadm *cli.CurveAdm
+		curveadm *cli.DingoAdm
 		dcs      []*topology.DeployConfig
 	}
 )
@@ -259,7 +260,7 @@ func (s *step2CheckServices) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func NewCheckTopologyTask(curveadm *cli.CurveAdm, null interface{}) (*task.Task, error) {
+func NewCheckTopologyTask(curveadm *cli.DingoAdm, null interface{}) (*task.Task, error) {
 	// new task
 	dcs := curveadm.MemStorage().Get(comm.KEY_ALL_DEPLOY_CONFIGS).([]*topology.DeployConfig)
 	subname := fmt.Sprintf("cluster=%s kind=%s", curveadm.ClusterName(), dcs[0].GetKind())
