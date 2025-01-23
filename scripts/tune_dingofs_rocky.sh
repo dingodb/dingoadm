@@ -76,12 +76,12 @@ current_user=$(whoami)
 LIMITS_FILE="/etc/security/limits.d/${current_user}.conf"
 echo "Configuring ulimit settings for user ${current_user} in $LIMITS_FILE"
 cat << EOF | sudo tee "$LIMITS_FILE"
-${current_user} soft nofile 65535
-${current_user} hard nofile 65535
+${current_user} soft nofile 65536
+${current_user} hard nofile 65536
 EOF
 
 # Apply ulimit settings immediately
 echo "Applying ulimit settings..."
-ulimit -n 65535
+ulimit -n 65536
 
 echo "Tuned script execution completed successfully!"
