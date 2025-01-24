@@ -39,12 +39,12 @@ func Execute() {
 		os.Exit(1)
 	}
 
-	yes, err := curveadm.Upgrade()
-	if err != nil {
-		os.Exit(1)
-	} else if yes {
-		os.Exit(0)
-	}
+	//yes, err := curveadm.Upgrade()
+	//if err != nil {
+	//	os.Exit(1)
+	//} else if yes {
+	//	os.Exit(0)
+	//}
 
 	id := curveadm.PreAudit(time.Now(), os.Args[1:])
 	cmd := command.NewCurveAdmCommand(curveadm)

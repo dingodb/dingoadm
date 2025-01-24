@@ -113,13 +113,13 @@ func NewStartServiceTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*ta
 	t.AddStep(&step.Lambda{
 		Lambda: WaitContainerStart(3),
 	})
-	t.AddStep(&step.ContainerExec{
-		ContainerId: &containerId,
-		Command:     fmt.Sprintf(CMD_ADD_CONTABLE, CURVE_CRONTAB_FILE),
-		Success:     &success,
-		Out:         &out,
-		ExecOptions: curveadm.ExecOptions(),
-	})
+	//t.AddStep(&step.ContainerExec{
+	//	ContainerId: &containerId,
+	//	Command:     fmt.Sprintf(CMD_ADD_CONTABLE, CURVE_CRONTAB_FILE),
+	//	Success:     &success,
+	//	Out:         &out,
+	//	ExecOptions: curveadm.ExecOptions(),
+	//})
 	t.AddStep(&Step2CheckPostStart{
 		Host:        dc.GetHost(),
 		Role:        dc.GetRole(),

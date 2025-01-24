@@ -88,7 +88,7 @@ var (
 		"{{- if .logpath}}",
 		color.CyanString("  * Log: ") + "{{.logpath}}",
 		"{{- end}}",
-		color.CyanString("  * WeChat: ") + "{{.wechat}}",
+		// color.CyanString("  * WeChat: ") + "{{.wechat}}",
 	}, "\n")
 
 	PROMPT_AUTO_UPGRADE = strings.Join([]string{
@@ -215,7 +215,7 @@ func PromptErrorCode(code int, description, clue, logpath string) string {
 	if len(logpath) > 0 {
 		prompt.data["logpath"] = logpath
 	}
-	prompt.data["wechat"] = "opencurve_bot"
+	//prompt.data["wechat"] = "opencurve_bot"
 
 	return prompt.Build()
 }
