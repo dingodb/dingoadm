@@ -8,6 +8,8 @@
 
 [[ -z $(which curl) ]] && apt-get install -y curl
 wait=0
+start_time=$(date +%s)
+
 while ((wait<30))
 do
     for addr in "$@"
@@ -19,9 +21,20 @@ do
             echo "connect [$addr] success !" >> /dingofs/tools/logs/wait.log
             exit 0
         fi
+        echo "connect [$addr] failed !" >> /dingofs/tools/logs/wait.log
     done
-    sleep 1s
-    wait=$(expr $wait + 1)
+
+    #sleep 1s # should not sleep in jenkins pipeline embedded shell
+    #wait=$(expr $wait + 1)
+    
+    # Replace sleep with a busy wait for 1 second
+    target_time=$((start_time + wait + 1))
+    while [[ $(date +%s) -lt $target_time ]]; do
+        :  # Do nothing, just wait
+    done
+
+    wait=$((wait + 1))
+    echo "wait 1s" >> /dingofs/tools/logs/wait.log
     date >> /dingofs/tools/logs/wait.log
 done
 echo "wait timeout"
