@@ -50,10 +50,11 @@ var (
 )
 
 type upgradeOptions struct {
-	id    string
-	role  string
-	host  string
-	force bool
+	id            string
+	role          string
+	host          string
+	force         bool
+	useLocalImage bool
 }
 
 func NewUpgradeCommand(curveadm *cli.DingoAdm) *cobra.Command {
@@ -77,6 +78,7 @@ func NewUpgradeCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	flags.StringVar(&options.role, "role", "*", "Specify service role")
 	flags.StringVar(&options.host, "host", "*", "Specify service host")
 	flags.BoolVarP(&options.force, "force", "f", false, "Never prompt")
+	flags.BoolVar(&options.useLocalImage, "local", false, "Use local image")
 
 	return cmd
 }
@@ -94,6 +96,15 @@ func genUpgradePlaybook(curveadm *cli.DingoAdm,
 	}
 
 	steps := UPGRADE_PLAYBOOK_STEPS
+	if options.useLocalImage {
+		// remove PULL_IMAGE step
+		for i, item := range steps {
+			if item == PULL_IMAGE {
+				steps = append(steps[:i], steps[i+1:]...)
+				break
+			}
+		}
+	}
 	pb := playbook.NewPlaybook(curveadm)
 	for _, step := range steps {
 		pb.AddStep(&playbook.PlaybookStep{
