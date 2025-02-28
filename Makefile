@@ -1,7 +1,8 @@
 .PHONY: build debug install test upload lint
 
 # go env
-GOPROXY     := "https://goproxy.cn,direct"
+#GOPROXY     := "https://goproxy.cn,direct"
+GOPROXY     := "https://proxy.golang.org,direct"
 GOOS        := $(if $(GOOS),$(GOOS),$(shell go env GOOS))
 GOARCH      := $(if $(GOARCH),$(GOARCH),$(shell go env GOARCH))
 CGO_LDFLAGS := "-static"
