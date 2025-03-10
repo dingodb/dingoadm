@@ -29,18 +29,18 @@ import (
 	"github.com/dingodb/dingoadm/internal/task/task/common"
 )
 
-func NewCleanConfigContainerTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
+func NewCleanConfigContainerTask(dingoadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
 	role := cfg.GetRole()
 	if role != ROLE_MONITOR_CONF {
 		return nil, nil
 	}
 	host := cfg.GetHost()
-	hc, err := curveadm.GetHost(host)
+	hc, err := dingoadm.GetHost(host)
 	if err != nil {
 		return nil, err
 	}
-	serviceId := curveadm.GetServiceId(cfg.GetId())
-	containerId, err := curveadm.GetContainerId(serviceId)
+	serviceId := dingoadm.GetServiceId(cfg.GetId())
+	containerId, err := dingoadm.GetContainerId(serviceId)
 	if err != nil {
 		return nil, err
 	}
@@ -48,8 +48,8 @@ func NewCleanConfigContainerTask(curveadm *cli.DingoAdm, cfg *configure.MonitorC
 	t.AddStep(&common.Step2CleanContainer{
 		ServiceId:   serviceId,
 		ContainerId: containerId,
-		Storage:     curveadm.Storage(),
-		ExecOptions: curveadm.ExecOptions(),
+		Storage:     dingoadm.Storage(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	return t, nil
 }

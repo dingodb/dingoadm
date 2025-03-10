@@ -1,5 +1,6 @@
 /*
 *  Copyright (c) 2023 NetEase Inc.
+*  Copyright (c) 2025 dingodb.com.
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -44,14 +45,14 @@ type restartOptions struct {
 	host string
 }
 
-func NewRestartCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewRestartCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options restartOptions
 	cmd := &cobra.Command{
 		Use:   "restart [OPTIONS]",
 		Short: "Restart monitor service",
 		Args:  cliutil.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runRestart(curveadm, options)
+			return runRestart(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -64,10 +65,10 @@ func NewRestartCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	return cmd
 }
 
-func genRestartPlaybook(curveadm *cli.DingoAdm,
+func genRestartPlaybook(dingoadm *cli.DingoAdm,
 	mcs []*configure.MonitorConfig,
 	options restartOptions) (*playbook.Playbook, error) {
-	mcs = configure.FilterMonitorConfig(curveadm, mcs, configure.FilterMonitorOption{
+	mcs = configure.FilterMonitorConfig(dingoadm, mcs, configure.FilterMonitorOption{
 		Id:   options.id,
 		Role: options.role,
 		Host: options.host,
@@ -77,7 +78,7 @@ func genRestartPlaybook(curveadm *cli.DingoAdm,
 	}
 
 	steps := MONITOR_RESTART_STEPS
-	pb := playbook.NewPlaybook(curveadm)
+	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
 		pb.AddStep(&playbook.PlaybookStep{
 			Type:    step,
@@ -87,22 +88,22 @@ func genRestartPlaybook(curveadm *cli.DingoAdm,
 	return pb, nil
 }
 
-func runRestart(curveadm *cli.DingoAdm, options restartOptions) error {
+func runRestart(dingoadm *cli.DingoAdm, options restartOptions) error {
 	// 1) parse monitor configure
-	mcs, err := parseMonitorConfig(curveadm)
+	mcs, err := parseMonitorConfig(dingoadm)
 	if err != nil {
 		return err
 	}
 
 	// 2) generate restart playbook
-	pb, err := genRestartPlaybook(curveadm, mcs, options)
+	pb, err := genRestartPlaybook(dingoadm, mcs, options)
 	if err != nil {
 		return err
 	}
 
 	// 3) confirm by user
 	if pass := tui.ConfirmYes(tui.PromptRestartService(options.id, options.role, options.host)); !pass {
-		curveadm.WriteOut(tui.PromptCancelOpetation("restart monitor service"))
+		dingoadm.WriteOut(tui.PromptCancelOpetation("restart monitor service"))
 		return errno.ERR_CANCEL_OPERATION
 	}
 

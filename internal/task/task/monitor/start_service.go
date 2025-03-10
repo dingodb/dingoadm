@@ -43,15 +43,15 @@ func IsSkip(mc *configure.MonitorConfig, roles []string) bool {
 	return false
 }
 
-func NewStartServiceTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
-	serviceId := curveadm.GetServiceId(cfg.GetId())
-	containerId, err := curveadm.GetContainerId(serviceId)
+func NewStartServiceTask(dingoadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
+	serviceId := dingoadm.GetServiceId(cfg.GetId())
+	containerId, err := dingoadm.GetContainerId(serviceId)
 	if IsSkip(cfg, []string{ROLE_MONITOR_CONF}) {
 		return nil, nil
 	} else if err != nil {
 		return nil, err
 	}
-	hc, err := curveadm.GetHost(cfg.GetHost())
+	hc, err := dingoadm.GetHost(cfg.GetHost())
 	if err != nil {
 		return nil, err
 	}
@@ -70,14 +70,14 @@ func NewStartServiceTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (
 		Format:      `"{{.ID}}"`,
 		Filter:      fmt.Sprintf("id=%s", containerId),
 		Out:         &out,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.Lambda{
 		Lambda: common.CheckContainerExist(host, role, containerId, &out),
 	})
 	t.AddStep(&step.StartContainer{
 		ContainerId: &containerId,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.Lambda{
 		Lambda: common.WaitContainerStart(3),
@@ -88,7 +88,7 @@ func NewStartServiceTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (
 		ContainerId: containerId,
 		Success:     &success,
 		Out:         &out,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 
 	return t, nil

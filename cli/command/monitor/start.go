@@ -1,5 +1,6 @@
 /*
 *  Copyright (c) 2023 NetEase Inc.
+*  Copyright (c) 2025 dingodb.com.
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -44,14 +45,14 @@ type startOptions struct {
 	host string
 }
 
-func NewStartCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewStartCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options startOptions
 	cmd := &cobra.Command{
 		Use:   "start [OPTIONS]",
 		Short: "Start monitor service",
 		Args:  cliutil.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runStart(curveadm, options)
+			return runStart(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -64,10 +65,10 @@ func NewStartCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	return cmd
 }
 
-func genStartPlaybook(curveadm *cli.DingoAdm,
+func genStartPlaybook(dingoadm *cli.DingoAdm,
 	mcs []*configure.MonitorConfig,
 	options startOptions) (*playbook.Playbook, error) {
-	mcs = configure.FilterMonitorConfig(curveadm, mcs, configure.FilterMonitorOption{
+	mcs = configure.FilterMonitorConfig(dingoadm, mcs, configure.FilterMonitorOption{
 		Id:   options.id,
 		Role: options.role,
 		Host: options.host,
@@ -77,7 +78,7 @@ func genStartPlaybook(curveadm *cli.DingoAdm,
 	}
 
 	steps := MONITOR_START_STEPS
-	pb := playbook.NewPlaybook(curveadm)
+	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
 		pb.AddStep(&playbook.PlaybookStep{
 			Type:    step,
@@ -87,22 +88,22 @@ func genStartPlaybook(curveadm *cli.DingoAdm,
 	return pb, nil
 }
 
-func runStart(curveadm *cli.DingoAdm, options startOptions) error {
+func runStart(dingoadm *cli.DingoAdm, options startOptions) error {
 	// 1) parse monitor configure
-	mcs, err := parseMonitorConfig(curveadm)
+	mcs, err := parseMonitorConfig(dingoadm)
 	if err != nil {
 		return err
 	}
 
 	// 2) generate start playbook
-	pb, err := genStartPlaybook(curveadm, mcs, options)
+	pb, err := genStartPlaybook(dingoadm, mcs, options)
 	if err != nil {
 		return err
 	}
 
 	// 3) confirm by user
 	if pass := tui.ConfirmYes(tui.PromptStartService(options.id, options.role, options.host)); !pass {
-		curveadm.WriteOut(tui.PromptCancelOpetation("start monitor service"))
+		dingoadm.WriteOut(tui.PromptCancelOpetation("start monitor service"))
 		return errno.ERR_CANCEL_OPERATION
 	}
 

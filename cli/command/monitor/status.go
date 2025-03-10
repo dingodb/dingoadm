@@ -1,5 +1,6 @@
 /*
 *  Copyright (c) 2023 NetEase Inc.
+*  Copyright (c) 2025 dingodb.com.
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -48,14 +49,14 @@ type statusOptions struct {
 	verbose bool
 }
 
-func NewStatusCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewStatusCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options statusOptions
 	cmd := &cobra.Command{
 		Use:   "status [OPTIONS]",
 		Short: "Display monitor services status",
 		Args:  cliutil.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runStatus(curveadm, options)
+			return runStatus(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -68,23 +69,23 @@ func NewStatusCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	return cmd
 }
 
-func parseMonitorConfig(curveadm *cli.DingoAdm) ([]*configure.MonitorConfig, error) {
-	if curveadm.ClusterId() == -1 {
+func parseMonitorConfig(dingoadm *cli.DingoAdm) ([]*configure.MonitorConfig, error) {
+	if dingoadm.ClusterId() == -1 {
 		return nil, errno.ERR_NO_CLUSTER_SPECIFIED
 	}
-	hosts, hostIps, dcs, err := parseTopology(curveadm)
+	hosts, hostIps, dcs, err := parseTopology(dingoadm)
 	if err != nil {
 		return nil, err
 	}
 
-	monitor := curveadm.Monitor()
-	return configure.ParseMonitorConfig(curveadm, "", monitor.Monitor, hosts, hostIps, dcs)
+	monitor := dingoadm.Monitor()
+	return configure.ParseMonitorConfig(dingoadm, "", monitor.Monitor, hosts, hostIps, dcs)
 }
 
-func genStatusPlaybook(curveadm *cli.DingoAdm,
+func genStatusPlaybook(dingoadm *cli.DingoAdm,
 	mcs []*configure.MonitorConfig,
 	options statusOptions) (*playbook.Playbook, error) {
-	mcs = configure.FilterMonitorConfig(curveadm, mcs, configure.FilterMonitorOption{
+	mcs = configure.FilterMonitorConfig(dingoadm, mcs, configure.FilterMonitorOption{
 		Id:   options.id,
 		Role: options.role,
 		Host: options.host,
@@ -94,7 +95,7 @@ func genStatusPlaybook(curveadm *cli.DingoAdm,
 	}
 
 	steps := GET_MONITOR_STATUS_PLAYBOOK_STEPS
-	pb := playbook.NewPlaybook(curveadm)
+	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
 		pb.AddStep(&playbook.PlaybookStep{
 			Type:    step,
@@ -109,9 +110,9 @@ func genStatusPlaybook(curveadm *cli.DingoAdm,
 	return pb, nil
 }
 
-func displayStatus(curveadm *cli.DingoAdm, dcs []*configure.MonitorConfig, options statusOptions) {
+func displayStatus(dingoadm *cli.DingoAdm, dcs []*configure.MonitorConfig, options statusOptions) {
 	statuses := []monitor.MonitorStatus{}
-	value := curveadm.MemStorage().Get(comm.KEY_MONITOR_STATUS)
+	value := dingoadm.MemStorage().Get(comm.KEY_MONITOR_STATUS)
 	if value != nil {
 		m := value.(map[string]monitor.MonitorStatus)
 		for _, status := range m {
@@ -120,22 +121,22 @@ func displayStatus(curveadm *cli.DingoAdm, dcs []*configure.MonitorConfig, optio
 	}
 
 	output := tui.FormatMonitorStatus(statuses, options.verbose)
-	curveadm.WriteOutln("")
-	curveadm.WriteOutln("cluster name      : %s", curveadm.ClusterName())
-	curveadm.WriteOutln("cluster kind      : %s", dcs[0].GetKind())
-	curveadm.WriteOutln("")
-	curveadm.WriteOut("%s", output)
+	dingoadm.WriteOutln("")
+	dingoadm.WriteOutln("cluster name      : %s", dingoadm.ClusterName())
+	dingoadm.WriteOutln("cluster kind      : %s", dcs[0].GetKind())
+	dingoadm.WriteOutln("")
+	dingoadm.WriteOut("%s", output)
 }
 
-func runStatus(curveadm *cli.DingoAdm, options statusOptions) error {
+func runStatus(dingoadm *cli.DingoAdm, options statusOptions) error {
 	// 1) parse monitor config
-	mcs, err := parseMonitorConfig(curveadm)
+	mcs, err := parseMonitorConfig(dingoadm)
 	if err != nil {
 		return err
 	}
 
 	// 2) generate get status playbook
-	pb, err := genStatusPlaybook(curveadm, mcs, options)
+	pb, err := genStatusPlaybook(dingoadm, mcs, options)
 	if err != nil {
 		return err
 	}
@@ -144,7 +145,7 @@ func runStatus(curveadm *cli.DingoAdm, options statusOptions) error {
 	err = pb.Run()
 
 	// 4) display service status
-	displayStatus(curveadm, mcs, options)
+	displayStatus(dingoadm, mcs, options)
 	return err
 
 }

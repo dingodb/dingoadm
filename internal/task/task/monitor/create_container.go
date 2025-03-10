@@ -111,9 +111,9 @@ func getEnvironments(cfg *configure.MonitorConfig) []string {
 	return []string{}
 }
 
-func NewCreateContainerTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
+func NewCreateContainerTask(dingoadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
 	host := cfg.GetHost()
-	hc, err := curveadm.GetHost(host)
+	hc, err := dingoadm.GetHost(host)
 	if err != nil {
 		return nil, err
 	}
@@ -124,19 +124,19 @@ func NewCreateContainerTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig
 
 	// add step to task
 	var oldContainerId, containerId string
-	clusterId := curveadm.ClusterId()
+	clusterId := dingoadm.ClusterId()
 	mcId := cfg.GetId()
-	serviceId := curveadm.GetServiceId(mcId)
+	serviceId := dingoadm.GetServiceId(mcId)
 	kind := cfg.GetKind()
 	role := cfg.GetRole()
 	hostname := fmt.Sprintf("%s-%s-%s", kind, role, serviceId)
-	options := curveadm.ExecOptions()
+	options := dingoadm.ExecOptions()
 	options.ExecWithSudo = false
 
 	t.AddStep(&common.Step2GetService{ // if service exist, break task
 		ServiceId:   serviceId,
 		ContainerId: &oldContainerId,
-		Storage:     curveadm.Storage(),
+		Storage:     dingoadm.Storage(),
 	})
 	t.AddStep(&step.CreateDirectory{
 		Paths:       []string{cfg.GetDataDir()},
@@ -157,7 +157,7 @@ func NewCreateContainerTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig
 		Ulimits:     []string{"core=-1"},
 		Volumes:     getMountVolumes(cfg),
 		Out:         &containerId,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.Lambda{
 		Lambda: common.TrimContainerId(&containerId),
@@ -167,7 +167,7 @@ func NewCreateContainerTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig
 		ServiceId:      serviceId,
 		ContainerId:    &containerId,
 		OldContainerId: &oldContainerId,
-		Storage:        curveadm.Storage(),
+		Storage:        dingoadm.Storage(),
 	})
 	return t, nil
 }

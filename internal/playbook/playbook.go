@@ -57,7 +57,7 @@ type (
 	}
 
 	Playbook struct {
-		curveadm  *cli.DingoAdm
+		dingoadm  *cli.DingoAdm
 		steps     []*PlaybookStep
 		postSteps []*PlaybookStep
 	}
@@ -65,9 +65,9 @@ type (
 	ExecOptions = tasks.ExecOptions
 )
 
-func NewPlaybook(curveadm *cli.DingoAdm) *Playbook {
+func NewPlaybook(dingoadm *cli.DingoAdm) *Playbook {
 	return &Playbook{
-		curveadm: curveadm,
+		dingoadm: dingoadm,
 		steps:    []*PlaybookStep{},
 	}
 }
@@ -94,7 +94,7 @@ func (p *Playbook) run(steps []*PlaybookStep) error {
 
 		isLast := (i == len(steps)-1)
 		if !step.ExecOptions.SilentMainBar && !isLast {
-			p.curveadm.WriteOutln("")
+			p.dingoadm.WriteOutln("")
 		}
 	}
 	return nil
@@ -105,7 +105,7 @@ func (p *Playbook) Run() error {
 		if len(p.postSteps) == 0 {
 			return
 		}
-		p.curveadm.WriteOutln("")
+		p.dingoadm.WriteOutln("")
 		p.run(p.postSteps)
 	}()
 

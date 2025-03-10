@@ -1,5 +1,6 @@
 /*
 *  Copyright (c) 2023 NetEase Inc.
+*  Copyright (c) 2025 dingodb.com.
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -28,22 +29,22 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewMonitorCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewMonitorCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "monitor",
 		Short: "Manage monitor",
 		Args:  cliutil.NoArgs,
-		RunE:  cliutil.ShowHelp(curveadm.Err()),
+		RunE:  cliutil.ShowHelp(dingoadm.Err()),
 	}
 
 	cmd.AddCommand(
-		NewDeployCommand(curveadm),
-		NewStartCommand(curveadm),
-		NewStopCommand(curveadm),
-		NewStatusCommand(curveadm),
-		NewCleanCommand(curveadm),
-		NewRestartCommand(curveadm),
-		NewReloadCommand(curveadm),
+		NewDeployCommand(dingoadm),
+		NewStartCommand(dingoadm),
+		NewStopCommand(dingoadm),
+		NewStatusCommand(dingoadm),
+		NewCleanCommand(dingoadm),
+		NewRestartCommand(dingoadm),
+		NewReloadCommand(dingoadm),
 	)
 	return cmd
 }
