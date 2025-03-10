@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -e 
 
+# check time zone is Asia/Shanghai or not, if not, set it to Asia/Shanghai
+#if [ "$(timedatectl | grep "Time zone" | awk '{print $3}')" != "Asia/Shanghai" ]; then
+#    echo "Setting time zone to Asia/Shanghai..."
+#    sudo timedatectl set-timezone Asia/Shanghai
+#fi
+
 echo "Checking if 'tuned' package is installed..."
 if ! rpm -q tuned &>/dev/null; then
     echo "'tuned' is not installed. Installing now..."
@@ -73,11 +79,18 @@ sudo tuned-adm active
 current_user=$(whoami)
 
 # Configure ulimit for the user
-LIMITS_FILE="/etc/security/limits.d/${current_user}.conf"
-echo "Configuring ulimit settings for user ${current_user} in $LIMITS_FILE"
-cat << EOF | sudo tee "$LIMITS_FILE"
-${current_user} soft nofile 65536
-${current_user} hard nofile 65536
+# LIMITS_FILE="/etc/security/limits.d/${current_user}.conf"
+# echo "Configuring ulimit settings for user ${current_user} in $LIMITS_FILE"
+# cat << EOF | sudo tee "$LIMITS_FILE"
+# ${current_user} soft nofile 65536
+# ${current_user} hard nofile 65536
+# EOF
+
+# configue all user ulimit in /etc/security/limits.conf
+echo "Configuring ulimit settings in /etc/security/limits.conf"
+cat << EOF | sudo tee -a /etc/security/limits.conf > /dev/null
+* soft nofile 65536
+* hard nofile 65536
 EOF
 
 # Apply ulimit settings immediately
