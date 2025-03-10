@@ -1,5 +1,6 @@
 /*
 *  Copyright (c) 2023 NetEase Inc.
+*  Copyright (c) 2025 dingodb.com.
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -44,14 +45,14 @@ type stopOptions struct {
 	host string
 }
 
-func NewStopCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewStopCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options stopOptions
 	cmd := &cobra.Command{
 		Use:   "stop [OPTIONS]",
 		Short: "Stop monitor service",
 		Args:  cliutil.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runStop(curveadm, options)
+			return runStop(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -64,10 +65,10 @@ func NewStopCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	return cmd
 }
 
-func genStopPlaybook(curveadm *cli.DingoAdm,
+func genStopPlaybook(dingoadm *cli.DingoAdm,
 	mcs []*configure.MonitorConfig,
 	options stopOptions) (*playbook.Playbook, error) {
-	mcs = configure.FilterMonitorConfig(curveadm, mcs, configure.FilterMonitorOption{
+	mcs = configure.FilterMonitorConfig(dingoadm, mcs, configure.FilterMonitorOption{
 		Id:   options.id,
 		Role: options.role,
 		Host: options.host,
@@ -77,7 +78,7 @@ func genStopPlaybook(curveadm *cli.DingoAdm,
 	}
 
 	steps := MONITOR_STOP_STEPS
-	pb := playbook.NewPlaybook(curveadm)
+	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
 		pb.AddStep(&playbook.PlaybookStep{
 			Type:    step,
@@ -87,15 +88,15 @@ func genStopPlaybook(curveadm *cli.DingoAdm,
 	return pb, nil
 }
 
-func runStop(curveadm *cli.DingoAdm, options stopOptions) error {
+func runStop(dingoadm *cli.DingoAdm, options stopOptions) error {
 	// 1) parse monitor config
-	mcs, err := parseMonitorConfig(curveadm)
+	mcs, err := parseMonitorConfig(dingoadm)
 	if err != nil {
 		return err
 	}
 
 	// 2) generate stop playbook
-	pb, err := genStopPlaybook(curveadm, mcs, options)
+	pb, err := genStopPlaybook(dingoadm, mcs, options)
 	if err != nil {
 		return err
 	}
@@ -103,7 +104,7 @@ func runStop(curveadm *cli.DingoAdm, options stopOptions) error {
 	// 3) confirm by user
 	pass := tui.ConfirmYes(tui.PromptStopService(options.id, options.role, options.host))
 	if !pass {
-		curveadm.WriteOut(tui.PromptCancelOpetation("stop monitor service"))
+		dingoadm.WriteOut(tui.PromptCancelOpetation("stop monitor service"))
 		return errno.ERR_CANCEL_OPERATION
 	}
 

@@ -1,5 +1,6 @@
 /*
 *  Copyright (c) 2023 NetEase Inc.
+*  Copyright (c) 2025 dingodb.com.
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -58,7 +59,7 @@ type cleanOptions struct {
 	only []string
 }
 
-func NewCleanCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewCleanCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options cleanOptions
 
 	cmd := &cobra.Command{
@@ -67,7 +68,7 @@ func NewCleanCommand(curveadm *cli.DingoAdm) *cobra.Command {
 		Args:    cliutil.NoArgs,
 		Example: CLEAN_EXAMPLE,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runClean(curveadm, options)
+			return runClean(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -80,10 +81,10 @@ func NewCleanCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	return cmd
 }
 
-func genCleanPlaybook(curveadm *cli.DingoAdm,
+func genCleanPlaybook(dingoadm *cli.DingoAdm,
 	mcs []*configure.MonitorConfig,
 	options cleanOptions) (*playbook.Playbook, error) {
-	mcs = configure.FilterMonitorConfig(curveadm, mcs, configure.FilterMonitorOption{
+	mcs = configure.FilterMonitorConfig(dingoadm, mcs, configure.FilterMonitorOption{
 		Id:   options.id,
 		Role: options.role,
 		Host: options.host,
@@ -92,7 +93,7 @@ func genCleanPlaybook(curveadm *cli.DingoAdm,
 		return nil, errno.ERR_NO_SERVICES_MATCHED
 	}
 	steps := CLEAN_PLAYBOOK_STEPS
-	pb := playbook.NewPlaybook(curveadm)
+	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
 		pb.AddStep(&playbook.PlaybookStep{
 			Type:    step,
@@ -105,22 +106,22 @@ func genCleanPlaybook(curveadm *cli.DingoAdm,
 	return pb, nil
 }
 
-func runClean(curveadm *cli.DingoAdm, options cleanOptions) error {
+func runClean(dingoadm *cli.DingoAdm, options cleanOptions) error {
 	// 1) parse monitor config
-	mcs, err := parseMonitorConfig(curveadm)
+	mcs, err := parseMonitorConfig(dingoadm)
 	if err != nil {
 		return err
 	}
 
 	// 2) generate clean playbook
-	pb, err := genCleanPlaybook(curveadm, mcs, options)
+	pb, err := genCleanPlaybook(dingoadm, mcs, options)
 	if err != nil {
 		return err
 	}
 
 	// 3) confirm by user
 	if pass := tui.ConfirmYes(tui.PromptCleanService(options.role, options.host, options.only)); !pass {
-		curveadm.WriteOut(tui.PromptCancelOpetation("clean monitor service"))
+		dingoadm.WriteOut(tui.PromptCancelOpetation("clean monitor service"))
 		return errno.ERR_CANCEL_OPERATION
 	}
 

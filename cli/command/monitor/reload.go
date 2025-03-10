@@ -1,5 +1,6 @@
 /*
 *  Copyright (c) 2023 NetEase Inc.
+*  Copyright (c) 2025 dingodb.com.
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -48,14 +49,14 @@ type reloadOptions struct {
 	host string
 }
 
-func NewReloadCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewReloadCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options reloadOptions
 	cmd := &cobra.Command{
 		Use:   "reload [OPTIONS]",
 		Short: "Reload monitor service",
 		Args:  cliutil.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runReload(curveadm, options)
+			return runReload(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -68,10 +69,10 @@ func NewReloadCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	return cmd
 }
 
-func genReloadPlaybook(curveadm *cli.DingoAdm,
+func genReloadPlaybook(dingoadm *cli.DingoAdm,
 	mcs []*configure.MonitorConfig,
 	options reloadOptions) (*playbook.Playbook, error) {
-	mcs = configure.FilterMonitorConfig(curveadm, mcs, configure.FilterMonitorOption{
+	mcs = configure.FilterMonitorConfig(dingoadm, mcs, configure.FilterMonitorOption{
 		Id:   options.id,
 		Role: options.role,
 		Host: options.host,
@@ -81,7 +82,7 @@ func genReloadPlaybook(curveadm *cli.DingoAdm,
 	}
 
 	steps := MONITOR_RELOAD_STEPS
-	pb := playbook.NewPlaybook(curveadm)
+	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
 		if step == playbook.CREATE_MONITOR_CONTAINER || step == playbook.CLEAN_CONFIG_CONTAINER {
 			pb.AddStep(&playbook.PlaybookStep{
@@ -102,22 +103,22 @@ func genReloadPlaybook(curveadm *cli.DingoAdm,
 	return pb, nil
 }
 
-func runReload(curveadm *cli.DingoAdm, options reloadOptions) error {
+func runReload(dingoadm *cli.DingoAdm, options reloadOptions) error {
 	// 1) parse monitor configure
-	mcs, err := parseMonitorConfig(curveadm)
+	mcs, err := parseMonitorConfig(dingoadm)
 	if err != nil {
 		return err
 	}
 
 	// 2) generate reload playbook
-	pb, err := genReloadPlaybook(curveadm, mcs, options)
+	pb, err := genReloadPlaybook(dingoadm, mcs, options)
 	if err != nil {
 		return err
 	}
 
 	// 3) confirm by user
 	if pass := tui.ConfirmYes(tui.PromptReloadService(options.id, options.role, options.host)); !pass {
-		curveadm.WriteOut(tui.PromptCancelOpetation("reload monitor service"))
+		dingoadm.WriteOut(tui.PromptCancelOpetation("reload monitor service"))
 		return errno.ERR_CANCEL_OPERATION
 	}
 

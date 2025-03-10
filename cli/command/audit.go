@@ -38,7 +38,7 @@ type auditOptions struct {
 	verbose bool
 }
 
-func NewAuditCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewAuditCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options auditOptions
 
 	cmd := &cobra.Command{
@@ -46,7 +46,7 @@ func NewAuditCommand(curveadm *cli.DingoAdm) *cobra.Command {
 		Short: "Show audit log of operation",
 		Args:  cliutil.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runAudit(curveadm, options)
+			return runAudit(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -58,8 +58,8 @@ func NewAuditCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	return cmd
 }
 
-func runAudit(curveadm *cli.DingoAdm, options auditOptions) error {
-	auditLogs, err := curveadm.Storage().GetAuditLogs()
+func runAudit(dingoadm *cli.DingoAdm, options auditOptions) error {
+	auditLogs, err := dingoadm.Storage().GetAuditLogs()
 	if err != nil {
 		return errno.ERR_GET_AUDIT_LOGS_FAILE.E(err)
 	}
@@ -69,6 +69,6 @@ func runAudit(curveadm *cli.DingoAdm, options auditOptions) error {
 		auditLogs = auditLogs[len(auditLogs)-tail:]
 	}
 	output := tui.FormatAuditLogs(auditLogs, options.verbose)
-	curveadm.WriteOut(output)
+	dingoadm.WriteOut(output)
 	return nil
 }

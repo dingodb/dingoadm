@@ -132,7 +132,7 @@ func checkDeployOptions(options deployOptions) error {
 	return nil
 }
 
-func NewDeployCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewDeployCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options deployOptions
 
 	cmd := &cobra.Command{
@@ -143,7 +143,7 @@ func NewDeployCommand(curveadm *cli.DingoAdm) *cobra.Command {
 			return checkDeployOptions(options)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runDeploy(curveadm, options)
+			return runDeploy(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -183,7 +183,7 @@ func skipDeploySteps(dcs []*topology.DeployConfig, deploySteps []int, options de
 	return steps
 }
 
-func precheckBeforeDeploy(curveadm *cli.DingoAdm,
+func precheckBeforeDeploy(dingoadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options deployOptions) error {
 	// 1) skip precheck
@@ -192,7 +192,7 @@ func precheckBeforeDeploy(curveadm *cli.DingoAdm,
 	}
 
 	// 2) generate precheck playbook
-	pb, err := genPrecheckPlaybook(curveadm, dcs, precheckOptions{
+	pb, err := genPrecheckPlaybook(dingoadm, dcs, precheckOptions{
 		skipSnapshotClone: utils.Slice2Map(options.skip)[ROLE_SNAPSHOTCLONE],
 	})
 	if err != nil {
@@ -206,20 +206,20 @@ func precheckBeforeDeploy(curveadm *cli.DingoAdm,
 	}
 
 	// 4) printf success prompt
-	curveadm.WriteOutln("")
-	curveadm.WriteOutln(color.GreenString("Congratulations!!! all precheck passed :)"))
-	curveadm.WriteOut(color.GreenString("Now we start to deploy cluster, sleep 3 seconds..."))
+	dingoadm.WriteOutln("")
+	dingoadm.WriteOutln(color.GreenString("Congratulations!!! all precheck passed :)"))
+	dingoadm.WriteOut(color.GreenString("Now we start to deploy cluster, sleep 3 seconds..."))
 	time.Sleep(time.Duration(3) * time.Second)
-	curveadm.WriteOutln("\n")
+	dingoadm.WriteOutln("\n")
 	return nil
 }
 
-func calcNumOfChunkserver(curveadm *cli.DingoAdm, dcs []*topology.DeployConfig) int {
-	services := curveadm.FilterDeployConfigByRole(dcs, topology.ROLE_CHUNKSERVER)
+func calcNumOfChunkserver(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig) int {
+	services := dingoadm.FilterDeployConfigByRole(dcs, topology.ROLE_CHUNKSERVER)
 	return len(services)
 }
 
-func genDeployPlaybook(curveadm *cli.DingoAdm,
+func genDeployPlaybook(dingoadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options deployOptions) (*playbook.Playbook, error) {
 	var steps []int
@@ -245,13 +245,13 @@ func genDeployPlaybook(curveadm *cli.DingoAdm,
 	}
 	diskType := options.poolsetDiskType
 
-	pb := playbook.NewPlaybook(curveadm)
+	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
 		// configs
 		config := dcs
 		if len(DEPLOY_FILTER_ROLE[step]) > 0 {
 			role := DEPLOY_FILTER_ROLE[step]
-			config = curveadm.FilterDeployConfigByRole(config, role)
+			config = dingoadm.FilterDeployConfigByRole(config, role)
 		}
 		n := len(config)
 		if DEPLOY_LIMIT_SERVICE[step] > 0 {
@@ -264,12 +264,12 @@ func genDeployPlaybook(curveadm *cli.DingoAdm,
 		if step == CREATE_PHYSICAL_POOL {
 			options[comm.KEY_CREATE_POOL_TYPE] = comm.POOL_TYPE_PHYSICAL
 			options[comm.KEY_POOLSET] = poolset
-			options[comm.KEY_NUMBER_OF_CHUNKSERVER] = calcNumOfChunkserver(curveadm, dcs)
+			options[comm.KEY_NUMBER_OF_CHUNKSERVER] = calcNumOfChunkserver(dingoadm, dcs)
 		} else if step == CREATE_LOGICAL_POOL {
 			options[comm.KEY_CREATE_POOL_TYPE] = comm.POOL_TYPE_LOGICAL
 			options[comm.POOLSET] = poolset
 			options[comm.POOLSET_DISK_TYPE] = diskType
-			options[comm.KEY_NUMBER_OF_CHUNKSERVER] = calcNumOfChunkserver(curveadm, dcs)
+			options[comm.KEY_NUMBER_OF_CHUNKSERVER] = calcNumOfChunkserver(dingoadm, dcs)
 		}
 
 		pb.AddStep(&playbook.PlaybookStep{
@@ -310,11 +310,11 @@ func serviceStats(dcs []*topology.DeployConfig) string {
 	return serviceStats
 }
 
-func displayDeployTitle(curveadm *cli.DingoAdm, dcs []*topology.DeployConfig) {
-	curveadm.WriteOutln("Cluster Name    : %s", curveadm.ClusterName())
-	curveadm.WriteOutln("Cluster Kind    : %s", dcs[0].GetKind())
-	curveadm.WriteOutln("Cluster Services: %s", serviceStats(dcs))
-	curveadm.WriteOutln("")
+func displayDeployTitle(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig) {
+	dingoadm.WriteOutln("Cluster Name    : %s", dingoadm.ClusterName())
+	dingoadm.WriteOutln("Cluster Kind    : %s", dcs[0].GetKind())
+	dingoadm.WriteOutln("Cluster Services: %s", serviceStats(dcs))
+	dingoadm.WriteOutln("")
 }
 
 /*
@@ -326,14 +326,14 @@ func displayDeployTitle(curveadm *cli.DingoAdm, dcs []*topology.DeployConfig) {
  *     4.1) start etcd container
  *     4.2) start mds container
  *     4.3) create physical pool(curvebs)
- *     4.3) start chunkserver(curvebs) / metaserver(curvefs) container
+ *     4.3) start chunkserver(curvebs) / metaserver(dingofs) container
  *     4.4) start snapshotserver(curvebs) container
  *   5) create logical pool
  *   6) balance leader rapidly
  */
-func runDeploy(curveadm *cli.DingoAdm, options deployOptions) error {
+func runDeploy(dingoadm *cli.DingoAdm, options deployOptions) error {
 	// 1) parse cluster topology
-	dcs, err := curveadm.ParseTopology()
+	dcs, err := dingoadm.ParseTopology()
 	if err != nil {
 		return err
 	}
@@ -342,19 +342,19 @@ func runDeploy(curveadm *cli.DingoAdm, options deployOptions) error {
 	dcs = skipServiceRole(dcs, options)
 
 	// 3) precheck before deploy
-	err = precheckBeforeDeploy(curveadm, dcs, options)
+	err = precheckBeforeDeploy(dingoadm, dcs, options)
 	if err != nil {
 		return err
 	}
 
 	// 4) generate deploy playbook
-	pb, err := genDeployPlaybook(curveadm, dcs, options)
+	pb, err := genDeployPlaybook(dingoadm, dcs, options)
 	if err != nil {
 		return err
 	}
 
 	// 5) display title
-	displayDeployTitle(curveadm, dcs)
+	displayDeployTitle(dingoadm, dcs)
 
 	// 6) run playground
 	if err = pb.Run(); err != nil {
@@ -362,7 +362,7 @@ func runDeploy(curveadm *cli.DingoAdm, options deployOptions) error {
 	}
 
 	// 7) print success prompt
-	curveadm.WriteOutln("")
-	curveadm.WriteOutln(color.GreenString("Cluster '%s' successfully deployed ^_^."), curveadm.ClusterName())
+	dingoadm.WriteOutln("")
+	dingoadm.WriteOutln(color.GreenString("Cluster '%s' successfully deployed ^_^."), dingoadm.ClusterName())
 	return nil
 }

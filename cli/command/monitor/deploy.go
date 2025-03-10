@@ -1,5 +1,6 @@
 /*
 *  Copyright (c) 2023 NetEase Inc.
+*  Copyright (c) 2025 dingodb.com.
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -18,6 +19,11 @@
 * Project: Curveadm
 * Created Date: 2023-04-17
 * Author: wanghai (SeanHai)
+ */
+/*
+* Project: dingoadm
+* Created Date: 2025-03-10
+* Author: dongwei (jackblack369)
  */
 
 package monitor
@@ -65,7 +71,7 @@ type deployOptions struct {
  *     4.2) start prometheus container
  *     4.3) start grafana container
  */
-func NewDeployCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewDeployCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options deployOptions
 
 	cmd := &cobra.Command{
@@ -74,7 +80,7 @@ func NewDeployCommand(curveadm *cli.DingoAdm) *cobra.Command {
 		Args:    cliutil.NoArgs,
 		Example: DEPLOY_EXAMPLE,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runDeploy(curveadm, options)
+			return runDeploy(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -84,10 +90,10 @@ func NewDeployCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	return cmd
 }
 
-func genDeployPlaybook(curveadm *cli.DingoAdm,
+func genDeployPlaybook(dingoadm *cli.DingoAdm,
 	mcs []*configure.MonitorConfig) (*playbook.Playbook, error) {
 	steps := MONITOR_DEPLOY_STEPS
-	pb := playbook.NewPlaybook(curveadm)
+	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
 		if step == playbook.CLEAN_CONFIG_CONTAINER {
 			pb.AddStep(&playbook.PlaybookStep{
@@ -108,8 +114,8 @@ func genDeployPlaybook(curveadm *cli.DingoAdm,
 	return pb, nil
 }
 
-func parseTopology(curveadm *cli.DingoAdm) ([]string, []string, []*topology.DeployConfig, error) {
-	dcs, err := curveadm.ParseTopology()
+func parseTopology(dingoadm *cli.DingoAdm) ([]string, []string, []*topology.DeployConfig, error) {
+	dcs, err := dingoadm.ParseTopology()
 	if err != nil || len(dcs) == 0 {
 		return nil, nil, nil, err
 	}
@@ -130,15 +136,15 @@ func parseTopology(curveadm *cli.DingoAdm) ([]string, []string, []*topology.Depl
 	return hosts, hostIps, dcs, nil
 }
 
-func runDeploy(curveadm *cli.DingoAdm, options deployOptions) error {
+func runDeploy(dingoadm *cli.DingoAdm, options deployOptions) error {
 	// 1) parse cluster topology and get services' hosts
-	hosts, hostIps, dcs, err := parseTopology(curveadm)
+	hosts, hostIps, dcs, err := parseTopology(dingoadm)
 	if err != nil {
 		return err
 	}
 
 	// 2) parse monitor configure
-	mcs, err := configure.ParseMonitorConfig(curveadm, options.filename, "", hosts, hostIps, dcs)
+	mcs, err := configure.ParseMonitorConfig(dingoadm, options.filename, "", hosts, hostIps, dcs)
 	if err != nil {
 		return err
 	}
@@ -148,8 +154,8 @@ func runDeploy(curveadm *cli.DingoAdm, options deployOptions) error {
 	if err != nil {
 		return errno.ERR_READ_MONITOR_FILE_FAILED.E(err)
 	}
-	err = curveadm.Storage().ReplaceMonitor(storage.Monitor{
-		ClusterId: curveadm.ClusterId(),
+	err = dingoadm.Storage().ReplaceMonitor(storage.Monitor{
+		ClusterId: dingoadm.ClusterId(),
 		Monitor:   data,
 	})
 	if err != nil {
@@ -157,7 +163,7 @@ func runDeploy(curveadm *cli.DingoAdm, options deployOptions) error {
 	}
 
 	// 4) generate deploy playbook
-	pb, err := genDeployPlaybook(curveadm, mcs)
+	pb, err := genDeployPlaybook(dingoadm, mcs)
 	if err != nil {
 		return err
 	}
@@ -169,7 +175,7 @@ func runDeploy(curveadm *cli.DingoAdm, options deployOptions) error {
 	}
 
 	// 6) print success prompt
-	curveadm.WriteOutln("")
-	curveadm.WriteOutln(color.GreenString("Deploy monitor success ^_^"))
+	dingoadm.WriteOutln("")
+	dingoadm.WriteOutln(color.GreenString("Deploy monitor success ^_^"))
 	return nil
 }
