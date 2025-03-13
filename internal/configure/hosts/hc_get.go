@@ -106,7 +106,7 @@ func (hc *HostConfig) GetSSHConfig() *module.SSHConfig {
 		BecomeMethod:      "sudo",
 		BecomeFlags:       "-iu",
 		BecomeUser:        hc.GetBecomeUser(),
-		ConnectTimeoutSec: dingoadm.GlobalCurveAdmConfig.GetSSHTimeout(),
-		ConnectRetries:    dingoadm.GlobalCurveAdmConfig.GetSSHRetries(),
+		ConnectTimeoutSec: dingoadm.GlobalDingoAdmConfig.GetSSHTimeout(),
+		ConnectRetries:    dingoadm.GlobalDingoAdmConfig.GetSSHRetries(),
 	}
 }

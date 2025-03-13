@@ -43,8 +43,8 @@ import (
 const (
 	FORMAT_FILTER_SPORT = "( sport = :%d )"
 
-	HTTP_SERVER_CONTAINER_NAME = "curveadm-precheck-nginx"
-	CHECK_PORT_CONTAINER_NAME  = "curveadm-precheck-port"
+	HTTP_SERVER_CONTAINER_NAME = "dingoadm-precheck-nginx"
+	CHECK_PORT_CONTAINER_NAME  = "dingoadm-precheck-port"
 )
 
 // TASK: check port in use
@@ -194,13 +194,13 @@ func checkReachable(success *bool, out *string) step.LambdaType {
 	}
 }
 
-func NewCheckDestinationReachableTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
-	hc, err := curveadm.GetHost(dc.GetHost())
+func NewCheckDestinationReachableTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
+	hc, err := dingoadm.GetHost(dc.GetHost())
 	if err != nil {
 		return nil, err
 	}
 
-	dcs := curveadm.MemStorage().Get(comm.KEY_ALL_DEPLOY_CONFIGS).([]*topology.DeployConfig)
+	dcs := dingoadm.MemStorage().Get(comm.KEY_ALL_DEPLOY_CONFIGS).([]*topology.DeployConfig)
 	addresses := unique(getServiceConnectAddress(dc, dcs))
 	subname := fmt.Sprintf("host=%s role=%s ping={%s}",
 		dc.GetHost(), dc.GetRole(), tui.TrimAddress(strings.Join(addresses, ",")))
@@ -214,7 +214,7 @@ func NewCheckDestinationReachableTask(curveadm *cli.DingoAdm, dc *topology.Deplo
 			Count:       1,
 			Success:     &success,
 			Out:         &out,
-			ExecOptions: curveadm.ExecOptions(),
+			ExecOptions: dingoadm.ExecOptions(),
 		})
 		t.AddStep(&step.Lambda{
 			Lambda: checkReachable(&success, &out),
@@ -249,8 +249,8 @@ func waitNginxStarted(seconds int) step.LambdaType {
 	}
 }
 
-func NewStartHTTPServerTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
-	hc, err := curveadm.GetHost(dc.GetHost())
+func NewStartHTTPServerTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
+	hc, err := dingoadm.GetHost(dc.GetHost())
 	if err != nil {
 		return nil, err
 	}
@@ -269,28 +269,28 @@ func NewStartHTTPServerTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (
 	command := fmt.Sprintf("%s '%s'", scriptPath, getNginxListens(dc))
 	t.AddStep(&step.PullImage{
 		Image:       dc.GetContainerImage(),
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.CreateContainer{
 		Image:       dc.GetContainerImage(),
 		Command:     command,
 		Entrypoint:  "/bin/bash",
-		Name:        getHTTPServerContainerName(curveadm, dc),
+		Name:        getHTTPServerContainerName(dingoadm, dc),
 		Remove:      true,
 		Out:         &containerId,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.InstallFile{
 		ContainerId:       &containerId,
 		ContainerDestPath: scriptPath,
 		Content:           &script,
-		ExecOptions:       curveadm.ExecOptions(),
+		ExecOptions:       dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.StartContainer{
 		ContainerId: &containerId,
 		Success:     &success,
 		Out:         &out,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.Lambda{ // TODO(P1): maybe we should check all ports
 		Lambda: waitNginxStarted(5),
@@ -319,13 +319,13 @@ func (s *step2CheckConnectStatus) Execute(ctx *context.Context) error {
 			s.dc.GetRole(), s.dc.GetHost(), s.address.IP, s.address.Port)
 }
 
-func NewCheckNetworkFirewallTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
-	hc, err := curveadm.GetHost(dc.GetHost())
+func NewCheckNetworkFirewallTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
+	hc, err := dingoadm.GetHost(dc.GetHost())
 	if err != nil {
 		return nil, err
 	}
 
-	dcs := curveadm.MemStorage().Get(comm.KEY_ALL_DEPLOY_CONFIGS).([]*topology.DeployConfig)
+	dcs := dingoadm.MemStorage().Get(comm.KEY_ALL_DEPLOY_CONFIGS).([]*topology.DeployConfig)
 	addresses := getServiceConnectAddress(dc, dcs)
 
 	// add task
@@ -341,7 +341,7 @@ func NewCheckNetworkFirewallTask(curveadm *cli.DingoAdm, dc *topology.DeployConf
 			Output:      "/dev/null",
 			Success:     &success,
 			Out:         &out,
-			ExecOptions: curveadm.ExecOptions(),
+			ExecOptions: dingoadm.ExecOptions(),
 		})
 		t.AddStep(&step2CheckConnectStatus{
 			success: &success,
@@ -388,8 +388,8 @@ func (s *step2StopContainer) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func NewCleanEnvironmentTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
-	hc, err := curveadm.GetHost(dc.GetHost())
+func NewCleanEnvironmentTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
+	hc, err := dingoadm.GetHost(dc.GetHost())
 	if err != nil {
 		return nil, err
 	}
@@ -403,26 +403,26 @@ func NewCleanEnvironmentTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) 
 	t.AddStep(&step.ListContainers{
 		ShowAll:     true,
 		Format:      `"{{.ID}}"`,
-		Filter:      fmt.Sprintf("name=%s", getCheckPortContainerName(curveadm, dc)),
+		Filter:      fmt.Sprintf("name=%s", getCheckPortContainerName(dingoadm, dc)),
 		Out:         &out,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step2StopContainer{
 		containerId: &out,
 		dc:          dc,
-		curveadm:    curveadm,
+		curveadm:    dingoadm,
 	})
 	t.AddStep(&step.ListContainers{
 		ShowAll:     true,
 		Format:      `"{{.ID}}"`,
-		Filter:      fmt.Sprintf("name=%s", getHTTPServerContainerName(curveadm, dc)),
+		Filter:      fmt.Sprintf("name=%s", getHTTPServerContainerName(dingoadm, dc)),
 		Out:         &out,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step2StopContainer{
 		containerId: &out,
 		dc:          dc,
-		curveadm:    curveadm,
+		curveadm:    dingoadm,
 	})
 
 	return t, nil

@@ -69,7 +69,7 @@ const (
 )
 
 type (
-	CurveAdmConfig struct {
+	DingoAdmConfig struct {
 		LogLevel    string
 		SudoAlias   string
 		Engine      string
@@ -80,7 +80,7 @@ type (
 		DBUrl       string
 	}
 
-	CurveAdm struct {
+	DingoAdm struct {
 		Defaults       map[string]interface{} `mapstructure:"defaults"`
 		SSHConnections map[string]interface{} `mapstructure:"ssh_connections"`
 		DataBase       map[string]interface{} `mapstructure:"database"`
@@ -88,7 +88,7 @@ type (
 )
 
 var (
-	GlobalCurveAdmConfig *CurveAdmConfig
+	GlobalDingoAdmConfig *DingoAdmConfig
 
 	SUPPORT_LOG_LEVEL = map[string]bool{
 		"debug": true,
@@ -98,13 +98,13 @@ var (
 	}
 )
 
-func ReplaceGlobals(cfg *CurveAdmConfig) {
-	GlobalCurveAdmConfig = cfg
+func ReplaceGlobals(cfg *DingoAdmConfig) {
+	GlobalDingoAdmConfig = cfg
 }
 
-func newDefault() *CurveAdmConfig {
+func newDefault() *DingoAdmConfig {
 	home, _ := os.UserHomeDir()
-	cfg := &CurveAdmConfig{
+	cfg := &DingoAdmConfig{
 		LogLevel:    "error",
 		SudoAlias:   "sudo",
 		Engine:      "docker",
@@ -139,7 +139,7 @@ func requirePositiveBool(k string, v interface{}) (bool, error) {
 	return yes, nil
 }
 
-func parseDefaultsSection(cfg *CurveAdmConfig, defaults map[string]interface{}) error {
+func parseDefaultsSection(cfg *DingoAdmConfig, defaults map[string]interface{}) error {
 	if defaults == nil {
 		return nil
 	}
@@ -187,7 +187,7 @@ func parseDefaultsSection(cfg *CurveAdmConfig, defaults map[string]interface{}) 
 	return nil
 }
 
-func parseConnectionSection(cfg *CurveAdmConfig, connection map[string]interface{}) error {
+func parseConnectionSection(cfg *DingoAdmConfig, connection map[string]interface{}) error {
 	if connection == nil {
 		return nil
 	}
@@ -219,7 +219,7 @@ func parseConnectionSection(cfg *CurveAdmConfig, connection map[string]interface
 	return nil
 }
 
-func parseDatabaseSection(cfg *CurveAdmConfig, database map[string]interface{}) error {
+func parseDatabaseSection(cfg *DingoAdmConfig, database map[string]interface{}) error {
 	if database == nil {
 		return nil
 	}
@@ -246,18 +246,18 @@ func parseDatabaseSection(cfg *CurveAdmConfig, database map[string]interface{}) 
 }
 
 type sectionParser struct {
-	parser  func(*CurveAdmConfig, map[string]interface{}) error
+	parser  func(*DingoAdmConfig, map[string]interface{}) error
 	section map[string]interface{}
 }
 
-func ParseCurveAdmConfig(filename string) (*CurveAdmConfig, error) {
+func ParseDingoAdmConfig(filename string) (*DingoAdmConfig, error) {
 	cfg := newDefault()
 	if !utils.PathExist(filename) {
 		build.DEBUG(build.DEBUG_CURVEADM_CONFIGURE, cfg)
 		return cfg, nil
 	}
 
-	// parse curveadm config
+	// parse dingoadm config
 	parser := viper.New()
 	parser.SetConfigFile(filename)
 	parser.SetConfigType("ini")
@@ -266,7 +266,7 @@ func ParseCurveAdmConfig(filename string) (*CurveAdmConfig, error) {
 		return nil, errno.ERR_PARSE_CURVRADM_CONFIGURE_FAILED.E(err)
 	}
 
-	global := &CurveAdm{}
+	global := &DingoAdm{}
 	err = parser.Unmarshal(global)
 	if err != nil {
 		return nil, errno.ERR_PARSE_CURVRADM_CONFIGURE_FAILED.E(err)
@@ -288,24 +288,24 @@ func ParseCurveAdmConfig(filename string) (*CurveAdmConfig, error) {
 	return cfg, nil
 }
 
-func (cfg *CurveAdmConfig) GetLogLevel() string  { return cfg.LogLevel }
-func (cfg *CurveAdmConfig) GetTimeout() int      { return cfg.Timeout }
-func (cfg *CurveAdmConfig) GetAutoUpgrade() bool { return cfg.AutoUpgrade }
-func (cfg *CurveAdmConfig) GetSSHRetries() int   { return cfg.SSHRetries }
-func (cfg *CurveAdmConfig) GetSSHTimeout() int   { return cfg.SSHTimeout }
-func (cfg *CurveAdmConfig) GetEngine() string    { return cfg.Engine }
-func (cfg *CurveAdmConfig) GetSudoAlias() string {
+func (cfg *DingoAdmConfig) GetLogLevel() string  { return cfg.LogLevel }
+func (cfg *DingoAdmConfig) GetTimeout() int      { return cfg.Timeout }
+func (cfg *DingoAdmConfig) GetAutoUpgrade() bool { return cfg.AutoUpgrade }
+func (cfg *DingoAdmConfig) GetSSHRetries() int   { return cfg.SSHRetries }
+func (cfg *DingoAdmConfig) GetSSHTimeout() int   { return cfg.SSHTimeout }
+func (cfg *DingoAdmConfig) GetEngine() string    { return cfg.Engine }
+func (cfg *DingoAdmConfig) GetSudoAlias() string {
 	if len(cfg.SudoAlias) == 0 {
 		return WITHOUT_SUDO
 	}
 	return cfg.SudoAlias
 }
 
-func (cfg *CurveAdmConfig) GetDBUrl() string {
+func (cfg *DingoAdmConfig) GetDBUrl() string {
 	return cfg.DBUrl
 }
 
-func (cfg *CurveAdmConfig) GetDBPath() string {
+func (cfg *DingoAdmConfig) GetDBPath() string {
 	pattern := regexp.MustCompile(REGEX_DB_URL)
 	mu := pattern.FindStringSubmatch(cfg.DBUrl)
 	if len(mu) == 0 || mu[1] != DB_SQLITE {

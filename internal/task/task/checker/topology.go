@@ -45,13 +45,13 @@ type (
 	// check whether host exist
 	step2CheckSSHConfigure struct {
 		dc       *topology.DeployConfig
-		curveadm *cli.DingoAdm
+		dingoadm *cli.DingoAdm
 	}
 
 	// check whether the S3 configure is valid
 	step2CheckS3Configure struct {
 		dc       *topology.DeployConfig
-		curveadm *cli.DingoAdm
+		dingoadm *cli.DingoAdm
 	}
 
 	// check whether directory path is absolute path
@@ -81,13 +81,13 @@ type (
 
 func (s *step2CheckSSHConfigure) Execute(ctx *context.Context) error {
 	host := s.dc.GetHost()
-	_, err := s.curveadm.GetHost(host)
+	_, err := s.dingoadm.GetHost(host)
 	return err
 }
 
 func (s *step2CheckS3Configure) Execute(ctx *context.Context) error {
 	dc := s.dc
-	if s.curveadm.MemStorage().Get(comm.KEY_CHECK_SKIP_SNAPSHOECLONE).(bool) {
+	if s.dingoadm.MemStorage().Get(comm.KEY_CHECK_SKIP_SNAPSHOECLONE).(bool) {
 		return nil
 	} else if dc.GetKind() != topology.KIND_CURVEBS {
 		return nil
@@ -105,7 +105,7 @@ func (s *step2CheckS3Configure) Execute(ctx *context.Context) error {
 	}
 
 	// we can pass it iff the s3 value is nil in weak check model
-	weak := s.curveadm.MemStorage().Get(comm.KEY_CHECK_WITH_WEAK).(bool) // for topology commit
+	weak := s.dingoadm.MemStorage().Get(comm.KEY_CHECK_WITH_WEAK).(bool) // for topology commit
 	for _, item := range items {
 		key := item.key
 		value := item.value
@@ -260,17 +260,17 @@ func (s *step2CheckServices) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func NewCheckTopologyTask(curveadm *cli.DingoAdm, null interface{}) (*task.Task, error) {
+func NewCheckTopologyTask(dingoadm *cli.DingoAdm, null interface{}) (*task.Task, error) {
 	// new task
-	dcs := curveadm.MemStorage().Get(comm.KEY_ALL_DEPLOY_CONFIGS).([]*topology.DeployConfig)
-	subname := fmt.Sprintf("cluster=%s kind=%s", curveadm.ClusterName(), dcs[0].GetKind())
+	dcs := dingoadm.MemStorage().Get(comm.KEY_ALL_DEPLOY_CONFIGS).([]*topology.DeployConfig)
+	subname := fmt.Sprintf("cluster=%s kind=%s", dingoadm.ClusterName(), dcs[0].GetKind())
 	t := task.NewTask("Check Topology <topology>", subname, nil)
 
 	// add step to task
 	for _, dc := range dcs {
 		t.AddStep(&step2CheckSSHConfigure{
 			dc:       dc,
-			curveadm: curveadm,
+			dingoadm: dingoadm,
 		})
 	}
 	for _, dc := range dcs {
@@ -280,12 +280,12 @@ func NewCheckTopologyTask(curveadm *cli.DingoAdm, null interface{}) (*task.Task,
 	t.AddStep(&step2CheckAddressDuplicate{dcs: dcs})
 	t.AddStep(&step2CheckServices{
 		dcs:      dcs,
-		curveadm: curveadm,
+		curveadm: dingoadm,
 	})
 	for _, dc := range dcs {
 		t.AddStep(&step2CheckS3Configure{
 			dc:       dc,
-			curveadm: curveadm,
+			dingoadm: dingoadm,
 		})
 	}
 

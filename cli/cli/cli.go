@@ -54,7 +54,7 @@ type DingoAdm struct {
 	logDir    string
 	tempDir   string
 	logpath   string
-	config    *configure.CurveAdmConfig
+	config    *configure.DingoAdmConfig
 
 	// data pipeline
 	in         io.Reader
@@ -123,7 +123,7 @@ func (dingoadm *DingoAdm) init() error {
 
 	// (2) Parse dingoadm.cfg
 	confpath := fmt.Sprintf("%s/dingoadm.cfg", dingoadm.rootDir)
-	config, err := configure.ParseCurveAdmConfig(confpath)
+	config, err := configure.ParseDingoAdmConfig(confpath)
 	if err != nil {
 		return err
 	}
@@ -262,7 +262,7 @@ func (dingoadm *DingoAdm) PluginDir() string                 { return dingoadm.p
 func (dingoadm *DingoAdm) LogDir() string                    { return dingoadm.logDir }
 func (dingoadm *DingoAdm) TempDir() string                   { return dingoadm.tempDir }
 func (dingoadm *DingoAdm) LogPath() string                   { return dingoadm.logpath }
-func (dingoadm *DingoAdm) Config() *configure.CurveAdmConfig { return dingoadm.config }
+func (dingoadm *DingoAdm) Config() *configure.DingoAdmConfig { return dingoadm.config }
 func (dingoadm *DingoAdm) SudoAlias() string                 { return dingoadm.config.GetSudoAlias() }
 func (dingoadm *DingoAdm) SSHTimeout() int                   { return dingoadm.config.GetSSHTimeout() }
 func (dingoadm *DingoAdm) Engine() string                    { return dingoadm.config.GetEngine() }
