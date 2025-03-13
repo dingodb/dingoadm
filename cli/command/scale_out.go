@@ -227,7 +227,7 @@ func checkScaleOutTopology(curveadm *cli.DingoAdm, data string) error {
 func genScaleOutPrecheckPlaybook(curveadm *cli.DingoAdm, data string) (*playbook.Playbook, error) {
 	dcsAll, _ := curveadm.ParseTopologyData(data)
 	kind := dcsAll[0].GetKind()
-	steps := CURVEFS_PRECHECK_STEPS
+	steps := DINGOFS_PRECHECK_STEPS
 	if kind == topology.KIND_CURVEBS {
 		steps = CURVEBS_PRECHECK_STEPS
 	}

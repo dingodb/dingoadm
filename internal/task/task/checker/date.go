@@ -107,11 +107,11 @@ func NewGetHostDate(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Ta
 	return t, nil
 }
 
-func checkDate(curveadm *cli.DingoAdm) step.LambdaType {
+func checkDate(dingoadm *cli.DingoAdm) step.LambdaType {
 	return func(ctx *context.Context) error {
 		var minT, maxT Time
 		min, max := int64(0), int64(0)
-		m := newIfNil(curveadm)
+		m := newIfNil(dingoadm)
 		for _, t := range m {
 			if min == 0 || t.time < min {
 				min = t.time

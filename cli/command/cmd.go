@@ -106,7 +106,7 @@ func setupRootCommand(cmd *cobra.Command, dingoadm *cli.DingoAdm) {
 	cliutil.SetErr(cmd, dingoadm)
 }
 
-func NewCurveAdmCommand(dingoadm *cli.DingoAdm) *cobra.Command {
+func NewDingoAdmCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options rootOptions
 
 	cmd := &cobra.Command{

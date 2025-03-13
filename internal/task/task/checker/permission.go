@@ -112,8 +112,8 @@ func CheckEngineInfo(host, engine string, success *bool, out *string) step.Lambd
 	}
 }
 
-func NewCheckPermissionTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
-	hc, err := curveadm.GetHost(dc.GetHost())
+func NewCheckPermissionTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
+	hc, err := dingoadm.GetHost(dc.GetHost())
 	if err != nil {
 		return nil, err
 	}
@@ -126,7 +126,7 @@ func NewCheckPermissionTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (
 	var out, hostname string
 	var success bool
 	dirs := getServiceDirectorys(dc)
-	options := curveadm.ExecOptions()
+	options := dingoadm.ExecOptions()
 	options.ExecWithSudo = false // the directory belong user
 
 	// (1) check `become_user`
@@ -141,14 +141,14 @@ func NewCheckPermissionTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (
 	// (2) check whether hostname resolved
 	t.AddStep(&step.Hostname{
 		Out:         &hostname,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.Ping{
 		Destination: &hostname,
 		Count:       1,
 		Timeout:     1,
 		Success:     &success,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.Lambda{
 		Lambda: checkHostname(&hostname, &success),
@@ -169,10 +169,10 @@ func NewCheckPermissionTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (
 	t.AddStep(&step.EngineInfo{
 		Success:     &success,
 		Out:         &out,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.Lambda{
-		Lambda: CheckEngineInfo(dc.GetHost(), curveadm.ExecOptions().ExecWithEngine, &success, &out),
+		Lambda: CheckEngineInfo(dc.GetHost(), dingoadm.ExecOptions().ExecWithEngine, &success, &out),
 	})
 
 	return t, nil

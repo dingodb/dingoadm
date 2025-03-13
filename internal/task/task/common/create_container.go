@@ -252,7 +252,7 @@ func NewCreateContainerTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (
 		Init:       true,
 		Name:       hostname,
 		Privileged: true,
-		Restart:    getRestartPolicy(dc),
+		Restart:    POLICY_ALWAYS_RESTART, //getRestartPolicy(dc),
 		//--ulimit core=-1: Sets the core dump file size limit to -1, meaning there’s no restriction on the core dump size.
 		//--ulimit nofile=65535:65535: Sets both the soft and hard limits for the number of open files to 65535.
 		Ulimits:     []string{"core=-1", "nofile=65535:65535"},

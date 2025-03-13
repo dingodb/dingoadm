@@ -20,6 +20,10 @@
  * Created Date: 2021-10-15
  * Author: Jingli Chen (Wine93)
  */
+/*
+* Project: dingoadm
+* Author: dongwei (jackblack369)
+ */
 
 package command
 
@@ -77,7 +81,7 @@ var (
 		BALANCE_LEADER,
 	}
 
-	CURVEFS_DEPLOY_STEPS = []int{
+	DINGOFS_DEPLOY_STEPS = []int{
 		CLEAN_PRECHECK_ENVIRONMENT,
 		PULL_IMAGE,
 		CREATE_CONTAINER,
@@ -227,7 +231,7 @@ func genDeployPlaybook(dingoadm *cli.DingoAdm,
 	if kind == topology.KIND_CURVEBS {
 		steps = CURVEBS_DEPLOY_STEPS
 	} else {
-		steps = CURVEFS_DEPLOY_STEPS
+		steps = DINGOFS_DEPLOY_STEPS
 		if options.useLocalImage {
 			// remove PULL_IMAGE step
 			for i, item := range steps {
@@ -238,7 +242,7 @@ func genDeployPlaybook(dingoadm *cli.DingoAdm,
 			}
 		}
 	}
-	steps = skipDeploySteps(dcs, steps, options)
+	steps = skipDeploySteps(dcs, steps, options) // not necessary
 	poolset := configure.Poolset{
 		Name: options.poolset,
 		Type: options.poolsetDiskType,
@@ -259,7 +263,7 @@ func genDeployPlaybook(dingoadm *cli.DingoAdm,
 			config = config[:n]
 		}
 
-		// options
+		// bs options
 		options := map[string]interface{}{}
 		if step == CREATE_PHYSICAL_POOL {
 			options[comm.KEY_CREATE_POOL_TYPE] = comm.POOL_TYPE_PHYSICAL

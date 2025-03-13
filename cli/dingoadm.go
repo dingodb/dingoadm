@@ -33,7 +33,7 @@ import (
 )
 
 func Execute() {
-	curveadm, err := cli.NewDingoAdm()
+	dingoadm, err := cli.NewDingoAdm()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -46,10 +46,10 @@ func Execute() {
 	//	os.Exit(0)
 	//}
 
-	id := curveadm.PreAudit(time.Now(), os.Args[1:])
-	cmd := command.NewCurveAdmCommand(curveadm)
+	id := dingoadm.PreAudit(time.Now(), os.Args[1:])
+	cmd := command.NewDingoAdmCommand(dingoadm)
 	err = cmd.Execute()
-	curveadm.PostAudit(id, err)
+	dingoadm.PostAudit(id, err)
 	if err != nil {
 		os.Exit(1)
 	}

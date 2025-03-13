@@ -72,7 +72,7 @@ var (
 		//playbook.CHECK_S3,
 	}
 
-	CURVEFS_PRECHECK_STEPS = []int{
+	DINGOFS_PRECHECK_STEPS = []int{
 		playbook.CHECK_TOPOLOGY,             // topology
 		playbook.CHECK_SSH_CONNECT,          // ssh
 		playbook.CHECK_PERMISSION,           // permission
@@ -80,7 +80,7 @@ var (
 		playbook.CHECK_PORT_IN_USE,          // network
 		playbook.START_HTTP_SERVER,
 		playbook.CHECK_DESTINATION_REACHABLE,
-		playbook.CHECK_NETWORK_FIREWALL,
+		// playbook.CHECK_NETWORK_FIREWALL,
 		playbook.GET_HOST_DATE, // date
 		playbook.CHECK_HOST_DATE,
 	}
@@ -171,7 +171,7 @@ func genPrecheckPlaybook(curveadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options precheckOptions) (*playbook.Playbook, error) {
 	kind := dcs[0].GetKind()
-	steps := CURVEFS_PRECHECK_STEPS
+	steps := DINGOFS_PRECHECK_STEPS
 	if kind == topology.KIND_CURVEBS {
 		steps = CURVEBS_PRECHECK_STEPS
 	}
