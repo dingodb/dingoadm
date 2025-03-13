@@ -124,8 +124,15 @@ var (
 		nil,
 	)
 
-	CONFIG_CORE_DIR = itemset.insert(
-		"core_dir",
+	CONFIG_SOURCE_CORE_DIR = itemset.insert(
+		"source_core_dir",
+		REQUIRE_STRING,
+		true,
+		nil,
+	)
+
+	CONFIG_TARGET_CORE_DIR = itemset.insert(
+		"target_core_dir",
 		REQUIRE_STRING,
 		true,
 		nil,

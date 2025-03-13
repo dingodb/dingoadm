@@ -174,7 +174,8 @@ func getServiceDirectorys(dc *topology.DeployConfig) []Directory {
 	dirs := []Directory{}
 	logDir := dc.GetLogDir()
 	dataDir := dc.GetDataDir()
-	coreDir := dc.GetCoreDir()
+	sourceCoreDir := dc.GetSourceCoreDir()
+	targetCoreDir := dc.GetTargetCoreDir()
 
 	if len(logDir) > 0 {
 		dirs = append(dirs, Directory{LOG_DIR, logDir})
@@ -182,8 +183,11 @@ func getServiceDirectorys(dc *topology.DeployConfig) []Directory {
 	if len(dataDir) > 0 {
 		dirs = append(dirs, Directory{DATA_DIR, dataDir})
 	}
-	if len(coreDir) > 0 {
-		dirs = append(dirs, Directory{CORE_DIR, coreDir})
+	if len(sourceCoreDir) > 0 {
+		dirs = append(dirs, Directory{CORE_DIR, sourceCoreDir})
+	}
+	if len(targetCoreDir) > 0 {
+		dirs = append(dirs, Directory{CORE_DIR, targetCoreDir})
 	}
 
 	return dirs

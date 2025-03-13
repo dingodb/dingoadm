@@ -168,7 +168,8 @@ func getMountVolumes(dc *topology.DeployConfig) []step.Volume {
 	layout := dc.GetProjectLayout()
 	logDir := dc.GetLogDir()
 	dataDir := dc.GetDataDir()
-	coreDir := dc.GetCoreDir()
+	sourceCoreDir := dc.GetSourceCoreDir()
+	targetCoreDir := dc.GetTargetCoreDir()
 
 	if len(logDir) > 0 {
 		volumes = append(volumes, step.Volume{
@@ -184,10 +185,10 @@ func getMountVolumes(dc *topology.DeployConfig) []step.Volume {
 		})
 	}
 
-	if len(coreDir) > 0 {
+	if len(targetCoreDir) > 0 {
 		volumes = append(volumes, step.Volume{
-			HostPath:      coreDir,
-			ContainerPath: layout.CoreSystemDir,
+			HostPath:      targetCoreDir,
+			ContainerPath: sourceCoreDir,
 		})
 	}
 
