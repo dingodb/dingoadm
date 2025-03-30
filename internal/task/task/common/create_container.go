@@ -213,8 +213,8 @@ func TrimContainerId(containerId *string) step.LambdaType {
 	}
 }
 
-func NewCreateContainerTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
-	hc, err := curveadm.GetHost(dc.GetHost())
+func NewCreateContainerTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
+	hc, err := dingoadm.GetHost(dc.GetHost())
 	if err != nil {
 		return nil, err
 	}
@@ -225,19 +225,19 @@ func NewCreateContainerTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (
 
 	// add step to task
 	var oldContainerId, containerId string
-	clusterId := curveadm.ClusterId()
+	clusterId := dingoadm.ClusterId()
 	dcId := dc.GetId()
-	serviceId := curveadm.GetServiceId(dcId)
+	serviceId := dingoadm.GetServiceId(dcId)
 	kind := dc.GetKind()
 	role := dc.GetRole()
 	hostname := fmt.Sprintf("%s-%s-%s", kind, role, serviceId)
-	options := curveadm.ExecOptions()
+	options := dingoadm.ExecOptions()
 	options.ExecWithSudo = false
 
 	t.AddStep(&Step2GetService{ // if service exist, break task
 		ServiceId:   serviceId,
 		ContainerId: &oldContainerId,
-		Storage:     curveadm.Storage(),
+		Storage:     dingoadm.Storage(),
 	})
 	t.AddStep(&step.CreateDirectory{
 		Paths:       []string{dc.GetLogDir(), dc.GetDataDir()},
@@ -258,7 +258,7 @@ func NewCreateContainerTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (
 		Ulimits:     []string{"core=-1", "nofile=65535:65535"},
 		Volumes:     getMountVolumes(dc),
 		Out:         &containerId,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.Lambda{
 		Lambda: TrimContainerId(&containerId),
@@ -268,7 +268,7 @@ func NewCreateContainerTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (
 		ServiceId:      serviceId,
 		ContainerId:    &containerId,
 		OldContainerId: &oldContainerId,
-		Storage:        curveadm.Storage(),
+		Storage:        dingoadm.Storage(),
 	})
 
 	return t, nil

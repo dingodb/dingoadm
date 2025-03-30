@@ -550,6 +550,7 @@ var (
 	ERR_INSPECT_CONTAINER_FAILED         = EC(630012, "get container low-level information failed")
 	ERR_GET_CONTAINER_LOGS_FAILED        = EC(630013, "get container logs failed")
 	ERR_UPDATE_CONTAINER_FAILED          = EC(630014, "update container failed")
+	ERR_CONTAINER_NOT_EXISTED            = EC(630015, "container not existed")
 
 	// 640: gateway (curve gateway)
 	ERR_NO_HOST_FOR_GATEWAY  = EC(640000, "no host found")

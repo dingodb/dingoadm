@@ -88,15 +88,15 @@ func newCrontab(uuid string, dc *topology.DeployConfig, reportScriptPath string)
 	return fmt.Sprintf("%s %s\n", period, command)
 }
 
-func NewSyncConfigTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
-	serviceId := curveadm.GetServiceId(dc.GetId())
-	containerId, err := curveadm.GetContainerId(serviceId)
-	if curveadm.IsSkip(dc) {
+func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
+	serviceId := dingoadm.GetServiceId(dc.GetId())
+	containerId, err := dingoadm.GetContainerId(serviceId)
+	if dingoadm.IsSkip(dc) {
 		return nil, nil
 	} else if err != nil {
 		return nil, err
 	}
-	hc, err := curveadm.GetHost(dc.GetHost())
+	hc, err := dingoadm.GetHost(dc.GetHost())
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func NewSyncConfigTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 	role := dc.GetRole()
 	reportScript := scripts.REPORT
 	reportScriptPath := fmt.Sprintf("%s/report.sh", layout.ToolsBinDir)
-	crontab := newCrontab(curveadm.ClusterUUId(), dc, reportScriptPath)
+	crontab := newCrontab(dingoadm.ClusterUUId(), dc, reportScriptPath)
 	delimiter := DEFAULT_CONFIG_DELIMITER
 	if role == topology.ROLE_ETCD {
 		delimiter = ETCD_CONFIG_DELIMITER
@@ -123,7 +123,7 @@ func NewSyncConfigTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 		Format:      `"{{.ID}}"`,
 		Filter:      fmt.Sprintf("id=%s", containerId),
 		Out:         &out,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.Lambda{
 		Lambda: CheckContainerExist(dc.GetHost(), dc.GetRole(), containerId, &out),
@@ -136,7 +136,7 @@ func NewSyncConfigTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 			ContainerDestPath: conf.Path,
 			KVFieldSplit:      delimiter,
 			Mutate:            NewMutate(dc, delimiter, conf.Name == "nginx.conf"),
-			ExecOptions:       curveadm.ExecOptions(),
+			ExecOptions:       dingoadm.ExecOptions(),
 		})
 	}
 	t.AddStep(&step.SyncFile{ // sync tools config
@@ -146,7 +146,7 @@ func NewSyncConfigTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 		ContainerDestPath: layout.ToolsConfSystemPath,
 		KVFieldSplit:      DEFAULT_CONFIG_DELIMITER,
 		Mutate:            NewMutate(dc, DEFAULT_CONFIG_DELIMITER, false),
-		ExecOptions:       curveadm.ExecOptions(),
+		ExecOptions:       dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.TrySyncFile{ // sync tools-v2 config
 		ContainerSrcId:    &containerId,
@@ -155,19 +155,19 @@ func NewSyncConfigTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 		ContainerDestPath: layout.ToolsV2ConfSystemPath,
 		KVFieldSplit:      TOOLS_V2_CONFIG_DELIMITER,
 		Mutate:            NewMutate(dc, TOOLS_V2_CONFIG_DELIMITER, false),
-		ExecOptions:       curveadm.ExecOptions(),
+		ExecOptions:       dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.InstallFile{ // install report script
 		ContainerId:       &containerId,
 		ContainerDestPath: reportScriptPath,
 		Content:           &reportScript,
-		ExecOptions:       curveadm.ExecOptions(),
+		ExecOptions:       dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.InstallFile{ // install crontab file
 		ContainerId:       &containerId,
 		ContainerDestPath: CURVE_CRONTAB_FILE,
 		Content:           &crontab,
-		ExecOptions:       curveadm.ExecOptions(),
+		ExecOptions:       dingoadm.ExecOptions(),
 	})
 
 	return t, nil

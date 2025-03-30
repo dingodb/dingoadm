@@ -103,12 +103,14 @@ func (s *Step2CleanContainer) Execute(ctx *context.Context) error {
 	}
 
 	cli := ctx.Module().DockerCli().RemoveContainer(s.ContainerId)
-	out, err := cli.Execute(s.ExecOptions)
+	cli.Execute(s.ExecOptions)
+	//out, err := cli.Execute(s.ExecOptions)
 
 	// container has removed
-	if err != nil && !strings.Contains(out, SIGNATURE_CONTAINER_REMOVED) {
-		return err
-	}
+	//if err != nil && !strings.Contains(out, SIGNATURE_CONTAINER_REMOVED) {
+	//	// fmt.Printf("container removed error: %s", out)
+	//	return err
+	//}
 	return s.Storage.SetContainId(s.ServiceId, comm.CLEANED_CONTAINER_ID)
 }
 
@@ -132,22 +134,22 @@ func getCleanFiles(clean map[string]bool, dc *topology.DeployConfig, recycle boo
 	return files
 }
 
-func NewCleanServiceTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
-	serviceId := curveadm.GetServiceId(dc.GetId())
-	containerId, err := curveadm.GetContainerId(serviceId)
-	if curveadm.IsSkip(dc) {
+func NewCleanServiceTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
+	serviceId := dingoadm.GetServiceId(dc.GetId())
+	containerId, err := dingoadm.GetContainerId(serviceId)
+	if dingoadm.IsSkip(dc) {
 		return nil, nil
 	} else if err != nil {
 		return nil, err
 	}
-	hc, err := curveadm.GetHost(dc.GetHost())
+	hc, err := dingoadm.GetHost(dc.GetHost())
 	if err != nil {
 		return nil, err
 	}
 
 	// new task
-	only := curveadm.MemStorage().Get(comm.KEY_CLEAN_ITEMS).([]string)
-	recycle := curveadm.MemStorage().Get(comm.KEY_CLEAN_BY_RECYCLE).(bool)
+	only := dingoadm.MemStorage().Get(comm.KEY_CLEAN_ITEMS).([]string)
+	recycle := dingoadm.MemStorage().Get(comm.KEY_CLEAN_BY_RECYCLE).(bool)
 	subname := fmt.Sprintf("host=%s role=%s containerId=%s clean=%s",
 		dc.GetHost(), dc.GetRole(), tui.TrimContainerId(containerId), strings.Join(only, ","))
 	t := task.NewTask("Clean Service", subname, hc.GetSSHConfig())
@@ -162,25 +164,42 @@ func NewCleanServiceTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*ta
 		t.AddStep((&step.InstallFile{
 			Content:      &recyleScript,
 			HostDestPath: recyleScriptPath,
-			ExecOptions:  curveadm.ExecOptions(),
+			ExecOptions:  dingoadm.ExecOptions(),
 		}))
 		t.AddStep(&step2RecycleChunk{
 			dc:                dc,
 			clean:             clean,
 			recycleScriptPath: recyleScriptPath,
-			execOptions:       curveadm.ExecOptions(),
+			execOptions:       dingoadm.ExecOptions(),
 		})
 	}
 	t.AddStep(&step.RemoveFile{
 		Files:       files,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	if clean[comm.CLEAN_ITEM_CONTAINER] == true {
+
+		// var status string
+		// t.AddStep(&step.InspectContainer{
+		// ContainerId: containerId,
+		// Format:      "'{{.State.Status}}'",
+		// Out:         &status,
+		// ExecOptions: dingoadm.ExecOptions(),
+		// })
+		// if err != nil {
+		// return errno.ERR_CONTAINER_NOT_EXISTED.S(*s.Out)
+		// } else if status != "running" {
+		// return errno.ERR_CONTAINER_IS_ABNORMAL.
+		// F("host=%s role=%s containerId=%s",
+		// s.Host, s.Role, tui.TrimContainerId(s.ContainerId))
+		// }
+		// return nil
+
 		t.AddStep(&Step2CleanContainer{
 			ServiceId:   serviceId,
 			ContainerId: containerId,
-			Storage:     curveadm.Storage(),
-			ExecOptions: curveadm.ExecOptions(),
+			Storage:     dingoadm.Storage(),
+			ExecOptions: dingoadm.ExecOptions(),
 		})
 	}
 
