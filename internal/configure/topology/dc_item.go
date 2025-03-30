@@ -124,6 +124,13 @@ var (
 		nil,
 	)
 
+	CONFIG_SEQ_OFFSET = itemset.insert(
+		"sequence_offset",
+		REQUIRE_POSITIVE_INTEGER,
+		true,
+		nil,
+	)
+
 	CONFIG_SOURCE_CORE_DIR = itemset.insert(
 		"source_core_dir",
 		REQUIRE_STRING,
