@@ -104,10 +104,10 @@ func NewCleanCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	return cmd
 }
 
-func genCleanPlaybook(curveadm *cli.DingoAdm,
+func genCleanPlaybook(dingoadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options cleanOptions) (*playbook.Playbook, error) {
-	dcs = curveadm.FilterDeployConfig(dcs, topology.FilterOption{
+	dcs = dingoadm.FilterDeployConfig(dcs, topology.FilterOption{
 		Id:   options.id,
 		Role: options.role,
 		Host: options.host,
@@ -117,7 +117,7 @@ func genCleanPlaybook(curveadm *cli.DingoAdm,
 	}
 
 	steps := CLEAN_PLAYBOOK_STEPS
-	pb := playbook.NewPlaybook(curveadm)
+	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
 		pb.AddStep(&playbook.PlaybookStep{
 			Type:    step,
@@ -131,15 +131,15 @@ func genCleanPlaybook(curveadm *cli.DingoAdm,
 	return pb, nil
 }
 
-func runClean(curveadm *cli.DingoAdm, options cleanOptions) error {
+func runClean(dingoadm *cli.DingoAdm, options cleanOptions) error {
 	// 1) parse cluster topology
-	dcs, err := curveadm.ParseTopology()
+	dcs, err := dingoadm.ParseTopology()
 	if err != nil {
 		return err
 	}
 
 	// 2) generate clean playbook
-	pb, err := genCleanPlaybook(curveadm, dcs, options)
+	pb, err := genCleanPlaybook(dingoadm, dcs, options)
 	if err != nil {
 		return err
 	}
@@ -147,12 +147,12 @@ func runClean(curveadm *cli.DingoAdm, options cleanOptions) error {
 	// 3) confirm by user
 	// 3) force stop
 	if options.force {
-		curveadm.WriteOut(tui.PromptCancelOpetation("clean service"))
+		dingoadm.WriteOut(tui.PromptCancelOpetation("clean service"))
 		return pb.Run()
 	}
 
 	if pass := tui.ConfirmYes(tui.PromptCleanService(options.role, options.host, options.only)); !pass {
-		curveadm.WriteOut(tui.PromptCancelOpetation("clean service"))
+		dingoadm.WriteOut(tui.PromptCancelOpetation("clean service"))
 		return errno.ERR_CANCEL_OPERATION
 	}
 
