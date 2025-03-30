@@ -94,6 +94,8 @@ var (
 		{name: "service_host", lookup: true},
 		{name: "service_host_sequence"},
 		{name: "service_replica_sequence"},
+		{name: "service_replica_sequence_with_offset"},
+		{name: "sequence_offset"},
 		{name: "service_replicas_sequence"},
 		{name: "service_instances_sequence"},
 		{name: "format_replica_sequence"},
@@ -148,7 +150,7 @@ func addVariables(dcs []*DeployConfig, idx int, vars []Var) error {
 
 		err := dc.GetVariables().Register(variable.Variable{
 			Name:  v.name,
-			Value: getValue(v.name, dcs, idx),
+			Value: getValue(v.name, dcs, idx), // render variable value
 		})
 		if err != nil {
 			return errno.ERR_REGISTER_VARIABLE_FAILED.E(err)
@@ -249,8 +251,12 @@ func getValue(name string, dcs []*DeployConfig, idx int) string {
 		return strconv.Itoa(dc.GetHostSequence())
 	case "service_replica_sequence":
 		return strconv.Itoa(dc.GetInstancesSequence())
+	case "service_replica_sequence_with_offset":
+		return strconv.Itoa(dc.GetInstancesSequence() + dc.GetSeqOffset())
 	case "service_replicas_sequence":
 		return strconv.Itoa(dc.GetInstancesSequence())
+	case "service_replicas_sequence_with_offset":
+		return strconv.Itoa(dc.GetInstancesSequence() + dc.GetSeqOffset())
 	case "service_instances_sequence":
 		return strconv.Itoa(dc.GetInstancesSequence())
 	case "format_replica_sequence":

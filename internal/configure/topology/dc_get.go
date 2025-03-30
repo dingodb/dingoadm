@@ -28,6 +28,7 @@ package topology
 import (
 	"fmt"
 	"path"
+	"strconv"
 
 	"github.com/dingodb/dingoadm/internal/utils"
 	"github.com/dingodb/dingoadm/pkg/variable"
@@ -100,7 +101,21 @@ func (dc *DeployConfig) getInt(i *item) int {
 	if v == nil {
 		return 0
 	}
-	return v.(int)
+	// Try direct type assertion first
+	if intVal, ok := v.(int); ok {
+		return intVal
+	}
+
+	// Try converting from string if possible
+	if strVal, ok := v.(string); ok {
+		if intVal, err := strconv.Atoi(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// Couldn't convert to int
+	return 0
+
 }
 
 func (dc *DeployConfig) getBool(i *item) bool {
@@ -131,6 +146,7 @@ func (dc *DeployConfig) GetReportUsage() bool        { return dc.getBool(CONFIG_
 func (dc *DeployConfig) GetContainerImage() string   { return dc.getString(CONFIG_CONTAINER_IMAGE) }
 func (dc *DeployConfig) GetLogDir() string           { return dc.getString(CONFIG_LOG_DIR) }
 func (dc *DeployConfig) GetDataDir() string          { return dc.getString(CONFIG_DATA_DIR) }
+func (dc *DeployConfig) GetSeqOffset() int           { return dc.getInt(CONFIG_SEQ_OFFSET) }
 func (dc *DeployConfig) GetSourceCoreDir() string    { return dc.getString(CONFIG_SOURCE_CORE_DIR) }
 func (dc *DeployConfig) GetTargetCoreDir() string    { return dc.getString(CONFIG_TARGET_CORE_DIR) }
 func (dc *DeployConfig) GetEnv() string              { return dc.getString(CONFIG_ENV) }
