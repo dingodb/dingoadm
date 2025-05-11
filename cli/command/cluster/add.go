@@ -54,9 +54,10 @@ type addOptions struct {
 	name        string
 	descriotion string
 	filename    string
+	allowSingle bool
 }
 
-func NewAddCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewAddCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options addOptions
 
 	cmd := &cobra.Command{
@@ -66,7 +67,7 @@ func NewAddCommand(curveadm *cli.DingoAdm) *cobra.Command {
 		Example: ADD_EXAMPLE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			options.name = args[0]
-			return runAdd(curveadm, options)
+			return runAdd(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -74,6 +75,7 @@ func NewAddCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	flags := cmd.Flags()
 	flags.StringVarP(&options.descriotion, "description", "m", "", "Description for cluster")
 	flags.StringVarP(&options.filename, "topology", "f", "", "Specify the path of topology file")
+	flags.BoolVarP(&options.allowSingle, "allow-single", "", false, "Allow single node cluster, default is false")
 
 	return cmd
 }
@@ -93,11 +95,11 @@ func readTopology(filename string) (string, error) {
 	return data, nil
 }
 
-func genCheckTopologyPlaybook(curveadm *cli.DingoAdm,
+func genCheckTopologyPlaybook(dingoadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options addOptions) (*playbook.Playbook, error) {
 	steps := CHECK_TOPOLOGY_PLAYBOOK_STEPS
-	pb := playbook.NewPlaybook(curveadm)
+	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
 		pb.AddStep(&playbook.PlaybookStep{
 			Type:    step,
@@ -118,27 +120,27 @@ func genCheckTopologyPlaybook(curveadm *cli.DingoAdm,
 	return pb, nil
 }
 
-func checkTopology(curveadm *cli.DingoAdm, data string, options addOptions) error {
+func checkTopology(dingoadm *cli.DingoAdm, data string, options addOptions) error {
 	if len(options.filename) == 0 {
 		return nil
 	}
 
-	dcs, err := curveadm.ParseTopologyData(data)
+	dcs, err := dingoadm.ParseTopologyData(data)
 	if err != nil {
 		return err
 	}
 
-	pb, err := genCheckTopologyPlaybook(curveadm, dcs, options)
+	pb, err := genCheckTopologyPlaybook(dingoadm, dcs, options)
 	if err != nil {
 		return err
 	}
 	return pb.Run()
 }
 
-func runAdd(curveadm *cli.DingoAdm, options addOptions) error {
+func runAdd(dingoadm *cli.DingoAdm, options addOptions) error {
 	// 1) check wether cluster already exist
 	name := options.name
-	storage := curveadm.Storage()
+	storage := dingoadm.Storage()
 	clusters, err := storage.GetClusters(name)
 	if err != nil {
 		log.Error("Get clusters failed",
@@ -157,7 +159,7 @@ func runAdd(curveadm *cli.DingoAdm, options addOptions) error {
 	}
 
 	// 3) check topology
-	err = checkTopology(curveadm, data, options)
+	err = checkTopology(dingoadm, data, options)
 	if err != nil {
 		return err
 	}
@@ -170,6 +172,6 @@ func runAdd(curveadm *cli.DingoAdm, options addOptions) error {
 	}
 
 	// 5) print success prompt
-	curveadm.WriteOutln("Added cluster '%s'", name)
+	dingoadm.WriteOutln("Added cluster '%s'", name)
 	return nil
 }

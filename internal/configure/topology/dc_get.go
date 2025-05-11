@@ -58,7 +58,7 @@ const (
 	BINARY_CURVEBS_TOOL     = "curvebs-tool"
 	BINARY_CURVEBS_FORMAT   = "curve_format"
 	BINARY_CURVEFS_TOOL     = "dingo-tool"
-	BINARY_CURVE_TOOL_V2    = "curve"
+	BINARY_DINGO_TOOL_V2    = "dingo"
 	METAFILE_CHUNKFILE_POOL = "chunkfilepool.meta"
 	METAFILE_CHUNKSERVER_ID = "chunkserver.dat"
 )
@@ -248,6 +248,7 @@ type (
 		ToolsBinaryPath     string // /curvebs/tools/sbin/curvebs-tool
 
 		// tools-v2
+		ToolsV2ConfDir        string // /dingofs/tools-v2/conf
 		ToolsV2ConfSrcPath    string // /dingofs/conf/dingo.yaml
 		ToolsV2ConfSystemPath string // /etc/dingo/dingo.yaml
 		ToolsV2BinaryPath     string // /curvebs/tools-v2/sbin/curve
@@ -292,7 +293,7 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 	// tools-v2
 	toolsV2RootDir := root + LAYOUT_TOOLS_V2_DIR
 	toolsV2BinDir := toolsV2RootDir + LAYOUT_SERVICE_BIN_DIR
-	toolsV2BinaryName := BINARY_CURVE_TOOL_V2
+	toolsV2BinaryName := BINARY_DINGO_TOOL_V2
 	toolsV2ConfSystemPath := LAYOUT_CURVE_TOOLS_V2_CONFIG_SYSTEM_PATH
 
 	// format
@@ -326,6 +327,7 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 		ToolsBinaryPath:     fmt.Sprintf("%s/%s", toolsBinDir, toolsBinaryName),
 
 		// toolsv2
+		ToolsV2ConfDir:        toolsV2RootDir + LAYOUT_SERVICE_CONF_DIR,
 		ToolsV2ConfSrcPath:    fmt.Sprintf("%s/dingo.yaml", confSrcDir),
 		ToolsV2ConfSystemPath: toolsV2ConfSystemPath,
 		ToolsV2BinaryPath:     fmt.Sprintf("%s/%s", toolsV2BinDir, toolsV2BinaryName),
