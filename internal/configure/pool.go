@@ -37,8 +37,8 @@ const (
 	ROLE_CHUNKSERVER = topology.ROLE_CHUNKSERVER
 	ROLE_METASERVER  = topology.ROLE_METASERVER
 
-	DEFAULT_REPLICAS_PER_COPYSET = 3
-	DEFAULT_ZONES_PER_POOL       = 3
+	DEFAULT_REPLICAS_PER_COPYSET = 3 // defaut is 1 , if deploy one serivce, set to 1
+	DEFAULT_ZONES_PER_POOL       = 3 // default is 1, if deploy one service, set to 1
 	DEFAULT_TYPE                 = 0
 	DEFAULT_SCATTER_WIDTH        = 0
 )

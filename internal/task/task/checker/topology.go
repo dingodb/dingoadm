@@ -74,7 +74,7 @@ type (
 	//   (1) each role requires at least 3 services
 	//   (2) each requires at least 3 hosts
 	step2CheckServices struct {
-		curveadm *cli.DingoAdm
+		dingoadm *cli.DingoAdm
 		dcs      []*topology.DeployConfig
 	}
 )
@@ -190,7 +190,7 @@ func (s *step2CheckServices) skip(role string) bool {
 	}
 
 	// KIND_CURVEBS
-	skip := s.curveadm.MemStorage().Get(comm.KEY_CHECK_SKIP_SNAPSHOECLONE).(bool)
+	skip := s.dingoadm.MemStorage().Get(comm.KEY_CHECK_SKIP_SNAPSHOECLONE).(bool)
 	if role == ROLE_METASERVER {
 		return true
 	} else if skip && role == ROLE_SNAPSHOTCLONE {
@@ -211,13 +211,13 @@ func (s *step2CheckServices) Execute(ctx *context.Context) error {
 		{ROLE_SNAPSHOTCLONE, errno.ERR_SNAPSHOTCLONE_REQUIRES_3_SERVICES}, // 0 OR >= 3
 		{ROLE_METASERVER, errno.ERR_METASERVER_REQUIRES_3_SERVICES},
 	}
-	weak := s.curveadm.MemStorage().Get(comm.KEY_CHECK_WITH_WEAK).(bool) // for topology commit
+	weak := s.dingoadm.MemStorage().Get(comm.KEY_CHECK_WITH_WEAK).(bool) // for topology commit
 	for _, item := range items {
 		role := item.role
 		if s.skip(role) {
 			continue
 		}
-		dcs := s.curveadm.FilterDeployConfigByRole(s.dcs, role)
+		dcs := s.dingoadm.FilterDeployConfigByRole(s.dcs, role)
 		num := len(dcs)
 		if weak && role == ROLE_SNAPSHOTCLONE {
 			if num == 0 || num >= 3 {
@@ -245,7 +245,7 @@ func (s *step2CheckServices) Execute(ctx *context.Context) error {
 		if s.skip(role) {
 			continue
 		}
-		dcs := s.curveadm.FilterDeployConfigByRole(s.dcs, role)
+		dcs := s.dingoadm.FilterDeployConfigByRole(s.dcs, role)
 		num := s.getHostNum(dcs)
 		if weak && role == ROLE_SNAPSHOTCLONE {
 			if num == 0 || num >= 3 {
@@ -280,7 +280,7 @@ func NewCheckTopologyTask(dingoadm *cli.DingoAdm, null interface{}) (*task.Task,
 	t.AddStep(&step2CheckAddressDuplicate{dcs: dcs})
 	t.AddStep(&step2CheckServices{
 		dcs:      dcs,
-		curveadm: dingoadm,
+		dingoadm: dingoadm,
 	})
 	for _, dc := range dcs {
 		t.AddStep(&step2CheckS3Configure{
