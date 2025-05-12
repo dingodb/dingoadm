@@ -248,6 +248,7 @@ type (
 		ToolsBinaryPath     string // /curvebs/tools/sbin/curvebs-tool
 
 		// tools-v2
+		ToolsV2BinDir         string // /dingofs/tools-v2/sbin
 		ToolsV2ConfDir        string // /dingofs/tools-v2/conf
 		ToolsV2ConfSrcPath    string // /dingofs/conf/dingo.yaml
 		ToolsV2ConfSystemPath string // /etc/dingo/dingo.yaml
@@ -327,6 +328,7 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 		ToolsBinaryPath:     fmt.Sprintf("%s/%s", toolsBinDir, toolsBinaryName),
 
 		// toolsv2
+		ToolsV2BinDir:         toolsV2RootDir + LAYOUT_SERVICE_BIN_DIR,
 		ToolsV2ConfDir:        toolsV2RootDir + LAYOUT_SERVICE_CONF_DIR,
 		ToolsV2ConfSrcPath:    fmt.Sprintf("%s/dingo.yaml", confSrcDir),
 		ToolsV2ConfSystemPath: toolsV2ConfSystemPath,

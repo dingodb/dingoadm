@@ -111,7 +111,7 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 	layout := dc.GetProjectLayout()
 	role := dc.GetRole()
 	reportScript := scripts.REPORT
-	reportScriptPath := fmt.Sprintf("%s/report.sh", layout.ToolsBinDir)
+	reportScriptPath := fmt.Sprintf("%s/report.sh", layout.ToolsV2BinDir) // v1: ToolsBinDir, v2: ToolsV2BinDir
 	crontab := newCrontab(dingoadm.ClusterUUId(), dc, reportScriptPath)
 	delimiter := DEFAULT_CONFIG_DELIMITER
 	if role == topology.ROLE_ETCD {
