@@ -210,7 +210,7 @@ func NewCreateTopologyTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*
 	layout := dc.GetProjectLayout()
 	poolJSONPath := fmt.Sprintf("%s/topology.json", layout.ToolsV2ConfDir) // v1: ToolsConfDir , v2: ToolsV2ConfDir
 	waitScript := scripts.WAIT
-	waitScriptPath := fmt.Sprintf("%s/wait.sh", layout.ToolsBinDir)
+	waitScriptPath := fmt.Sprintf("%s/wait.sh", layout.ToolsV2BinDir) // v1: ToolsBinDir, v2: ToolsV2BinDir
 	clusterPoolJson, clusterMDSAddrs, err := prepare(curveadm, dc)
 	if err != nil {
 		return nil, err
