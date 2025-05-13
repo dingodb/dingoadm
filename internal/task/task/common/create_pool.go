@@ -44,28 +44,28 @@ import (
 )
 
 type step2SetClusterPool struct {
-	curveadm    *cli.DingoAdm
+	dingoadm    *cli.DingoAdm
 	clusterPool string
 	storage     *storage.Storage
 }
 
-func getPoolset(curveadm *cli.DingoAdm, kind string) configure.Poolset {
+func getPoolset(dingoadm *cli.DingoAdm, kind string) configure.Poolset {
 	if kind == configure.KIND_CURVEFS || kind == configure.KIND_DINGOFS {
 		return configure.Poolset{}
 	}
-	return curveadm.MemStorage().Get(comm.KEY_POOLSET).(configure.Poolset)
+	return dingoadm.MemStorage().Get(comm.KEY_POOLSET).(configure.Poolset)
 }
 
-func getClusterPool(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (configure.CurveClusterTopo, error) {
-	poolset := getPoolset(curveadm, dc.GetKind())
-	oldPool := configure.CurveClusterTopo{}
-	dcs, err := curveadm.ParseTopology()
+func getClusterPool(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (configure.DingoFsClusterTopo, error) {
+	poolset := getPoolset(dingoadm, dc.GetKind())
+	oldPool := configure.DingoFsClusterTopo{}
+	dcs, err := dingoadm.ParseTopology()
 	if err != nil {
 		return oldPool, err
 	}
 
 	// 1) generate a new default pool
-	data := curveadm.ClusterPoolData()
+	data := dingoadm.ClusterPoolData()
 	if len(data) == 0 {
 		return configure.GenerateDefaultClusterPool(dcs, poolset)
 	}
@@ -96,21 +96,21 @@ func getClusterPool(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (configur
 	return oldPool, err
 }
 
-func prepare(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (clusterPoolJson, clusterMDSAddrs string, err error) {
+func prepare(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (clusterPoolJson, clusterMDSAddrs string, err error) {
 	// 1. get origin cluster pool
-	var clusterPool configure.CurveClusterTopo
-	clusterPool, err = getClusterPool(curveadm, dc)
+	var clusterPool configure.DingoFsClusterTopo
+	clusterPool, err = getClusterPool(dingoadm, dc)
 	if err != nil {
 		return
 	}
 
 	// 2. scale out cluster or migrate servers
-	if curveadm.MemStorage().Get(comm.KEY_SCALE_OUT_CLUSTER) != nil { // scale out cluster
-		dcs := curveadm.MemStorage().Get(comm.KEY_SCALE_OUT_CLUSTER).([]*topology.DeployConfig)
-		poolset := getPoolset(curveadm, dc.GetKind())
+	if dingoadm.MemStorage().Get(comm.KEY_SCALE_OUT_CLUSTER) != nil { // scale out cluster
+		dcs := dingoadm.MemStorage().Get(comm.KEY_SCALE_OUT_CLUSTER).([]*topology.DeployConfig)
+		poolset := getPoolset(dingoadm, dc.GetKind())
 		configure.ScaleOutClusterPool(&clusterPool, dcs, poolset)
-	} else if curveadm.MemStorage().Get(comm.KEY_MIGRATE_SERVERS) != nil { // migrate servers
-		migrates := curveadm.MemStorage().Get(comm.KEY_MIGRATE_SERVERS).([]*configure.MigrateServer)
+	} else if dingoadm.MemStorage().Get(comm.KEY_MIGRATE_SERVERS) != nil { // migrate servers
+		migrates := dingoadm.MemStorage().Get(comm.KEY_MIGRATE_SERVERS).([]*configure.MigrateServer)
 		configure.MigrateClusterServer(&clusterPool, migrates)
 	}
 
@@ -168,35 +168,35 @@ func checkCreatePoolStatus(success *bool, out *string) step.LambdaType {
 }
 
 func (s *step2SetClusterPool) Execute(ctx *context.Context) error {
-	curveadm := s.curveadm
-	topology := curveadm.ClusterTopologyData()
-	value := curveadm.MemStorage().Get(comm.KEY_NEW_TOPOLOGY_DATA)
+	dingoadm := s.dingoadm
+	topology := dingoadm.ClusterTopologyData()
+	value := dingoadm.MemStorage().Get(comm.KEY_NEW_TOPOLOGY_DATA)
 	if value != nil {
 		topology = value.(string)
 	}
 
-	err := s.storage.SetClusterPool(curveadm.ClusterId(), topology, s.clusterPool)
+	err := s.storage.SetClusterPool(dingoadm.ClusterId(), topology, s.clusterPool)
 	if err != nil {
 		return errno.ERR_UPDATE_CLUSTER_POOL_FAILED.E(err)
 	}
 	return nil
 }
 
-func NewCreateTopologyTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
-	serviceId := curveadm.GetServiceId(dc.GetId())
-	containerId, err := curveadm.GetContainerId(serviceId)
-	if curveadm.IsSkip(dc) {
+func NewCreateTopologyTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
+	serviceId := dingoadm.GetServiceId(dc.GetId())
+	containerId, err := dingoadm.GetContainerId(serviceId)
+	if dingoadm.IsSkip(dc) {
 		return nil, nil
 	} else if err != nil {
 		return nil, err
 	}
-	hc, err := curveadm.GetHost(dc.GetHost())
+	hc, err := dingoadm.GetHost(dc.GetHost())
 	if err != nil {
 		return nil, err
 	}
 
 	// new task
-	pooltype := curveadm.MemStorage().Get(comm.KEY_CREATE_POOL_TYPE).(string)
+	pooltype := dingoadm.MemStorage().Get(comm.KEY_CREATE_POOL_TYPE).(string)
 	name := utils.Choose(pooltype == comm.POOL_TYPE_LOGICAL,
 		"Create Logical Pool", "Create Physical Pool")
 	subname := fmt.Sprintf("host=%s role=%s containerId=%s",
@@ -211,7 +211,7 @@ func NewCreateTopologyTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*
 	poolJSONPath := fmt.Sprintf("%s/topology.json", layout.ToolsV2ConfDir) // v1: ToolsConfDir , v2: ToolsV2ConfDir
 	waitScript := scripts.WAIT
 	waitScriptPath := fmt.Sprintf("%s/wait.sh", layout.ToolsV2BinDir) // v1: ToolsBinDir, v2: ToolsV2BinDir
-	clusterPoolJson, clusterMDSAddrs, err := prepare(curveadm, dc)
+	clusterPoolJson, clusterMDSAddrs, err := prepare(dingoadm, dc)
 	if err != nil {
 		return nil, err
 	}
@@ -223,7 +223,7 @@ func NewCreateTopologyTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*
 		Format:      `"{{.ID}}"`,
 		Filter:      fmt.Sprintf("id=%s", containerId),
 		Out:         &out,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.Lambda{
 		Lambda: CheckContainerExist(host, role, containerId, &out),
@@ -232,20 +232,20 @@ func NewCreateTopologyTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*
 		ContainerId:       &containerId,
 		ContainerDestPath: poolJSONPath,
 		Content:           &clusterPoolJson,
-		ExecOptions:       curveadm.ExecOptions(),
+		ExecOptions:       dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.InstallFile{ // install wait script
 		ContainerId:       &containerId,
 		ContainerDestPath: waitScriptPath,
 		Content:           &waitScript,
-		ExecOptions:       curveadm.ExecOptions(),
+		ExecOptions:       dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.ContainerExec{ // wait mds leader election success
 		ContainerId: &containerId,
 		Command:     fmt.Sprintf("bash %s %s", waitScriptPath, clusterMDSAddrs),
 		Success:     &success,
 		Out:         &out,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.Lambda{
 		Lambda: checkWaitMDSElectionSuccess(&success, &out),
@@ -254,19 +254,19 @@ func NewCreateTopologyTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*
 	if dc.GetKind() == topology.KIND_CURVEBS && pooltype == comm.POOL_TYPE_LOGICAL {
 		waitChunkserversScript := scripts.WAIT_CHUNKSERVERS
 		waitChunkserversScriptPath := fmt.Sprintf("%s/wait_chunkservers.sh", layout.ToolsBinDir)
-		nchunkserver := curveadm.MemStorage().Get(comm.KEY_NUMBER_OF_CHUNKSERVER).(int)
+		nchunkserver := dingoadm.MemStorage().Get(comm.KEY_NUMBER_OF_CHUNKSERVER).(int)
 		t.AddStep(&step.InstallFile{ // install wait_chunkservers script
 			ContainerId:       &containerId,
 			ContainerDestPath: waitChunkserversScriptPath,
 			Content:           &waitChunkserversScript,
-			ExecOptions:       curveadm.ExecOptions(),
+			ExecOptions:       dingoadm.ExecOptions(),
 		})
 		t.AddStep(&step.ContainerExec{ // wait all chunkservers online before create logical pool
 			ContainerId: &containerId,
 			Command:     fmt.Sprintf("bash %s %d", waitChunkserversScriptPath, nchunkserver),
 			Success:     &success,
 			Out:         &out,
-			ExecOptions: curveadm.ExecOptions(),
+			ExecOptions: dingoadm.ExecOptions(),
 		})
 		t.AddStep(&step.Lambda{
 			Lambda: checkChunkserverOnline(&success, &out),
@@ -277,16 +277,16 @@ func NewCreateTopologyTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*
 		Success:     &success,
 		Out:         &out,
 		Command:     genCreatePoolCommand(dc, pooltype, poolJSONPath),
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.Lambda{
 		Lambda: checkCreatePoolStatus(&success, &out),
 	})
 	if pooltype == comm.POOL_TYPE_LOGICAL {
 		t.AddStep(&step2SetClusterPool{
-			curveadm:    curveadm,
+			dingoadm:    dingoadm,
 			clusterPool: clusterPoolJson,
-			storage:     curveadm.Storage(),
+			storage:     dingoadm.Storage(),
 		})
 	}
 

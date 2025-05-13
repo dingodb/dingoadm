@@ -59,7 +59,7 @@ func NewShowCommand(curveadm *cli.DingoAdm) *cobra.Command {
 }
 
 func decodePoolJSON(data string) (string, error) {
-	pool := configure.CurveClusterTopo{}
+	pool := configure.DingoFsClusterTopo{}
 	err := json.Unmarshal([]byte(data), &pool)
 	if err != nil {
 		return "", errno.ERR_DECODE_CLUSTER_POOL_JSON_FAILED.E(err)
