@@ -76,7 +76,7 @@ type (
 		Poolset      string `json:"poolset,omitempty"`      // curvebs
 	}
 
-	CurveClusterTopo struct {
+	DingoFsClusterTopo struct {
 		Servers      []Server      `json:"servers"`
 		Poolsets     []Poolset     `json:"poolsets"`               // curvebs
 		LogicalPools []LogicalPool `json:"logicalpools,omitempty"` // curvebs
@@ -175,13 +175,13 @@ func createLogicalPool(dcs []*topology.DeployConfig, logicalPool, poolset string
 			// and the value of instance greater than 1, we should
 			// set internal port and external port to 0 for let MDS
 			// attribute them as services on the same machine.
-			// see issue: https://github.com/dingodb/curve/issues/1441
+			// see issue: https://github.com/opencurve/curve/issues/1441
 			internalPort := dc.GetListenPort()
 			externalPort := dc.GetListenExternalPort()
-			if dc.GetInstances() > 1 {
-				internalPort = 0
-				externalPort = 0
-			}
+			//if dc.GetInstances() > 1 {
+			//	internalPort = 0
+			//	externalPort = 0
+			//}
 
 			server := Server{
 				Name:         formatName(dc),
@@ -224,9 +224,9 @@ func createLogicalPool(dcs []*topology.DeployConfig, logicalPool, poolset string
 	return lpool, servers
 }
 
-func generateClusterPool(dcs []*topology.DeployConfig, poolName string, poolset Poolset) CurveClusterTopo {
+func generateClusterPool(dcs []*topology.DeployConfig, poolName string, poolset Poolset) DingoFsClusterTopo {
 	lpool, servers := createLogicalPool(dcs, poolName, poolset.Name)
-	topo := CurveClusterTopo{Servers: servers, NPools: 1}
+	topo := DingoFsClusterTopo{Servers: servers, NPools: 1}
 	if dcs[0].GetKind() == KIND_CURVEBS {
 		topo.LogicalPools = []LogicalPool{lpool}
 		topo.Poolsets = []Poolset{poolset}
@@ -236,7 +236,7 @@ func generateClusterPool(dcs []*topology.DeployConfig, poolName string, poolset 
 	return topo
 }
 
-func ScaleOutClusterPool(old *CurveClusterTopo, dcs []*topology.DeployConfig, poolset Poolset) {
+func ScaleOutClusterPool(old *DingoFsClusterTopo, dcs []*topology.DeployConfig, poolset Poolset) {
 	npools := old.NPools
 	topo := generateClusterPool(dcs, fmt.Sprintf("pool%d", npools+1), poolset)
 	if dcs[0].GetKind() == KIND_CURVEBS {
@@ -266,7 +266,7 @@ func ScaleOutClusterPool(old *CurveClusterTopo, dcs []*topology.DeployConfig, po
 	old.NPools = old.NPools + 1
 }
 
-func MigrateClusterServer(old *CurveClusterTopo, migrates []*MigrateServer) {
+func MigrateClusterServer(old *DingoFsClusterTopo, migrates []*MigrateServer) {
 	m := map[string]*topology.DeployConfig{} // key: from.Name, value: to.DeployConfig
 	for _, migrate := range migrates {
 		m[formatName(migrate.From)] = migrate.To
@@ -289,7 +289,7 @@ func MigrateClusterServer(old *CurveClusterTopo, migrates []*MigrateServer) {
 	}
 }
 
-func GenerateDefaultClusterPool(dcs []*topology.DeployConfig, poolset Poolset) (topo CurveClusterTopo, err error) {
+func GenerateDefaultClusterPool(dcs []*topology.DeployConfig, poolset Poolset) (topo DingoFsClusterTopo, err error) {
 	topo = generateClusterPool(dcs, "pool1", poolset)
 	return
 }
