@@ -147,6 +147,7 @@ func (s *Step2GetListenPorts) Execute(ctx *context.Context) error {
 
 	// execute "ss" command in container
 	cli := ctx.Module().Shell().SocketStatistics("")
+	cli.AddOption("-n")
 	cli.AddOption("--no-header")
 	cli.AddOption("--processes")
 	cli.AddOption("--listening")
@@ -219,10 +220,10 @@ func (s *step2FormatServiceStatus) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func NewInitServiceStatusTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
-	serviceId := curveadm.GetServiceId(dc.GetId())
-	containerId, err := curveadm.GetContainerId(serviceId)
-	if curveadm.IsSkip(dc) {
+func NewInitServiceStatusTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
+	serviceId := dingoadm.GetServiceId(dc.GetId())
+	containerId, err := dingoadm.GetContainerId(serviceId)
+	if dingoadm.IsSkip(dc) {
 		return nil, nil
 	} else if err != nil {
 		return nil, err
@@ -236,7 +237,7 @@ func NewInitServiceStatusTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig)
 		dc:          dc,
 		serviceId:   serviceId,
 		containerId: containerId,
-		memStorage:  curveadm.MemStorage(),
+		memStorage:  dingoadm.MemStorage(),
 	})
 
 	return t, nil
@@ -250,15 +251,15 @@ func TrimContainerStatus(status *string) step.LambdaType {
 	}
 }
 
-func NewGetServiceStatusTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
-	serviceId := curveadm.GetServiceId(dc.GetId())
-	containerId, err := curveadm.GetContainerId(serviceId)
-	if curveadm.IsSkip(dc) {
+func NewGetServiceStatusTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
+	serviceId := dingoadm.GetServiceId(dc.GetId())
+	containerId, err := dingoadm.GetContainerId(serviceId)
+	if dingoadm.IsSkip(dc) {
 		return nil, nil
 	} else if err != nil {
 		return nil, err
 	}
-	hc, err := curveadm.GetHost(dc.GetHost())
+	hc, err := dingoadm.GetHost(dc.GetHost())
 	if err != nil {
 		return nil, err
 	}
@@ -277,7 +278,7 @@ func NewGetServiceStatusTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) 
 		Format:      `"{{.Status}}"`,
 		Filter:      fmt.Sprintf("id=%s", containerId),
 		Out:         &status,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.Lambda{
 		Lambda: TrimContainerStatus(&status),
@@ -286,14 +287,14 @@ func NewGetServiceStatusTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) 
 		ContainerId: containerId,
 		Status:      &status,
 		Ports:       &ports,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step2GetLeader{
 		dc:          dc,
 		containerId: containerId,
 		status:      &status,
 		isLeader:    &isLeader,
-		execOptions: curveadm.ExecOptions(),
+		execOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step2FormatServiceStatus{
 		dc:          dc,
@@ -302,7 +303,7 @@ func NewGetServiceStatusTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) 
 		isLeader:    &isLeader,
 		ports:       &ports,
 		status:      &status,
-		memStorage:  curveadm.MemStorage(),
+		memStorage:  dingoadm.MemStorage(),
 	})
 
 	return t, nil
