@@ -124,10 +124,10 @@ func displayStatus(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options
 	dingoadm.WriteOut("%s", output)
 }
 
-func genStatusPlaybook(curveadm *cli.DingoAdm,
+func genStatusPlaybook(dingoadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options statusOptions) (*playbook.Playbook, error) {
-	dcs = curveadm.FilterDeployConfig(dcs, topology.FilterOption{
+	dcs = dingoadm.FilterDeployConfig(dcs, topology.FilterOption{
 		Id:   options.id,
 		Role: options.role,
 		Host: options.host,
@@ -137,7 +137,7 @@ func genStatusPlaybook(curveadm *cli.DingoAdm,
 	}
 
 	steps := GET_STATUS_PLAYBOOK_STEPS
-	pb := playbook.NewPlaybook(curveadm)
+	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
 		pb.AddStep(&playbook.PlaybookStep{
 			Type:    step,
