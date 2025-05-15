@@ -99,7 +99,11 @@ func addSubCommands(cmd *cobra.Command, dingoadm *cli.DingoAdm) {
 }
 
 func setupRootCommand(cmd *cobra.Command, dingoadm *cli.DingoAdm) {
-	cmd.SetVersionTemplate("{{.Version}}\n")
+	cmd.SetVersionTemplate(`{{with .Name}}{{printf "%s " .}}{{end}}{{printf "Version %s" .Version}}
+Copyright 2025 dingodb.com Inc.
+Licensed under the Apache License, Version 2.0
+http://www.apache.org/licenses/LICENSE-2.0
+`)
 	cliutil.SetFlagErrorFunc(cmd)
 	cliutil.SetHelpTemplate(cmd)
 	cliutil.SetUsageTemplate(cmd)
@@ -110,9 +114,10 @@ func NewDingoAdmCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options rootOptions
 
 	cmd := &cobra.Command{
-		Use:     "dingoadm [OPTIONS] COMMAND [ARGS...]",
-		Short:   "Deploy and manage dingoFS cluster",
-		Version: fmt.Sprintf("dingoadm v%s, build %s", cli.Version, cli.CommitId),
+		Use:   "dingoadm [OPTIONS] COMMAND [ARGS...]",
+		Short: "Deploy and manage dingoFS cluster",
+		// Version: fmt.Sprintf("dingoadm v%s, build %s", cli.Version, cli.CommitId),
+		Version: fmt.Sprintf("%s (commit: %s) \nBuild Date: %s", cli.Version, cli.CommitId, cli.BuildTime),
 		Example: dingoadmExample,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if options.debug {
