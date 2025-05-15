@@ -26,7 +26,7 @@
 package cli
 
 var (
-	Version = "1.1"
-
-	CommitId = "unknown"
+	Version   = "dev"
+	CommitId  = "unknown"
+	BuildTime = "unknown"
 )

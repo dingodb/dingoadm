@@ -26,7 +26,9 @@ OUTPUT := bin/dingoadm
 # build flags
 LDFLAGS := -s -w
 LDFLAGS += -extldflags "-static -fpic"
+LDFLAGS += -X github.com/dingodb/dingoadm/cli/cli.Version=2.1
 LDFLAGS += -X github.com/dingodb/dingoadm/cli/cli.CommitId=$(shell git rev-parse --short HEAD)
+LDFLAGS += -X github.com/dingodb/dingoadm/cli/cli.BuildTime=$(shell date +%Y-%m-%dT%H:%M:%S)
 
 BUILD_FLAGS := -a
 BUILD_FLAGS += -trimpath
