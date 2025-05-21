@@ -77,7 +77,7 @@ var (
 	}
 
 	LAYOUT_CURVEBS_ROOT_DIR = topology.GetCurveBSProjectLayout().ProjectRootDir
-	LAYOUT_CURVEFS_ROOT_DIR = topology.GetCurveFSProjectLayout().ProjectRootDir
+	LAYOUT_CURVEFS_ROOT_DIR = topology.GetDingoFSProjectLayout().ProjectRootDir
 )
 
 type (

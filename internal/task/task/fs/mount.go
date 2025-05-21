@@ -414,20 +414,20 @@ func NewMountFSTask(curveadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.T
 		Mutate:            newMutate(cc, comm.CLIENT_CONFIG_DELIMITER),
 		ExecOptions:       curveadm.ExecOptions(),
 	})
-	t.AddStep(&step.SyncFile{ // sync tools config
-		ContainerSrcId:    &containerId,
-		ContainerSrcPath:  fmt.Sprintf("%s/conf/tools.conf", root),
-		ContainerDestId:   &containerId,
-		ContainerDestPath: topology.GetCurveFSProjectLayout().ToolsConfSystemPath,
-		KVFieldSplit:      comm.CLIENT_CONFIG_DELIMITER,
-		Mutate:            newToolsMutate(cc, comm.CLIENT_CONFIG_DELIMITER),
-		ExecOptions:       curveadm.ExecOptions(),
-	})
+	//t.AddStep(&step.SyncFile{ // sync tools config
+	//	ContainerSrcId:    &containerId,
+	//	ContainerSrcPath:  fmt.Sprintf("%s/conf/tools.conf", root),
+	//	ContainerDestId:   &containerId,
+	//	ContainerDestPath: topology.GetCurveFSProjectLayout().ToolsConfSystemPath,
+	//	KVFieldSplit:      comm.CLIENT_CONFIG_DELIMITER,
+	//	Mutate:            newToolsMutate(cc, comm.CLIENT_CONFIG_DELIMITER),
+	//	ExecOptions:       curveadm.ExecOptions(),
+	//})
 	t.AddStep(&step.TrySyncFile{ // sync tools-v2 config
 		ContainerSrcId:    &containerId,
 		ContainerSrcPath:  fmt.Sprintf("%s/conf/dingo.yaml", root),
 		ContainerDestId:   &containerId,
-		ContainerDestPath: topology.GetCurveFSProjectLayout().ToolsV2ConfSystemPath,
+		ContainerDestPath: topology.GetDingoFSProjectLayout().ToolsV2ConfSystemPath,
 		KVFieldSplit:      comm.TOOLS_V2_CONFIG_DELIMITER,
 		Mutate:            newToolsV2Mutate(cc, comm.TOOLS_V2_CONFIG_DELIMITER),
 		ExecOptions:       curveadm.ExecOptions(),

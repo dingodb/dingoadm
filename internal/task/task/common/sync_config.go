@@ -139,15 +139,15 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 			ExecOptions:       dingoadm.ExecOptions(),
 		})
 	}
-	t.AddStep(&step.SyncFile{ // sync tools config
-		ContainerSrcId:    &containerId,
-		ContainerSrcPath:  layout.ToolsConfSrcPath,
-		ContainerDestId:   &containerId,
-		ContainerDestPath: layout.ToolsConfSystemPath,
-		KVFieldSplit:      DEFAULT_CONFIG_DELIMITER,
-		Mutate:            NewMutate(dc, DEFAULT_CONFIG_DELIMITER, false),
-		ExecOptions:       dingoadm.ExecOptions(),
-	})
+	//t.AddStep(&step.SyncFile{ // sync tools config
+	//	ContainerSrcId:    &containerId,
+	//	ContainerSrcPath:  layout.ToolsConfSrcPath,
+	//	ContainerDestId:   &containerId,
+	//	ContainerDestPath: layout.ToolsConfSystemPath,
+	//	KVFieldSplit:      DEFAULT_CONFIG_DELIMITER,
+	//	Mutate:            NewMutate(dc, DEFAULT_CONFIG_DELIMITER, false),
+	//	ExecOptions:       dingoadm.ExecOptions(),
+	//})
 	t.AddStep(&step.TrySyncFile{ // sync tools-v2 config
 		ContainerSrcId:    &containerId,
 		ContainerSrcPath:  layout.ToolsV2ConfSrcPath,
