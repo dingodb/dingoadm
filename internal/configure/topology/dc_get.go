@@ -354,6 +354,6 @@ func GetCurveBSProjectLayout() Layout {
 	return DefaultCurveBSDeployConfig.GetProjectLayout()
 }
 
-func GetCurveFSProjectLayout() Layout {
+func GetDingoFSProjectLayout() Layout {
 	return DefaultCurveFSDeployConfig.GetProjectLayout()
 }

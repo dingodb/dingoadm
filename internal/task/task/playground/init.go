@@ -37,13 +37,15 @@ import (
 	"github.com/dingodb/dingoadm/internal/task/context"
 	"github.com/dingodb/dingoadm/internal/task/step"
 	"github.com/dingodb/dingoadm/internal/task/task"
+	"github.com/dingodb/dingoadm/internal/task/task/common"
 	"github.com/dingodb/dingoadm/internal/task/task/playground/script"
 	"github.com/dingodb/dingoadm/pkg/variable"
 )
 
 const (
-	DEFAULT_CONFIG_DELIMITER = "="
-	ETCD_CONFIG_DELIMITER    = ": "
+	DEFAULT_CONFIG_DELIMITER  = "="
+	ETCD_CONFIG_DELIMITER     = ": "
+	TOOLS_V2_CONFIG_DELIMITER = ": "
 )
 
 func newMutate(cfg interface{}, delimiter string) step.Mutate {
@@ -102,7 +104,7 @@ func prepare(dcs []*topology.DeployConfig, poolset configure.Poolset) (string, e
 	return string(bytes), err
 }
 
-func NewInitPlaygroundTask(curveadm *cli.DingoAdm, cfg *configure.PlaygroundConfig) (*task.Task, error) {
+func NewInitPlaygroundTask(dingoadm *cli.DingoAdm, cfg *configure.PlaygroundConfig) (*task.Task, error) {
 	// new task
 	kind := cfg.GetKind()
 	name := cfg.GetName()
@@ -113,7 +115,7 @@ func NewInitPlaygroundTask(curveadm *cli.DingoAdm, cfg *configure.PlaygroundConf
 	var containerId string
 	layout := topology.GetCurveBSProjectLayout()
 	poolJSONPath := path.Join(layout.ToolsConfDir, "topology.json")
-	poolset := curveadm.MemStorage().Get(comm.KEY_POOLSET).(configure.Poolset)
+	poolset := dingoadm.MemStorage().Get(comm.KEY_POOLSET).(configure.Poolset)
 	clusterPoolJson, err := prepare(cfg.GetDeployConfigs(), poolset)
 	if err != nil {
 		return nil, err
@@ -124,7 +126,7 @@ func NewInitPlaygroundTask(curveadm *cli.DingoAdm, cfg *configure.PlaygroundConf
 		Format:      `"{{.ID}}"`,
 		Filter:      fmt.Sprintf("name=%s", name),
 		Out:         &containerId,
-		ExecOptions: execOptions(curveadm),
+		ExecOptions: execOptions(dingoadm),
 	})
 	t.AddStep(&step.Lambda{
 		Lambda: checkContainerExist(name, &containerId),
@@ -142,24 +144,33 @@ func NewInitPlaygroundTask(curveadm *cli.DingoAdm, cfg *configure.PlaygroundConf
 				ContainerDestPath: conf.Path,
 				KVFieldSplit:      delimiter,
 				Mutate:            newMutate(dc, delimiter),
-				ExecOptions:       execOptions(curveadm),
+				ExecOptions:       execOptions(dingoadm),
 			})
 		}
-		t.AddStep(&step.SyncFile{ // sync tools config
+		//t.AddStep(&step.SyncFile{ // sync tools config
+		//	ContainerSrcId:    &containerId,
+		//	ContainerSrcPath:  layout.ToolsConfSrcPath,
+		//	ContainerDestId:   &containerId,
+		//	ContainerDestPath: layout.ToolsConfSystemPath,
+		//	KVFieldSplit:      DEFAULT_CONFIG_DELIMITER,
+		//	Mutate:            newMutate(dc, DEFAULT_CONFIG_DELIMITER),
+		//	ExecOptions:       execOptions(curveadm),
+		//})
+		t.AddStep(&step.TrySyncFile{ // sync tools-v2 config
 			ContainerSrcId:    &containerId,
-			ContainerSrcPath:  layout.ToolsConfSrcPath,
+			ContainerSrcPath:  layout.ToolsV2ConfSrcPath,
 			ContainerDestId:   &containerId,
-			ContainerDestPath: layout.ToolsConfSystemPath,
-			KVFieldSplit:      DEFAULT_CONFIG_DELIMITER,
-			Mutate:            newMutate(dc, DEFAULT_CONFIG_DELIMITER),
-			ExecOptions:       execOptions(curveadm),
+			ContainerDestPath: layout.ToolsV2ConfSystemPath,
+			KVFieldSplit:      TOOLS_V2_CONFIG_DELIMITER,
+			Mutate:            common.NewMutate(dc, TOOLS_V2_CONFIG_DELIMITER, false),
+			ExecOptions:       dingoadm.ExecOptions(),
 		})
 	}
 	t.AddStep(&step.InstallFile{ // install curvebs/curvefs topology
 		ContainerId:       &containerId,
 		ContainerDestPath: poolJSONPath,
 		Content:           &clusterPoolJson,
-		ExecOptions:       execOptions(curveadm),
+		ExecOptions:       execOptions(dingoadm),
 	})
 	for _, conf := range []topology.ConfFile{
 		{SourcePath: "/curvebs/conf/client.conf", Path: "/curvebs/nebd/conf/client.conf"},
@@ -173,14 +184,14 @@ func NewInitPlaygroundTask(curveadm *cli.DingoAdm, cfg *configure.PlaygroundConf
 			ContainerDestPath: conf.Path,
 			KVFieldSplit:      DEFAULT_CONFIG_DELIMITER,
 			Mutate:            newMutate(cfg.GetClientConfig(), DEFAULT_CONFIG_DELIMITER),
-			ExecOptions:       execOptions(curveadm),
+			ExecOptions:       execOptions(dingoadm),
 		})
 	}
 	t.AddStep(&step.InstallFile{ // install entrypoint
 		ContainerId:       &containerId,
 		ContainerDestPath: "/entrypoint.sh",
 		Content:           &script.ENTRYPOINT,
-		ExecOptions:       execOptions(curveadm),
+		ExecOptions:       execOptions(dingoadm),
 	})
 
 	return t, nil

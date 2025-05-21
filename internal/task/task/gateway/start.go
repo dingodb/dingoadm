@@ -60,7 +60,7 @@ func NewStartGatewayTask(curveadm *cli.DingoAdm, gc *configure.GatewayConfig) (*
 	var containerId, out string
 	var success bool
 	containerName := fmt.Sprintf("dingofs-gateway-%s", utils.MD5Sum(mountPoint))
-	containerMountPath := fmt.Sprintf("%s/client/mnt%s", topology.GetCurveFSProjectLayout().ProjectRootDir, mountPoint)
+	containerMountPath := fmt.Sprintf("%s/client/mnt%s", topology.GetDingoFSProjectLayout().ProjectRootDir, mountPoint)
 	startGatewayScript := scripts.START_GATEWAY
 	startGatewayScriptPath := "/gateway.sh"
 
