@@ -1,0 +1,48 @@
+kind: dingo-store
+global:
+  container_image: dingodatabase/dingo-store:latest
+  server_listen_host: 0.0.0.0
+  raft_listen_host: 0.0.0.0 
+  server_host: ${service_host}
+  raft_host: ${service_host}
+  default_replica_num: 3
+  data_dir: ${home}/dingofs/data/${service_role}
+  log_dir: ${home}/dingofs/logs/${service_role}
+  variable:
+    home: /tmp
+    machine1: server-host1
+    machine2: serevr-host2
+    machine3: server-host3
+
+coordinator_services:
+  config:
+    server.port: 6500
+    raft.port: 7500
+  deploy:
+    - host: ${machine1}
+      config:
+        instance_start_id: 1001
+    - host: ${machine2}
+      config:
+        instance_start_id: 1002
+    - host: ${machine3}
+      config:
+        instance_start_id: 1003
+
+store_services:
+  config:
+    server.port: 6600
+    raft.port: 7600
+  deploy:
+    - host: ${machine1}
+      config:
+        instance_start_id: 1001
+    - host: ${machine2}
+      config:
+        instance_start_id: 1002
+    - host: ${machine3}
+      config:
+        instance_start_id: 1003
+
+
+

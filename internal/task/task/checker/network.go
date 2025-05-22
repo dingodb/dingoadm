@@ -78,11 +78,11 @@ func joinPorts(dc *topology.DeployConfig, addresses []Address) string {
 	return strings.Join(ports, ",")
 }
 
-func getCheckPortContainerName(curveadm *cli.DingoAdm, dc *topology.DeployConfig) string {
+func getCheckPortContainerName(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) string {
 	return fmt.Sprintf("%s-%s-%s",
 		CHECK_PORT_CONTAINER_NAME,
 		dc.GetRole(),
-		curveadm.GetServiceId(dc.GetId()))
+		dingoadm.GetServiceId(dc.GetId()))
 }
 
 type step2CheckPortStatus struct {

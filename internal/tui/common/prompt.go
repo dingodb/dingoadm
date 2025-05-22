@@ -92,8 +92,8 @@ var (
 	}, "\n")
 
 	PROMPT_AUTO_UPGRADE = strings.Join([]string{
-		color.MagentaString("CurveAdm {{.version}} released, we recommend you to upgrade it."),
-		"Upgrade curveadm to {{.version}}?",
+		color.MagentaString("dingoadm {{.version}} released, we recommend you to upgrade it."),
+		"Upgrade dingoadm to {{.version}}?",
 	}, "\n")
 )
 

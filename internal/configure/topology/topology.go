@@ -58,6 +58,8 @@ type (
 		MetaserverServices    Service `mapstructure:"metaserver_services"`
 		ChunkserverServices   Service `mapstructure:"chunkserver_services"`
 		SnapshotcloneServices Service `mapstructure:"snapshotclone_services"`
+		CoordinatorServices   Service `mapstructure:"coordinator_services"`
+		StoreServices         Service `mapstructure:"store_services"`
 	}
 )
 
@@ -68,10 +70,14 @@ var (
 		ROLE_CHUNKSERVER,
 		ROLE_SNAPSHOTCLONE,
 	}
-	CURVEFS_ROLES = []string{
+	DINGOFS_ROLES = []string{
 		ROLE_ETCD,
 		ROLE_MDS,
 		ROLE_METASERVER,
+	}
+	DINGOSTORE_ROLES = []string{
+		ROLE_COORDINATOR,
+		ROLE_STORE,
 	}
 )
 
@@ -120,7 +126,9 @@ func ParseTopology(data string, ctx *Context) ([]*DeployConfig, error) {
 	case KIND_CURVEBS:
 		roles = append(roles, CURVEBS_ROLES...)
 	case KIND_CURVEFS, KIND_DINGOFS:
-		roles = append(roles, CURVEFS_ROLES...)
+		roles = append(roles, DINGOFS_ROLES...)
+	case KIND_DINGOSTORE:
+		roles = append(roles, DINGOSTORE_ROLES...)
 	default:
 		return nil, errno.ERR_UNSUPPORT_CLUSTER_KIND
 	}
@@ -140,6 +148,10 @@ func ParseTopology(data string, ctx *Context) ([]*DeployConfig, error) {
 			services = topology.SnapshotcloneServices
 		case ROLE_METASERVER:
 			services = topology.MetaserverServices
+		case ROLE_COORDINATOR:
+			services = topology.CoordinatorServices
+		case ROLE_STORE:
+			services = topology.StoreServices
 		}
 
 		// merge global config into services config

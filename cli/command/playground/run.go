@@ -143,9 +143,9 @@ func genRunPlaybook(curveadm *cli.DingoAdm,
 	return pb, nil
 }
 
-func runRun(curveadm *cli.DingoAdm, options runOptions) error {
+func runRun(dingoadm *cli.DingoAdm, options runOptions) error {
 	// 1) print prompt
-	curveadm.WriteOutln(color.GreenString("Start to run playground '%s', it will takes 1~2 minutes\n"), options.name)
+	dingoadm.WriteOutln(color.GreenString("Start to run playground '%s', it will takes 1~2 minutes\n"), options.name)
 
 	// 2) parse topology
 	ctx := topology.NewContext()
@@ -162,7 +162,7 @@ func runRun(curveadm *cli.DingoAdm, options runOptions) error {
 	}
 
 	// 4) generate run playground
-	pb, err := genRunPlaybook(curveadm, dcs, cc, options)
+	pb, err := genRunPlaybook(dingoadm, dcs, cc, options)
 	if err != nil {
 		return err
 	}
@@ -174,8 +174,8 @@ func runRun(curveadm *cli.DingoAdm, options runOptions) error {
 	}
 
 	// 6) print success prompt
-	curveadm.WriteOutln("")
-	curveadm.WriteOutln(color.GreenString("Playground '%s' successfully deployed ^_^",
+	dingoadm.WriteOutln("")
+	dingoadm.WriteOutln(color.GreenString("Playground '%s' successfully deployed ^_^",
 		options.name))
 	return nil
 }

@@ -41,8 +41,19 @@ import (
 )
 
 const (
-	POLICY_ALWAYS_RESTART = "always"
-	POLICY_NEVER_RESTART  = "no"
+	POLICY_ALWAYS_RESTART                        = "always"
+	POLICY_NEVER_RESTART                         = "no"
+	ENV_DINGOSTORE_SERVER_LISTEN_HOST            = "SERVER_LISTEN_HOST"
+	ENV_DINGOSTORE_RAFT_LISTEN_HOST              = "RAFT_LISTEN_HOST"
+	ENV_DINGOSTORE_SERVER_HOST                   = "SERVER_HOST"
+	ENV_DINGOSTORE_RAFT_HOST                     = "RAFT_HOST"
+	ENV_DINGOSTORE_DEFAULT_REPLICA_NUM           = "DEFAULT_REPLICA_NUM"
+	ENV_DINGOSTORE_COOR_RAFT_PEERS               = "COOR_RAFT_PEERS"
+	ENV_DINGOSTORE_COOR_SRV_PEERS                = "COOR_SRV_PEERS"
+	ENV_DINGOSTROE_FLAGS_ROLE                    = "FLAGS_role"
+	ENV_DINGOSTORE_COORDINATOR_SERVER_START_PORT = "COORDINATOR_SERVER_START_PORT"
+	ENV_DINGOSTORE_COORDINATOR_RAFT_START_PORT   = "COORDINATOR_RAFT_START_PORT"
+	ENV_DINGOSTORE_INSTANCE_START_ID             = "INSTANCE_START_ID"
 )
 
 type Step2GetService struct {
@@ -147,18 +158,51 @@ func getArguments(dc *topology.DeployConfig) string {
 	return strings.Join(arguments, " ")
 }
 
-func getEnvironments(dc *topology.DeployConfig) []string {
-	preloads := []string{"/usr/local/lib/libjemalloc.so"}
-	if dc.GetEnableRDMA() {
-		preloads = append(preloads, "/usr/local/lib/libsmc-preload.so")
+func getContainerCMD(dc *topology.DeployConfig) string {
+	switch dc.GetKind() {
+	case topology.KIND_DINGOFS:
+		return fmt.Sprintf("--role %s --args='%s'", dc.GetRole(), getArguments(dc))
+	case topology.KIND_DINGOSTORE:
+		return "cleanstart"
+	default:
+		return fmt.Sprintf("--role %s --args='%s'", dc.GetRole(), getArguments(dc))
 	}
+}
 
-	envs := []string{
-		fmt.Sprintf("'LD_PRELOAD=%s'", strings.Join(preloads, " ")),
-	}
-	env := dc.GetEnv()
-	if len(env) > 0 {
-		envs = append(envs, strings.Split(env, " ")...)
+func GetEnvironments(dc *topology.DeployConfig) []string {
+	envs := []string{}
+	if dc.GetKind() == topology.KIND_DINGOFS {
+
+		preloads := []string{"/usr/local/lib/libjemalloc.so"}
+		if dc.GetEnableRDMA() {
+			preloads = append(preloads, "/usr/local/lib/libsmc-preload.so")
+		}
+
+		//envs = []string{
+		//	fmt.Sprintf("'LD_PRELOAD=%s'", strings.Join(preloads, " ")),
+		//}
+		envs = append(envs, fmt.Sprintf("LD_PRELOAD=%s", strings.Join(preloads, " ")))
+		env := dc.GetEnv()
+		if len(env) > 0 {
+			envs = append(envs, strings.Split(env, " ")...)
+		}
+	} else if dc.GetKind() == topology.KIND_DINGOSTORE {
+		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTROE_FLAGS_ROLE, dc.GetRole()))
+		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_SERVER_LISTEN_HOST, dc.GetDingoStoreServerListenHost()))
+		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_RAFT_LISTEN_HOST, dc.GetDingoStoreRaftListenHost()))
+		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_SERVER_HOST, dc.GetHostname()))
+		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_RAFT_HOST, dc.GetHostname()))
+		envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_DEFAULT_REPLICA_NUM, dc.GetDingoStoreReplicaNum()))
+		envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_COORDINATOR_SERVER_START_PORT,
+			dc.GetDingoStoreServerPort()))
+		envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_COORDINATOR_RAFT_START_PORT,
+			dc.GetDingoStoreRaftPort()))
+		envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_INSTANCE_START_ID,
+			dc.GetDingoStoreInstanceId()))
+		if len(dc.GetEnv()) > 0 {
+			env := strings.Split(dc.GetEnv(), " ")
+			envs = append(envs, env...)
+		}
 	}
 	return envs
 }
@@ -245,9 +289,9 @@ func NewCreateContainerTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (
 	})
 	t.AddStep(&step.CreateContainer{
 		Image:      dc.GetContainerImage(),
-		Command:    fmt.Sprintf("--role %s --args='%s'", role, getArguments(dc)),
+		Command:    getContainerCMD(dc),
 		AddHost:    []string{fmt.Sprintf("%s:127.0.0.1", hostname)},
-		Envs:       getEnvironments(dc),
+		Envs:       GetEnvironments(dc),
 		Hostname:   hostname,
 		Init:       true,
 		Name:       hostname,

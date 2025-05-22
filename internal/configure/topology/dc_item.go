@@ -37,13 +37,21 @@ const (
 	// default value
 	DEFAULT_REPORT_USAGE                    = true
 	DEFAULT_CURVEBS_CONTAINER_IMAGE         = "opencurvedocker/curvebs:latest"
-	DEFAULT_CURVEFS_CONTAINER_IMAGE         = "dingodatabase/dingofs:latest"
+	DEFAULT_DINGOFS_CONTAINER_IMAGE         = "dingodatabase/dingofs:latest"
 	DEFAULT_ETCD_LISTEN_PEER_PORT           = 2380
 	DEFAULT_ETCD_LISTEN_CLIENT_PORT         = 2379
 	DEFAULT_MDS_LISTEN_PORT                 = 6700
 	DEFAULT_MDS_LISTEN_DUMMY_PORT           = 7700
 	DEFAULT_CHUNKSERVER_LISTN_PORT          = 8200
 	DEFAULT_SNAPSHOTCLONE_LISTEN_PORT       = 5555
+	DEFAULT_COORDINATOR_SERVER_PORT         = 6500
+	DEFAULT_COORDINATOR_RAFT_PORT           = 7500
+	DEFAULT_STORE_SERVER_PORT               = 6600
+	DEFAULT_STORE_RAFT_PORT                 = 7600
+	DEFAULT_STORE_SERVER_LISTEN_HOST        = "0.0.0.0"
+	DEFAULT_STORE_RAFT_LISTEN_HOST          = "0.0.0.0"
+	DEFAULT_STORE_REPLICA_NUM               = 3
+	DEFAULT_STORE_INSTANCE_START_ID         = 1000
 	DEFAULT_SNAPSHOTCLONE_LISTEN_DUMMY_PORT = 8081
 	DEFAULT_SNAPSHOTCLONE_LISTEN_PROXY_PORT = 8080
 	DEFAULT_METASERVER_LISTN_PORT           = 6800
@@ -56,6 +64,7 @@ const (
 type (
 	// config item
 	item struct {
+		kind         string
 		key          string
 		require      int
 		exclude      bool        // exclude for service config
@@ -80,18 +89,24 @@ var (
 	}
 
 	CONFIG_PREFIX = itemset.insert(
+		KIND_DINGO,
 		"prefix",
 		REQUIRE_STRING,
 		true,
 		func(dc *DeployConfig) interface{} {
 			if dc.GetKind() == KIND_CURVEBS {
 				return path.Join(LAYOUT_CURVEBS_ROOT_DIR, dc.GetRole())
+			} else if dc.GetKind() == KIND_DINGOFS {
+				return path.Join(LAYOUT_DINGOFS_ROOT_DIR, dc.GetRole())
+			} else if dc.GetKind() == KIND_DINGOSTORE {
+				return path.Join(LAYOUT_DINGOSTORE_ROOT_DIR, dc.GetRole())
 			}
-			return path.Join(LAYOUT_DINGOFS_ROOT_DIR, dc.GetRole())
+			return path.Join(LAYOUT_DINGO_ROOT_DIR, dc.GetRole())
 		},
 	)
 
 	CONFIG_REPORT_USAGE = itemset.insert(
+		KIND_DINGOFS,
 		"report_usage",
 		REQUIRE_BOOL,
 		true,
@@ -99,6 +114,7 @@ var (
 	)
 
 	CONFIG_CONTAINER_IMAGE = itemset.insert(
+		KIND_DINGO,
 		"container_image",
 		REQUIRE_STRING,
 		true,
@@ -106,11 +122,12 @@ var (
 			if dc.GetKind() == KIND_CURVEBS {
 				return DEFAULT_CURVEBS_CONTAINER_IMAGE
 			}
-			return DEFAULT_CURVEFS_CONTAINER_IMAGE
+			return DEFAULT_DINGOFS_CONTAINER_IMAGE
 		},
 	)
 
 	CONFIG_LOG_DIR = itemset.insert(
+		KIND_DINGO,
 		"log_dir",
 		REQUIRE_STRING,
 		true,
@@ -118,6 +135,7 @@ var (
 	)
 
 	CONFIG_DATA_DIR = itemset.insert(
+		KIND_DINGO,
 		"data_dir",
 		REQUIRE_STRING,
 		true,
@@ -125,6 +143,7 @@ var (
 	)
 
 	CONFIG_SEQ_OFFSET = itemset.insert(
+		KIND_DINGO,
 		"sequence_offset",
 		REQUIRE_POSITIVE_INTEGER,
 		true,
@@ -132,6 +151,7 @@ var (
 	)
 
 	CONFIG_SOURCE_CORE_DIR = itemset.insert(
+		KIND_DINGO,
 		"source_core_dir",
 		REQUIRE_STRING,
 		true,
@@ -139,6 +159,7 @@ var (
 	)
 
 	CONFIG_TARGET_CORE_DIR = itemset.insert(
+		KIND_DINGO,
 		"target_core_dir",
 		REQUIRE_STRING,
 		true,
@@ -146,6 +167,7 @@ var (
 	)
 
 	CONFIG_ENV = itemset.insert(
+		KIND_DINGO,
 		"env",
 		REQUIRE_STRING,
 		true,
@@ -153,6 +175,7 @@ var (
 	)
 
 	CONFIG_LISTEN_IP = itemset.insert(
+		KIND_DINGOFS,
 		"listen.ip",
 		REQUIRE_STRING,
 		true,
@@ -162,6 +185,7 @@ var (
 	)
 
 	CONFIG_LISTEN_PORT = itemset.insert(
+		KIND_DINGOFS,
 		"listen.port",
 		REQUIRE_POSITIVE_INTEGER,
 		true,
@@ -183,6 +207,7 @@ var (
 	)
 
 	CONFIG_LISTEN_CLIENT_PORT = itemset.insert(
+		KIND_DINGOFS,
 		"listen.client_port",
 		REQUIRE_POSITIVE_INTEGER,
 		true,
@@ -190,6 +215,7 @@ var (
 	)
 
 	CONFIG_LISTEN_DUMMY_PORT = itemset.insert(
+		KIND_DINGOFS,
 		"listen.dummy_port",
 		REQUIRE_POSITIVE_INTEGER,
 		true,
@@ -205,6 +231,7 @@ var (
 	)
 
 	CONFIG_LISTEN_PROXY_PORT = itemset.insert(
+		KIND_DINGOFS,
 		"listen.proxy_port",
 		REQUIRE_POSITIVE_INTEGER,
 		true,
@@ -212,6 +239,7 @@ var (
 	)
 
 	CONFIG_LISTEN_EXTERNAL_IP = itemset.insert(
+		KIND_DINGOFS,
 		"listen.external_ip",
 		REQUIRE_STRING,
 		true,
@@ -221,6 +249,7 @@ var (
 	)
 
 	CONFIG_LISTEN_EXTERNAL_PORT = itemset.insert(
+		KIND_DINGOFS,
 		"listen.external_port",
 		REQUIRE_POSITIVE_INTEGER,
 		true,
@@ -233,6 +262,7 @@ var (
 	)
 
 	CONFIG_ENABLE_EXTERNAL_SERVER = itemset.insert(
+		KIND_DINGOFS,
 		"global.enable_external_server",
 		REQUIRE_BOOL,
 		false,
@@ -240,6 +270,7 @@ var (
 	)
 
 	CONFIG_COPYSETS = itemset.insert(
+		KIND_DINGOFS,
 		"copysets",
 		REQUIRE_POSITIVE_INTEGER,
 		true,
@@ -252,6 +283,7 @@ var (
 	)
 
 	CONFIG_S3_ACCESS_KEY = itemset.insert(
+		KIND_DINGOFS,
 		"s3.ak",
 		REQUIRE_STRING,
 		false,
@@ -259,6 +291,7 @@ var (
 	)
 
 	CONFIG_S3_SECRET_KEY = itemset.insert(
+		KIND_DINGOFS,
 		"s3.sk",
 		REQUIRE_STRING,
 		false,
@@ -266,6 +299,7 @@ var (
 	)
 
 	CONFIG_S3_ADDRESS = itemset.insert(
+		KIND_DINGOFS,
 		"s3.nos_address",
 		REQUIRE_STRING,
 		false,
@@ -273,6 +307,7 @@ var (
 	)
 
 	CONFIG_S3_BUCKET_NAME = itemset.insert(
+		KIND_DINGOFS,
 		"s3.snapshot_bucket_name",
 		REQUIRE_STRING,
 		false,
@@ -280,6 +315,7 @@ var (
 	)
 
 	CONFIG_ENABLE_RDMA = itemset.insert(
+		KIND_DINGOFS,
 		"enable_rdma",
 		REQUIRE_BOOL,
 		true,
@@ -287,6 +323,7 @@ var (
 	)
 
 	CONFIG_ENABLE_RENAMEAT2 = itemset.insert(
+		KIND_DINGOFS,
 		"fs.enable_renameat2",
 		REQUIRE_BOOL,
 		false,
@@ -294,6 +331,7 @@ var (
 	)
 
 	CONFIG_ENABLE_CHUNKFILE_POOL = itemset.insert(
+		KIND_DINGOFS,
 		"chunkfilepool.enable_get_chunk_from_pool",
 		REQUIRE_BOOL,
 		false,
@@ -301,6 +339,7 @@ var (
 	)
 
 	CONFIG_VARIABLE = itemset.insert(
+		KIND_DINGO,
 		"variable",
 		REQUIRE_STRING,
 		true,
@@ -308,6 +347,7 @@ var (
 	)
 
 	CONFIG_ETCD_AUTH_ENABLE = itemset.insert(
+		KIND_DINGOFS,
 		"etcd.auth.enable",
 		REQUIRE_BOOL,
 		false,
@@ -315,6 +355,7 @@ var (
 	)
 
 	CONFIG_ETCD_AUTH_USERNAME = itemset.insert(
+		KIND_DINGOFS,
 		"etcd.auth.username",
 		REQUIRE_STRING,
 		false,
@@ -322,10 +363,83 @@ var (
 	)
 
 	CONFIG_ETCD_AUTH_PASSWORD = itemset.insert(
+		KIND_DINGOFS,
 		"etcd.auth.password",
 		REQUIRE_STRING,
 		false,
 		nil,
+	)
+
+	CONFIG_DINGO_STORE_SERVER_PORT = itemset.insert(
+		KIND_DINGOSTORE,
+		"server.port",
+		REQUIRE_POSITIVE_INTEGER,
+		true,
+		func(dc *DeployConfig) interface{} {
+			switch dc.GetRole() {
+			case ROLE_COORDINATOR:
+				return DEFAULT_COORDINATOR_SERVER_PORT
+			case ROLE_STORE:
+				return DEFAULT_STORE_SERVER_PORT
+			}
+			return nil
+		},
+	)
+
+	CONFIG_DINGO_STORE_RAFT_PORT = itemset.insert(
+		KIND_DINGOSTORE,
+		"raft.port",
+		REQUIRE_POSITIVE_INTEGER,
+		true,
+		func(dc *DeployConfig) interface{} {
+			switch dc.GetRole() {
+			case ROLE_COORDINATOR:
+				return DEFAULT_COORDINATOR_RAFT_PORT
+			case ROLE_STORE:
+				return DEFAULT_STORE_RAFT_PORT
+			}
+			return nil
+		},
+	)
+
+	CONFFIG_DINGO_STORE_SERVER_LISTEN_HOST = itemset.insert(
+		KIND_DINGOSTORE,
+		"server_listen_host",
+		REQUIRE_STRING,
+		true,
+		func(dc *DeployConfig) interface{} {
+			return DEFAULT_STORE_SERVER_LISTEN_HOST
+		},
+	)
+
+	CONFFIG_DINGO_STORE_RAFT_LISTEN_HOST = itemset.insert(
+		KIND_DINGOSTORE,
+		"raft_listen_host",
+		REQUIRE_STRING,
+		true,
+		func(dc *DeployConfig) interface{} {
+			return DEFAULT_STORE_RAFT_LISTEN_HOST
+		},
+	)
+
+	CONFIG_DINGO_STORE_REPLICA_NUM = itemset.insert(
+		KIND_DINGOSTORE,
+		"default_replica_num",
+		REQUIRE_POSITIVE_INTEGER,
+		true,
+		func(dc *DeployConfig) interface{} {
+			return DEFAULT_STORE_REPLICA_NUM
+		},
+	)
+
+	CONFIG_DINGO_STORE_INSTANCE_START_ID = itemset.insert(
+		KIND_DINGOSTORE,
+		"instance_start_id",
+		REQUIRE_POSITIVE_INTEGER,
+		true,
+		func(dc *DeployConfig) interface{} {
+			return DEFAULT_STORE_INSTANCE_START_ID + dc.GetHostSequence()
+		},
 	)
 )
 
@@ -333,8 +447,8 @@ func (i *item) Key() string {
 	return i.key
 }
 
-func (itemset *itemSet) insert(key string, require int, exclude bool, defaultValue interface{}) *item {
-	i := &item{key, require, exclude, defaultValue}
+func (itemset *itemSet) insert(kind string, key string, require int, exclude bool, defaultValue interface{}) *item {
+	i := &item{kind, key, require, exclude, defaultValue}
 	itemset.key2item[key] = i
 	itemset.items = append(itemset.items, i)
 	return i

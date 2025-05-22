@@ -99,7 +99,7 @@ func Upgrade2Latest(currentVersion string) error {
 	} else if len(version) == 0 {
 		fmt.Println("The current version is up-to-date")
 		return nil
-	} else if pass := tui.ConfirmYes("Upgrade curveadm to %s?", version); !pass {
+	} else if pass := tui.ConfirmYes("Upgrade dingoadm to %s?", version); !pass {
 		return nil
 	}
 

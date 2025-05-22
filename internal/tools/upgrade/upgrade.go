@@ -37,11 +37,11 @@ import (
 )
 
 const (
-	URL_LATEST_VERSION   = "http://curveadm.nos-eastchina1.126.net/release/__version"
-	URL_INSTALL_SCRIPT   = "http://curveadm.nos-eastchina1.126.net/script/install.sh"
+	URL_LATEST_VERSION   = "http://curveadm.nos-eastchina1.126.net/release/__version" // TODO replace url
+	URL_INSTALL_SCRIPT   = "https://raw.githubusercontent.com/dingodb/dingoadm/master/scripts/install_dingoadm.sh"
 	HEADER_VERSION       = "X-Nos-Meta-Curveadm-Latest-Version"
-	ENV_CURVEADM_UPGRADE = "CURVEADM_UPGRADE"
-	ENV_CURVEADM_VERSION = "CURVEADM_VERSION"
+	ENV_DINGOADM_UPGRADE = "DINOGADM_UPGRADE"
+	ENV_DINGOADM_VERSION = "DINGOADM_VERSION"
 )
 
 func calcVersion(v string) int {
@@ -69,7 +69,7 @@ func IsLatest(currentVersion, remoteVersion string) (error, bool) {
 }
 
 func GetLatestVersion(currentVersion string) (string, error) {
-	version := os.Getenv(ENV_CURVEADM_VERSION)
+	version := os.Getenv(ENV_DINGOADM_VERSION)
 	if len(version) > 0 {
 		return version, nil
 	}
@@ -99,13 +99,13 @@ func Upgrade2Latest(currentVersion string) error {
 	} else if len(version) == 0 {
 		fmt.Println("The current version is up-to-date")
 		return nil
-	} else if pass := tui.ConfirmYes("Upgrade curveadm to %s?", version); !pass {
+	} else if pass := tui.ConfirmYes("Upgrade dingoadm to %s?", version); !pass {
 		return nil
 	}
 
 	cmd := exec.Command("/bin/bash", "-c", fmt.Sprintf("curl -fsSL %s | bash", URL_INSTALL_SCRIPT))
-	cmd.Env = append(os.Environ(), fmt.Sprintf("%s=true", ENV_CURVEADM_UPGRADE))
-	cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", ENV_CURVEADM_VERSION, version))
+	cmd.Env = append(os.Environ(), fmt.Sprintf("%s=true", ENV_DINGOADM_UPGRADE))
+	cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", ENV_DINGOADM_VERSION, version))
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	return cmd.Run()
@@ -113,8 +113,8 @@ func Upgrade2Latest(currentVersion string) error {
 
 func Upgrade(version string) error {
 	cmd := exec.Command("/bin/bash", "-c", fmt.Sprintf("curl -fsSL %s | bash", URL_INSTALL_SCRIPT))
-	cmd.Env = append(os.Environ(), fmt.Sprintf("%s=true", ENV_CURVEADM_UPGRADE))
-	cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", ENV_CURVEADM_VERSION, version))
+	cmd.Env = append(os.Environ(), fmt.Sprintf("%s=true", ENV_DINGOADM_UPGRADE))
+	cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", ENV_DINGOADM_VERSION, version))
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	return cmd.Run()

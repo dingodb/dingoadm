@@ -36,7 +36,9 @@ import (
 
 const (
 	// service project layout
+	LAYOUT_DINGO_ROOT_DIR                    = "/dingo"
 	LAYOUT_DINGOFS_ROOT_DIR                  = "/dingofs"
+	LAYOUT_DINGOSTORE_ROOT_DIR               = "/dingo-store"
 	LAYOUT_CURVEFS_ROOT_DIR                  = "/curvefs"
 	LAYOUT_CURVEBS_ROOT_DIR                  = "/curvebs"
 	LAYOUT_PLAYGROUND_ROOT_DIR               = "playground"
@@ -181,6 +183,30 @@ func (dc *DeployConfig) GetListenExternalPort() int {
 	return dc.GetListenPort()
 }
 
+func (dc *DeployConfig) GetDingoStoreServerListenHost() string {
+	return dc.getString(CONFFIG_DINGO_STORE_SERVER_LISTEN_HOST)
+}
+
+func (dc *DeployConfig) GetDingoStoreRaftListenHost() string {
+	return dc.getString(CONFFIG_DINGO_STORE_RAFT_LISTEN_HOST)
+}
+
+func (dc *DeployConfig) GetDingoStoreServerPort() int {
+	return dc.getInt(CONFIG_DINGO_STORE_SERVER_PORT)
+}
+
+func (dc *DeployConfig) GetDingoStoreRaftPort() int {
+	return dc.getInt(CONFIG_DINGO_STORE_RAFT_PORT)
+}
+
+func (dc *DeployConfig) GetDingoStoreReplicaNum() int {
+	return dc.getInt(CONFIG_DINGO_STORE_REPLICA_NUM)
+}
+
+func (dc *DeployConfig) GetDingoStoreInstanceId() int {
+	return dc.getInt(CONFIG_DINGO_STORE_INSTANCE_START_ID)
+}
+
 // (3): service project layout
 /* /curvebs
  *  ├── conf
@@ -253,6 +279,10 @@ type (
 		ToolsV2ConfSrcPath    string // /dingofs/conf/dingo.yaml
 		ToolsV2ConfSystemPath string // /etc/dingo/dingo.yaml
 		ToolsV2BinaryPath     string // /curvebs/tools-v2/sbin/curve
+
+		// dingo-store coordinator.template.yaml
+		CoordinatorConfSrcPath string // /opt/dingo-store/conf/coordinator.template.yaml
+		StoreConfSrcPath       string // /opt/dingo-store/conf/store.template.yaml
 
 		// format
 		FormatBinaryPath      string // /curvebs/tools/sbin/curve_format

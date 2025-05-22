@@ -71,6 +71,8 @@ const (
 	START_CHUNKSERVER
 	START_SNAPSHOTCLONE
 	START_METASERVER
+	START_COORDINATOR
+	START_STORE
 	STOP_SERVICE
 	RESTART_SERVICE
 	CREATE_PHYSICAL_POOL
@@ -218,7 +220,9 @@ func (p *Playbook) createTasks(step *PlaybookStep) (*tasks.Tasks, error) {
 			START_MDS,
 			START_CHUNKSERVER,
 			START_SNAPSHOTCLONE,
-			START_METASERVER:
+			START_METASERVER,
+			START_COORDINATOR,
+			START_STORE:
 			t, err = comm.NewStartServiceTask(dingoadm, config.GetDC(i))
 		case ENABLE_ETCD_AUTH:
 			t, err = comm.NewEnableEtcdAuthTask(dingoadm, config.GetDC(i))

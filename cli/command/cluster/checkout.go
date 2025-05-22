@@ -54,10 +54,10 @@ func NewCheckoutCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	return cmd
 }
 
-func runCheckout(curveadm *cli.DingoAdm, options checkoutOptions) error {
+func runCheckout(dingoadm *cli.DingoAdm, options checkoutOptions) error {
 	// 1) get cluster by name
 	clusterName := options.clusterName
-	storage := curveadm.Storage()
+	storage := dingoadm.Storage()
 	clusters, err := storage.GetClusters(clusterName)
 	if err != nil {
 		log.Error("Get clusters failed",
@@ -75,6 +75,6 @@ func runCheckout(curveadm *cli.DingoAdm, options checkoutOptions) error {
 	}
 
 	// 3) print success prompt
-	curveadm.WriteOutln("Switched to cluster '%s'", clusterName)
+	dingoadm.WriteOutln("Switched to cluster '%s'", clusterName)
 	return nil
 }
