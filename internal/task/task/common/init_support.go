@@ -59,7 +59,7 @@ func NewInitSupportTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*tas
 	 */
 	roles := topology.CURVEBS_ROLES
 	if kind == topology.KIND_CURVEFS || kind == topology.KIND_DINGOFS {
-		roles = topology.CURVEFS_ROLES
+		roles = topology.DINGOFS_ROLES
 	}
 	secret := curveadm.MemStorage().Get(comm.KEY_SECRET).(string)
 	urlFormat := curveadm.MemStorage().Get(comm.KEY_SUPPORT_UPLOAD_URL_FORMAT).(string)

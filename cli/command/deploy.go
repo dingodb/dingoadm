@@ -57,12 +57,16 @@ const (
 	START_SNAPSHOTCLONE        = playbook.START_SNAPSHOTCLONE
 	START_METASERVER           = playbook.START_METASERVER
 	BALANCE_LEADER             = playbook.BALANCE_LEADER
+	START_COORDINATOR          = playbook.START_COORDINATOR
+	START_STORE                = playbook.START_STORE
 
 	ROLE_ETCD          = topology.ROLE_ETCD
 	ROLE_MDS           = topology.ROLE_MDS
 	ROLE_CHUNKSERVER   = topology.ROLE_CHUNKSERVER
 	ROLE_SNAPSHOTCLONE = topology.ROLE_SNAPSHOTCLONE
 	ROLE_METASERVER    = topology.ROLE_METASERVER
+	ROLE_COORDINATOR   = topology.ROLE_COORDINATOR
+	ROLE_STORE         = topology.ROLE_STORE
 )
 
 var (
@@ -91,6 +95,15 @@ var (
 		START_MDS,
 		CREATE_LOGICAL_POOL,
 		START_METASERVER,
+	}
+
+	DINGOSTORE_DEPLOY_STEPS = []int{
+		CLEAN_PRECHECK_ENVIRONMENT,
+		PULL_IMAGE,
+		CREATE_CONTAINER,
+		SYNC_CONFIG,
+		START_COORDINATOR,
+		START_STORE,
 	}
 
 	DEPLOY_FILTER_ROLE = map[int]string{
@@ -228,17 +241,22 @@ func genDeployPlaybook(dingoadm *cli.DingoAdm,
 	options deployOptions) (*playbook.Playbook, error) {
 	var steps []int
 	kind := dcs[0].GetKind()
-	if kind == topology.KIND_CURVEBS {
-		steps = CURVEBS_DEPLOY_STEPS
-	} else {
+
+	switch kind {
+	case topology.KIND_DINGOFS:
 		steps = DINGOFS_DEPLOY_STEPS
-		if options.useLocalImage {
-			// remove PULL_IMAGE step
-			for i, item := range steps {
-				if item == PULL_IMAGE {
-					steps = append(steps[:i], steps[i+1:]...)
-					break
-				}
+	case topology.KIND_DINGOSTORE:
+		steps = DINGOSTORE_DEPLOY_STEPS
+	default:
+		return nil, errno.ERR_UNSUPPORT_CLUSTER_KIND.F("kind: %s", kind)
+	}
+
+	if options.useLocalImage {
+		// remove PULL_IMAGE step
+		for i, item := range steps {
+			if item == PULL_IMAGE {
+				steps = append(steps[:i], steps[i+1:]...)
+				break
 			}
 		}
 	}

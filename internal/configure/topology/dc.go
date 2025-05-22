@@ -37,15 +37,19 @@ import (
 )
 
 const (
-	KIND_CURVEBS = "curvebs"
-	KIND_CURVEFS = "curvefs"
-	KIND_DINGOFS = "dingofs"
+	KIND_DINGO      = "dingo" // all kind of dingo
+	KIND_CURVEBS    = "curvebs"
+	KIND_CURVEFS    = "curvefs"
+	KIND_DINGOFS    = "dingofs"
+	KIND_DINGOSTORE = "dingo-store"
 
 	ROLE_ETCD          = "etcd"
 	ROLE_MDS           = "mds"
 	ROLE_CHUNKSERVER   = "chunkserver"
 	ROLE_SNAPSHOTCLONE = "snapshotclone"
 	ROLE_METASERVER    = "metaserver"
+	ROLE_COORDINATOR   = "coordinator"
+	ROLE_STORE         = "store"
 )
 
 type (
@@ -202,6 +206,10 @@ func (dc *DeployConfig) convert() error {
 	// convret config item to its require type,
 	// return error if convert failed
 	for _, item := range itemset.getAll() {
+		if item.kind != KIND_DINGO && item.kind != dc.kind {
+			continue
+		}
+
 		k := item.key
 		value := dc.get(item) // return config value or default value
 		if value == nil {

@@ -424,7 +424,7 @@ func (dingoadm *DingoAdm) CheckRole(role string) error {
 	kind := dcs[0].GetKind()
 	roles := topology.CURVEBS_ROLES
 	if kind == topology.KIND_CURVEFS || kind == topology.KIND_DINGOFS {
-		roles = topology.CURVEFS_ROLES
+		roles = topology.DINGOFS_ROLES
 	}
 	supported := utils.Slice2Map(roles)
 	if !supported[role] {

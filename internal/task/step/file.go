@@ -114,6 +114,12 @@ type (
 		ContainerDestPath string
 		module.ExecOptions
 	}
+	ConfigENV struct {
+		ContainerId         *string
+		ContainerConfigPath string
+		ContainerEnv        []string
+		module.ExecOptions
+	}
 )
 
 func (s *ReadFile) Execute(ctx *context.Context) error {

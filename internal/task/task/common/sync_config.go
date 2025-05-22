@@ -38,11 +38,11 @@ import (
 )
 
 const (
-	DEFAULT_CONFIG_DELIMITER  = "="
-	ETCD_CONFIG_DELIMITER     = ": "
-	TOOLS_V2_CONFIG_DELIMITER = ": "
+	CONFIG_DELIMITER_ASSIGN = "="
+	CONFIG_DELIMITER_COLON  = ": "
 
-	CURVE_CRONTAB_FILE = "/tmp/curve_crontab"
+	CURVE_CRONTAB_FILE      = "/tmp/curve_crontab"
+	CONFIG_DEFAULT_ENV_FILE = "/etc/profile"
 )
 
 func NewMutate(dc *topology.DeployConfig, delimiter string, forceRender bool) step.Mutate {
@@ -110,12 +110,10 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 	var out string
 	layout := dc.GetProjectLayout()
 	role := dc.GetRole()
-	reportScript := scripts.REPORT
-	reportScriptPath := fmt.Sprintf("%s/report.sh", layout.ToolsV2BinDir) // v1: ToolsBinDir, v2: ToolsV2BinDir
-	crontab := newCrontab(dingoadm.ClusterUUId(), dc, reportScriptPath)
-	delimiter := DEFAULT_CONFIG_DELIMITER
+
+	delimiter := CONFIG_DELIMITER_ASSIGN
 	if role == topology.ROLE_ETCD {
-		delimiter = ETCD_CONFIG_DELIMITER
+		delimiter = CONFIG_DELIMITER_COLON
 	}
 
 	t.AddStep(&step.ListContainers{ // gurantee container exist
@@ -128,17 +126,6 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 	t.AddStep(&step.Lambda{
 		Lambda: CheckContainerExist(dc.GetHost(), dc.GetRole(), containerId, &out),
 	})
-	for _, conf := range layout.ServiceConfFiles {
-		t.AddStep(&step.SyncFile{ // sync service config
-			ContainerSrcId:    &containerId,
-			ContainerSrcPath:  conf.SourcePath,
-			ContainerDestId:   &containerId,
-			ContainerDestPath: conf.Path,
-			KVFieldSplit:      delimiter,
-			Mutate:            NewMutate(dc, delimiter, conf.Name == "nginx.conf"),
-			ExecOptions:       dingoadm.ExecOptions(),
-		})
-	}
 	//t.AddStep(&step.SyncFile{ // sync tools config
 	//	ContainerSrcId:    &containerId,
 	//	ContainerSrcPath:  layout.ToolsConfSrcPath,
@@ -148,27 +135,75 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 	//	Mutate:            NewMutate(dc, DEFAULT_CONFIG_DELIMITER, false),
 	//	ExecOptions:       dingoadm.ExecOptions(),
 	//})
-	t.AddStep(&step.TrySyncFile{ // sync tools-v2 config
-		ContainerSrcId:    &containerId,
-		ContainerSrcPath:  layout.ToolsV2ConfSrcPath,
-		ContainerDestId:   &containerId,
-		ContainerDestPath: layout.ToolsV2ConfSystemPath,
-		KVFieldSplit:      TOOLS_V2_CONFIG_DELIMITER,
-		Mutate:            NewMutate(dc, TOOLS_V2_CONFIG_DELIMITER, false),
-		ExecOptions:       dingoadm.ExecOptions(),
-	})
-	t.AddStep(&step.InstallFile{ // install report script
-		ContainerId:       &containerId,
-		ContainerDestPath: reportScriptPath,
-		Content:           &reportScript,
-		ExecOptions:       dingoadm.ExecOptions(),
-	})
-	t.AddStep(&step.InstallFile{ // install crontab file
-		ContainerId:       &containerId,
-		ContainerDestPath: CURVE_CRONTAB_FILE,
-		Content:           &crontab,
-		ExecOptions:       dingoadm.ExecOptions(),
-	})
+
+	if dc.GetKind() == topology.KIND_DINGOFS {
+		for _, conf := range layout.ServiceConfFiles {
+			t.AddStep(&step.SyncFile{ // sync service config
+				ContainerSrcId:    &containerId,
+				ContainerSrcPath:  conf.SourcePath,
+				ContainerDestId:   &containerId,
+				ContainerDestPath: conf.Path,
+				KVFieldSplit:      delimiter,
+				Mutate:            NewMutate(dc, delimiter, conf.Name == "nginx.conf"),
+				ExecOptions:       dingoadm.ExecOptions(),
+			})
+		}
+		t.AddStep(&step.TrySyncFile{ // sync tools-v2 config
+			ContainerSrcId:    &containerId,
+			ContainerSrcPath:  layout.ToolsV2ConfSrcPath,
+			ContainerDestId:   &containerId,
+			ContainerDestPath: layout.ToolsV2ConfSystemPath,
+			KVFieldSplit:      CONFIG_DELIMITER_COLON,
+			Mutate:            NewMutate(dc, CONFIG_DELIMITER_COLON, false),
+			ExecOptions:       dingoadm.ExecOptions(),
+		})
+		reportScript := scripts.REPORT
+		reportScriptPath := fmt.Sprintf("%s/report.sh", layout.ToolsV2BinDir) // v1: ToolsBinDir, v2: ToolsV2BinDir
+		crontab := newCrontab(dingoadm.ClusterUUId(), dc, reportScriptPath)
+		t.AddStep(&step.InstallFile{ // install report script
+			ContainerId:       &containerId,
+			ContainerDestPath: reportScriptPath,
+			Content:           &reportScript,
+			ExecOptions:       dingoadm.ExecOptions(),
+		})
+		t.AddStep(&step.InstallFile{ // install crontab file
+			ContainerId:       &containerId,
+			ContainerDestPath: CURVE_CRONTAB_FILE,
+			Content:           &crontab,
+			ExecOptions:       dingoadm.ExecOptions(),
+		})
+	}
+
+	if dc.GetKind() == topology.KIND_DINGOSTORE {
+		// sync coordinator.yaml
+		//t.AddStep(&step.SyncFile{
+		//	ContainerSrcId:    &containerId,
+		//	ContainerSrcPath:  layout.CoordinatorConfSrcPath,
+		//	ContainerDestId:   &containerId,
+		//	ContainerDestPath: layout.CoordinatorConfSrcPath,
+		//	KVFieldSplit:      CONFIG_DELIMITER_COLON,
+		//	Mutate:            NewMutate(dc, CONFIG_DELIMITER_COLON, false),
+		//	ExecOptions:       dingoadm.ExecOptions(),
+		//})
+		// sync store.yaml
+		//t.AddStep(&step.SyncFile{
+		//	ContainerSrcId:    &containerId,
+		//	ContainerSrcPath:  layout.StoreConfSrcPath,
+		//	ContainerDestId:   &containerId,
+		//	ContainerDestPath: layout.StoreConfSrcPath,
+		//	KVFieldSplit:      CONFIG_DELIMITER_COLON,
+		//	Mutate:            NewMutate(dc, CONFIG_DELIMITER_COLON, false),
+		//	ExecOptions:       dingoadm.ExecOptions(),
+		//})
+
+		// config environment variables
+		//t.AddStep(&step.ConfigENV{
+		//	ContainerId:   &containerId,
+		//	ContainerPath: CONFIG_DEFAULT_ENV_FILE,
+		//	ContainerEnv:  GetEnvironments(dc),
+		//	ExecOptions:   dingoadm.ExecOptions(),
+		//})
+	}
 
 	return t, nil
 }
