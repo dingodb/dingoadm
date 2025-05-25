@@ -38,7 +38,7 @@ const (
 	// service project layout
 	LAYOUT_DINGO_ROOT_DIR                    = "/dingo"
 	LAYOUT_DINGOFS_ROOT_DIR                  = "/dingofs"
-	LAYOUT_DINGOSTORE_ROOT_DIR               = "/dingo-store"
+	LAYOUT_DINGOSTORE_ROOT_DIR               = "/opt/dingo-store/dist"
 	LAYOUT_CURVEFS_ROOT_DIR                  = "/curvefs"
 	LAYOUT_CURVEBS_ROOT_DIR                  = "/curvebs"
 	LAYOUT_PLAYGROUND_ROOT_DIR               = "playground"
@@ -55,6 +55,12 @@ const (
 	LAYOUT_CURVEBS_TOOLS_CONFIG_SYSTEM_PATH  = "/etc/dingo/tools.conf"
 	LAYOUT_CURVEFS_TOOLS_CONFIG_SYSTEM_PATH  = "/etc/dingofs/tools.conf" // v1 tools config path
 	LAYOUT_CURVE_TOOLS_V2_CONFIG_SYSTEM_PATH = "/etc/dingo/dingo.yaml"
+	LAYOUT_DINGO_COOR_RAFT_DIR               = "/coordinator1/data/raft" //TODO: need to be changed
+	LAYOUT_DINGO_COOR_DATA_DIR               = "/coordinator1/data/db"   //TODO: need to be changed
+	LAYOUT_DINGO_COOR_LOG_DIR                = "/coordinator1/log"       //TODO: need to be changed
+	LAYOUT_DINGO_STORE_RAFT_DIR              = "/store1/data/raft"       //TODO: need to be changed
+	LAYOUT_DINGO_STORE_DATA_DIR              = "/store1/data/db"         //TODO: need to be changed
+	LAYOUT_DINGO_STORE_LOG_DIR               = "/store1/log"             //TODO: need to be changed
 	LAYOUT_CORE_SYSTEM_DIR                   = "/core"
 
 	BINARY_CURVEBS_TOOL     = "curvebs-tool"
@@ -183,6 +189,10 @@ func (dc *DeployConfig) GetListenExternalPort() int {
 	return dc.GetListenPort()
 }
 
+func (dc *DeployConfig) GetDingoRaftDir() string {
+	return dc.getString(CONFIG_DINGO_STORE_RAFT_DIR)
+}
+
 func (dc *DeployConfig) GetDingoStoreServerListenHost() string {
 	return dc.getString(CONFFIG_DINGO_STORE_SERVER_LISTEN_HOST)
 }
@@ -290,6 +300,9 @@ type (
 		ChunkfilePoolDir      string // /curvebs/chunkserver/data/chunkfilepool
 		ChunkfilePoolMetaPath string // /curvebs/chunkserver/data/chunkfilepool.meta
 
+		// dingo-store
+		DingoStoreRaftDir string // /opt/dingo-store/xxx/data/raft
+
 		// core
 		CoreSystemDir string
 	}
@@ -330,6 +343,21 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 	// format
 	chunkserverDataDir := fmt.Sprintf("%s/%s%s", root, ROLE_CHUNKSERVER, LAYOUT_SERVICE_DATA_DIR)
 
+	serviceLogDir := serviceRootDir + LAYOUT_SERVICE_LOG_DIR
+	serviceDataDir := serviceRootDir + LAYOUT_SERVICE_DATA_DIR
+	dingoStoreRaftDir := ""
+	if kind == KIND_DINGOSTORE {
+		if role == ROLE_COORDINATOR {
+			serviceLogDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_COOR_LOG_DIR
+			serviceDataDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_COOR_DATA_DIR
+			dingoStoreRaftDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_COOR_RAFT_DIR
+		} else if role == ROLE_STORE {
+			serviceLogDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_STORE_LOG_DIR
+			serviceDataDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_STORE_DATA_DIR
+			dingoStoreRaftDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_STORE_RAFT_DIR
+		}
+	}
+
 	return Layout{
 		// project
 		ProjectRootDir: root,
@@ -341,8 +369,8 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 		ServiceRootDir:     serviceRootDir,
 		ServiceBinDir:      serviceRootDir + LAYOUT_SERVICE_BIN_DIR,
 		ServiceConfDir:     serviceRootDir + LAYOUT_SERVICE_CONF_DIR,
-		ServiceLogDir:      serviceRootDir + LAYOUT_SERVICE_LOG_DIR,
-		ServiceDataDir:     serviceRootDir + LAYOUT_SERVICE_DATA_DIR,
+		ServiceLogDir:      serviceLogDir,
+		ServiceDataDir:     serviceDataDir,
 		ServiceConfPath:    fmt.Sprintf("%s/%s.conf", serviceConfDir, role),
 		ServiceConfSrcPath: fmt.Sprintf("%s/%s.conf", confSrcDir, role),
 		ServiceConfFiles:   serviceConfFiles,
@@ -370,6 +398,8 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 		ChunkfilePoolDir:      fmt.Sprintf("%s/%s", chunkserverDataDir, LAYOUT_CURVEBS_CHUNKFILE_POOL_DIR),
 		ChunkfilePoolMetaPath: fmt.Sprintf("%s/%s", chunkserverDataDir, METAFILE_CHUNKFILE_POOL),
 
+		// dingo-store
+		DingoStoreRaftDir: dingoStoreRaftDir,
 		// core
 		CoreSystemDir: LAYOUT_CORE_SYSTEM_DIR,
 	}

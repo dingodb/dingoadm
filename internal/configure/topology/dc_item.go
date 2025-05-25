@@ -25,7 +25,9 @@
 
 package topology
 
-import "path"
+import (
+	"path"
+)
 
 const (
 	REQUIRE_ANY = iota
@@ -99,7 +101,11 @@ var (
 			} else if dc.GetKind() == KIND_DINGOFS {
 				return path.Join(LAYOUT_DINGOFS_ROOT_DIR, dc.GetRole())
 			} else if dc.GetKind() == KIND_DINGOSTORE {
-				return path.Join(LAYOUT_DINGOSTORE_ROOT_DIR, dc.GetRole())
+				// Deprecated, need modify dingo-store's docker-dingo-store.sh to support
+				//return path.Join(LAYOUT_DINGOSTORE_ROOT_DIR, fmt.Sprintf("%s%d", dc.GetRole(), dc.GetHostSequence()+1))
+				// TODO
+				//return path.Join(LAYOUT_DINGOSTORE_ROOT_DIR, dc.GetRole())
+				return LAYOUT_DINGOSTORE_ROOT_DIR
 			}
 			return path.Join(LAYOUT_DINGO_ROOT_DIR, dc.GetRole())
 		},
@@ -367,6 +373,14 @@ var (
 		"etcd.auth.password",
 		REQUIRE_STRING,
 		false,
+		nil,
+	)
+
+	CONFIG_DINGO_STORE_RAFT_DIR = itemset.insert(
+		KIND_DINGO,
+		"raft_dir",
+		REQUIRE_STRING,
+		true,
 		nil,
 	)
 

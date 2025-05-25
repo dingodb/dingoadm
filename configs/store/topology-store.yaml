@@ -6,6 +6,7 @@ global:
   server_host: ${service_host}
   raft_host: ${service_host}
   default_replica_num: 3
+  raft_dir: ${home}/dingofs/raft/${service_role}
   data_dir: ${home}/dingofs/data/${service_role}
   log_dir: ${home}/dingofs/logs/${service_role}
   variable:

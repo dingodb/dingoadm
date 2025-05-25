@@ -47,6 +47,8 @@ const (
 	ROLE_CHUNKSERVER   = topology.ROLE_CHUNKSERVER
 	ROLE_METASERVER    = topology.ROLE_METASERVER
 	ROLE_SNAPSHOTCLONE = topology.ROLE_SNAPSHOTCLONE
+	ROLE_COORDINATOR   = topology.ROLE_COORDINATOR
+	ROLE_STORE         = topology.ROLE_STORE
 
 	ITEM_ID = iota
 	ITEM_CONTAINER_ID
@@ -54,6 +56,7 @@ const (
 	ITEM_PORTS
 	ITEM_LOG_DIR
 	ITEM_DATA_DIR
+	ITEM_RAFT_DIR
 
 	STATUS_CLEANED = comm.SERVICE_STATUS_CLEANED
 	STATUS_LOSED   = comm.SERVICE_STATUS_LOSED
@@ -67,7 +70,9 @@ const (
 var (
 	ROLE_SCORE = map[string]int{
 		ROLE_ETCD:          0,
+		ROLE_COORDINATOR:   0,
 		ROLE_MDS:           1,
+		ROLE_STORE:         1,
 		ROLE_CHUNKSERVER:   2,
 		ROLE_METASERVER:    2,
 		ROLE_SNAPSHOTCLONE: 3,
@@ -162,6 +167,8 @@ func merge(statuses []task.ServiceStatus, item int) string {
 			items = append(items, status.LogDir)
 		case ITEM_DATA_DIR:
 			items = append(items, status.DataDir)
+		case ITEM_RAFT_DIR:
+			items = append(items, status.RaftDir)
 		}
 	}
 
@@ -178,6 +185,8 @@ func merge(statuses []task.ServiceStatus, item int) string {
 	case ITEM_LOG_DIR:
 		return dir(items)
 	case ITEM_DATA_DIR:
+		return dir(items)
+	case ITEM_RAFT_DIR:
 		return dir(items)
 	}
 	return ""
@@ -200,13 +209,14 @@ func mergeStatues(statuses []task.ServiceStatus) []task.ServiceStatus {
 			Ports:       merge(statuses[i:j], ITEM_PORTS),
 			LogDir:      merge(statuses[i:j], ITEM_LOG_DIR),
 			DataDir:     merge(statuses[i:j], ITEM_DATA_DIR),
+			RaftDir:     merge(statuses[i:j], ITEM_RAFT_DIR),
 		})
 		i = j - 1
 	}
 	return ss
 }
 
-func FormatStatus(statuses []task.ServiceStatus, verbose, expand bool) string {
+func FormatStatus(kind string, statuses []task.ServiceStatus, verbose, expand bool) string {
 	lines := [][]interface{}{}
 
 	// title
@@ -221,6 +231,11 @@ func FormatStatus(statuses []task.ServiceStatus, verbose, expand bool) string {
 		"Log Dir",
 		"Data Dir",
 	}
+
+	if kind == topology.KIND_DINGOSTORE {
+		title = append(title, "Raft Dir")
+	}
+
 	first, second := tui.FormatTitle(title)
 	lines = append(lines, first)
 	lines = append(lines, second)
@@ -231,25 +246,41 @@ func FormatStatus(statuses []task.ServiceStatus, verbose, expand bool) string {
 		statuses = mergeStatues(statuses)
 	}
 	for _, status := range statuses {
-		lines = append(lines, []interface{}{
-			status.Id,
-			status.Role,
-			status.Host,
-			status.Instances,
-			status.ContainerId,
-			tui.DecorateMessage{Message: status.Status, Decorate: statusDecorate},
-			utils.Choose(len(status.Ports) == 0, "-", status.Ports),
-			status.LogDir,
-			status.DataDir,
-		})
+		if kind == topology.KIND_DINGOSTORE {
+			lines = append(lines, []interface{}{
+				status.Id,
+				status.Role,
+				status.Host,
+				status.Instances,
+				status.ContainerId,
+				tui.DecorateMessage{Message: status.Status, Decorate: statusDecorate},
+				utils.Choose(len(status.Ports) == 0, "-", status.Ports),
+				status.LogDir,
+				status.DataDir,
+				status.RaftDir,
+			})
+		} else {
+			lines = append(lines, []interface{}{
+				status.Id,
+				status.Role,
+				status.Host,
+				status.Instances,
+				status.ContainerId,
+				tui.DecorateMessage{Message: status.Status, Decorate: statusDecorate},
+				utils.Choose(len(status.Ports) == 0, "-", status.Ports),
+				status.LogDir,
+				status.DataDir,
+			})
+		}
 	}
 
 	// cut column
 	locate := utils.Locate(title)
 	if !verbose {
-		tui.CutColumn(lines, locate["Ports"])    // Data Dir
+		tui.CutColumn(lines, locate["Ports"])    // Ports info
 		tui.CutColumn(lines, locate["Data Dir"]) // Data Dir
 		tui.CutColumn(lines, locate["Log Dir"])  // Log Dir
+		tui.CutColumn(lines, locate["Raft Dir"]) // Raft Dir
 	}
 
 	output := tui.FixedFormat(lines, 2)

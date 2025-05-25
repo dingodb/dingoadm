@@ -93,6 +93,7 @@ type (
 		Status      string
 		LogDir      string
 		DataDir     string
+		RaftDir     string
 		Config      *topology.DeployConfig
 	}
 )
@@ -123,6 +124,7 @@ func (s *step2InitStatus) Execute(ctx *context.Context) error {
 		Status:      comm.SERVICE_STATUS_UNKNOWN,
 		LogDir:      dc.GetLogDir(),
 		DataDir:     dc.GetDataDir(),
+		RaftDir:     dc.GetDingoRaftDir(),
 		Config:      dc,
 	})
 	return nil
@@ -215,6 +217,7 @@ func (s *step2FormatServiceStatus) Execute(ctx *context.Context) error {
 		Status:      status,
 		LogDir:      dc.GetLogDir(),
 		DataDir:     dc.GetDataDir(),
+		RaftDir:     dc.GetDingoRaftDir(),
 		Config:      dc,
 	})
 	return nil
