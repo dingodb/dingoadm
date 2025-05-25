@@ -136,10 +136,10 @@ func AttachRemoteHost(curveadm *cli.DingoAdm, host string, become bool) error {
 	return ssh(curveadm, options)
 }
 
-func AttachRemoteContainer(curveadm *cli.DingoAdm, host, containerId, home string) error {
+func AttachRemoteContainer(dingoadm *cli.DingoAdm, host, containerId, home string) error {
 	data := map[string]interface{}{
-		"sudo":         curveadm.Config().GetSudoAlias(),
-		"engine":       curveadm.Config().GetEngine(),
+		"sudo":         dingoadm.Config().GetSudoAlias(),
+		"engine":       dingoadm.Config().GetEngine(),
 		"container_id": containerId,
 		"home_dir":     home,
 	}
@@ -150,12 +150,12 @@ func AttachRemoteContainer(curveadm *cli.DingoAdm, host, containerId, home strin
 	}
 	command := buffer.String()
 
-	options, err := prepareOptions(curveadm, host, true,
+	options, err := prepareOptions(dingoadm, host, true,
 		map[string]interface{}{"command": command})
 	if err != nil {
 		return err
 	}
-	return ssh(curveadm, options)
+	return ssh(dingoadm, options)
 }
 
 func AttachLocalContainer(curveadm *cli.DingoAdm, containerId string) error {

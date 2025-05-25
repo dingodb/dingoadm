@@ -56,7 +56,7 @@ type statusOptions struct {
 	showInstances bool
 }
 
-func NewStatusCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewStatusCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options statusOptions
 
 	cmd := &cobra.Command{
@@ -64,7 +64,7 @@ func NewStatusCommand(curveadm *cli.DingoAdm) *cobra.Command {
 		Short: "Display service status",
 		Args:  cliutil.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runStatus(curveadm, options)
+			return runStatus(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -104,6 +104,22 @@ func getClusterMdsLeader(statuses []task.ServiceStatus) string {
 	return color.RedString("<no leader>")
 }
 
+func getClusterCoorServerAddr(dcs []*topology.DeployConfig) string {
+	value, err := dcs[0].GetVariables().Get("cluster_coor_srv_peers")
+	if err != nil {
+		return "-"
+	}
+	return value
+}
+
+func getClusterCoorRaftAddr(dcs []*topology.DeployConfig) string {
+	value, err := dcs[0].GetVariables().Get("cluster_coor_raft_peers")
+	if err != nil {
+		return "-"
+	}
+	return value
+}
+
 func displayStatus(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options statusOptions) {
 	statuses := []task.ServiceStatus{}
 	value := dingoadm.MemStorage().Get(comm.KEY_ALL_SERVICE_STATUS)
@@ -114,12 +130,22 @@ func displayStatus(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options
 		}
 	}
 
-	output := tui.FormatStatus(statuses, options.verbose, options.showInstances)
+	output := tui.FormatStatus(dcs[0].GetKind(), statuses, options.verbose, options.showInstances)
 	dingoadm.WriteOutln("")
-	dingoadm.WriteOutln("cluster name      : %s", dingoadm.ClusterName())
-	dingoadm.WriteOutln("cluster kind      : %s", dcs[0].GetKind())
-	dingoadm.WriteOutln("cluster mds addr  : %s", getClusterMdsAddr(dcs))
-	dingoadm.WriteOutln("cluster mds leader: %s", getClusterMdsLeader(statuses))
+
+	switch dcs[0].GetKind() {
+	case topology.KIND_DINGOFS:
+		dingoadm.WriteOutln("cluster name      : %s", dingoadm.ClusterName())
+		dingoadm.WriteOutln("cluster kind      : %s", dcs[0].GetKind())
+		dingoadm.WriteOutln("cluster mds addr  : %s", getClusterMdsAddr(dcs))
+		dingoadm.WriteOutln("cluster mds leader: %s", getClusterMdsLeader(statuses))
+	case topology.KIND_DINGOSTORE:
+		dingoadm.WriteOutln("cluster name             : %s", dingoadm.ClusterName())
+		dingoadm.WriteOutln("cluster kind             : %s", dcs[0].GetKind())
+		dingoadm.WriteOutln("cooridinator server addr : %s", getClusterCoorServerAddr(dcs))
+		dingoadm.WriteOutln("cooridinator raft   addr : %s", getClusterCoorRaftAddr(dcs))
+	}
+
 	dingoadm.WriteOutln("")
 	dingoadm.WriteOut("%s", output)
 }

@@ -38,7 +38,7 @@ type enterOptions struct {
 	id string
 }
 
-func NewEnterCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewEnterCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options enterOptions
 
 	cmd := &cobra.Command{
@@ -47,10 +47,10 @@ func NewEnterCommand(curveadm *cli.DingoAdm) *cobra.Command {
 		Args:  utils.ExactArgs(1),
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			options.id = args[0]
-			return curveadm.CheckId(options.id)
+			return dingoadm.CheckId(options.id)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runEnter(curveadm, options)
+			return runEnter(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -58,15 +58,15 @@ func NewEnterCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	return cmd
 }
 
-func runEnter(curveadm *cli.DingoAdm, options enterOptions) error {
+func runEnter(dingoadm *cli.DingoAdm, options enterOptions) error {
 	// 1) parse cluster topology
-	dcs, err := curveadm.ParseTopology()
+	dcs, err := dingoadm.ParseTopology()
 	if err != nil {
 		return err
 	}
 
 	// 2) filter service
-	dcs = curveadm.FilterDeployConfig(dcs, topology.FilterOption{
+	dcs = dingoadm.FilterDeployConfig(dcs, topology.FilterOption{
 		Id:   options.id,
 		Role: "*",
 		Host: "*",
@@ -77,13 +77,13 @@ func runEnter(curveadm *cli.DingoAdm, options enterOptions) error {
 
 	// 3) get container id
 	dc := dcs[0]
-	serviceId := curveadm.GetServiceId(dc.GetId())
-	containerId, err := curveadm.GetContainerId(serviceId)
+	serviceId := dingoadm.GetServiceId(dc.GetId())
+	containerId, err := dingoadm.GetContainerId(serviceId)
 	if err != nil {
 		return err
 	}
 
 	// 4) attch remote container
 	home := dc.GetProjectLayout().ServiceRootDir
-	return tools.AttachRemoteContainer(curveadm, dc.GetHost(), containerId, home)
+	return tools.AttachRemoteContainer(dingoadm, dc.GetHost(), containerId, home)
 }

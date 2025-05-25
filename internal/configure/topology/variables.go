@@ -41,6 +41,8 @@ const (
 	SELECT_LISTEN_CLIENT_PORT
 	SELECT_LISTEN_DUMMY_PORT
 	SELECT_LISTEN_PROXY_PORT
+	SELECT_LISTEN_COOR_SERVER_PORT
+	SELECT_LISTEN_COOR_RAFT_PORT
 )
 
 type Var struct {
@@ -126,6 +128,8 @@ var (
 		{name: "cluster_snapshotclone_dummy_port", kind: []string{KIND_CURVEBS}},
 		{name: "cluster_snapshotclone_nginx_upstream", kind: []string{KIND_CURVEBS}},
 		{name: "cluster_metaserver_addr", kind: []string{KIND_CURVEFS, KIND_DINGOFS}},
+		{name: "cluster_coor_srv_peers", kind: []string{KIND_DINGOSTORE}},
+		{name: "cluster_coor_raft_peers", kind: []string{KIND_DINGOSTORE}},
 	}
 )
 
@@ -204,7 +208,12 @@ func joinPeer(dcs []*DeployConfig, selectRole string, selectPort int) string {
 			peerPort = dc.GetListenDummyPort()
 		case SELECT_LISTEN_PROXY_PORT:
 			peerPort = dc.GetListenProxyPort()
+		case SELECT_LISTEN_COOR_SERVER_PORT:
+			peerPort = dc.GetDingoStoreServerPort()
+		case SELECT_LISTEN_COOR_RAFT_PORT:
+			peerPort = dc.GetDingoStoreRaftPort()
 		}
+
 		peer := fmt.Sprintf("%s:%d", peerHost, peerPort)
 		peers = append(peers, peer)
 	}
@@ -310,7 +319,10 @@ func getValue(name string, dcs []*DeployConfig, idx int) string {
 		return joinNginxUpstreamServer(dcs)
 	case "cluster_metaserver_addr":
 		return joinPeer(dcs, ROLE_METASERVER, SELECT_LISTEN_PORT)
+	case "cluster_coor_srv_peers":
+		return joinPeer(dcs, ROLE_COORDINATOR, SELECT_LISTEN_COOR_SERVER_PORT)
+	case "cluster_coor_raft_peers":
+		return joinPeer(dcs, ROLE_STORE, SELECT_LISTEN_COOR_RAFT_PORT)
 	}
-
 	return ""
 }

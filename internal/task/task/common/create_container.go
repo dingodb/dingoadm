@@ -53,7 +53,10 @@ const (
 	ENV_DINGOSTROE_FLAGS_ROLE                    = "FLAGS_role"
 	ENV_DINGOSTORE_COORDINATOR_SERVER_START_PORT = "COORDINATOR_SERVER_START_PORT"
 	ENV_DINGOSTORE_COORDINATOR_RAFT_START_PORT   = "COORDINATOR_RAFT_START_PORT"
+	ENV_DINGOSTORE_SERVER_START_PORT             = "SERVER_START_PORT"
+	ENV_DINGOSTORE_RAFT_START_PORT               = "RAFT_START_PORT"
 	ENV_DINGOSTORE_INSTANCE_START_ID             = "INSTANCE_START_ID"
+	ENV_DINGOSTORE_ENABLE_LITE                   = "ENABLE_LITE"
 )
 
 type Step2GetService struct {
@@ -197,8 +200,19 @@ func GetEnvironments(dc *topology.DeployConfig) []string {
 			dc.GetDingoStoreServerPort()))
 		envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_COORDINATOR_RAFT_START_PORT,
 			dc.GetDingoStoreRaftPort()))
+		envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_SERVER_START_PORT, dc.GetDingoStoreServerPort()))
+		envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_RAFT_START_PORT, dc.GetDingoStoreRaftPort()))
 		envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_INSTANCE_START_ID,
 			dc.GetDingoStoreInstanceId()))
+		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_ENABLE_LITE, "false"))
+		cluster_coor_srv_peers, err := dc.GetVariables().Get("cluster_coor_srv_peers")
+		if err == nil {
+			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_COOR_SRV_PEERS, cluster_coor_srv_peers))
+		}
+		cluster_coor_raft_peers, err := dc.GetVariables().Get("cluster_coor_raft_peers")
+		if err == nil {
+			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_COOR_RAFT_PEERS, cluster_coor_raft_peers))
+		}
 		if len(dc.GetEnv()) > 0 {
 			env := strings.Split(dc.GetEnv(), " ")
 			envs = append(envs, env...)
@@ -233,6 +247,13 @@ func getMountVolumes(dc *topology.DeployConfig) []step.Volume {
 		volumes = append(volumes, step.Volume{
 			HostPath:      targetCoreDir,
 			ContainerPath: sourceCoreDir,
+		})
+	}
+
+	if dc.GetKind() == topology.KIND_DINGOSTORE {
+		volumes = append(volumes, step.Volume{
+			HostPath:      dc.GetDingoRaftDir(),
+			ContainerPath: layout.DingoStoreRaftDir,
 		})
 	}
 
@@ -283,8 +304,14 @@ func NewCreateContainerTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (
 		ContainerId: &oldContainerId,
 		Storage:     dingoadm.Storage(),
 	})
+
+	createDir := []string{dc.GetLogDir(), dc.GetDataDir()}
+	if dc.GetKind() == topology.KIND_DINGOSTORE {
+		createDir = append(createDir, dc.GetDingoRaftDir())
+	}
+
 	t.AddStep(&step.CreateDirectory{
-		Paths:       []string{dc.GetLogDir(), dc.GetDataDir()},
+		Paths:       createDir,
 		ExecOptions: options,
 	})
 	t.AddStep(&step.CreateContainer{
