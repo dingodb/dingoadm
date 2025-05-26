@@ -10,16 +10,6 @@ global:
     machine2: serevr-host2
     machine3: server-host3
 
-etcd_services:
-  config:
-    listen.ip: ${service_host}
-    listen.port: 2380
-    listen.client_port: 2379
-  deploy:
-    - host: ${machine1}
-    - host: ${machine2}
-    - host: ${machine3}
-
 mds_services:
   config:
     listen.ip: ${service_host}
@@ -29,21 +19,3 @@ mds_services:
     - host: ${machine1}
     - host: ${machine2}
     - host: ${machine3}
-
-metaserver_services:
-  config:
-    listen.ip: ${service_host}
-    listen.port: 6800
-    listen.external_port: 7800
-    global.enable_external_server: true
-    metaserver.loglevel: 0
-    # whether commit filesystem caches of raft wal to disk.
-    # it should be true if you wants data NEVER lost,
-    # of course, it will leads some performance skew.
-    braft.raft_sync: false
-  deploy:
-    - host: ${machine1}
-    - host: ${machine2}
-    - host: ${machine3}
-      config:
-        metaserver.loglevel: 0
