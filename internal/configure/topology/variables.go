@@ -322,7 +322,7 @@ func getValue(name string, dcs []*DeployConfig, idx int) string {
 	case "cluster_coor_srv_peers":
 		return joinPeer(dcs, ROLE_COORDINATOR, SELECT_LISTEN_COOR_SERVER_PORT)
 	case "cluster_coor_raft_peers":
-		return joinPeer(dcs, ROLE_STORE, SELECT_LISTEN_COOR_RAFT_PORT)
+		return joinPeer(dcs, ROLE_COORDINATOR, SELECT_LISTEN_COOR_RAFT_PORT)
 	}
 	return ""
 }
