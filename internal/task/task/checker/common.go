@@ -52,6 +52,7 @@ const (
 	ROLE_CHUNKSERVER   = topology.ROLE_CHUNKSERVER
 	ROLE_SNAPSHOTCLONE = topology.ROLE_SNAPSHOTCLONE
 	ROLE_METASERVER    = topology.ROLE_METASERVER
+	ROLE_MDS_V2        = topology.ROLE_MDS_V2
 	ROLE_COORDINATOR   = topology.ROLE_COORDINATOR
 	ROLE_STORE         = topology.ROLE_STORE
 )
@@ -164,6 +165,37 @@ func getServiceListenAddresses(dc *topology.DeployConfig) []Address {
 				Port: dc.GetListenExternalPort(),
 			})
 		}
+
+	case ROLE_MDS_V2:
+		address = append(address, Address{
+			Role: ROLE_MDS_V2,
+			IP:   dc.GetListenIp(),
+			Port: dc.GetListenPort(),
+		})
+
+	case ROLE_COORDINATOR:
+		address = append(address, Address{
+			Role: ROLE_COORDINATOR,
+			IP:   dc.GetListenIp(),
+			Port: dc.GetDingoServerPort(),
+		})
+		address = append(address, Address{
+			Role: ROLE_COORDINATOR,
+			IP:   dc.GetListenIp(),
+			Port: dc.GetDingoStoreRaftPort(),
+		})
+
+	case ROLE_STORE:
+		address = append(address, Address{
+			Role: ROLE_STORE,
+			IP:   dc.GetListenIp(),
+			Port: dc.GetDingoServerPort(),
+		})
+		address = append(address, Address{
+			Role: ROLE_STORE,
+			IP:   dc.GetListenIp(),
+			Port: dc.GetDingoStoreRaftPort(),
+		})
 
 	default:
 		// do nothing

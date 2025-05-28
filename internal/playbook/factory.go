@@ -71,6 +71,7 @@ const (
 	START_CHUNKSERVER
 	START_SNAPSHOTCLONE
 	START_METASERVER
+	START_MDS_V2
 	START_COORDINATOR
 	START_STORE
 	STOP_SERVICE
@@ -221,6 +222,7 @@ func (p *Playbook) createTasks(step *PlaybookStep) (*tasks.Tasks, error) {
 			START_CHUNKSERVER,
 			START_SNAPSHOTCLONE,
 			START_METASERVER,
+			START_MDS_V2,
 			START_COORDINATOR,
 			START_STORE:
 			t, err = comm.NewStartServiceTask(dingoadm, config.GetDC(i))

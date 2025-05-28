@@ -117,6 +117,7 @@ var (
 type precheckOptions struct {
 	skipSnapshotClone bool
 	skip              []string
+	useLocalImage     bool
 	//only              []string
 }
 
@@ -130,7 +131,7 @@ func checkPrecheckOptions(options precheckOptions) error {
 	return nil
 }
 
-func NewPrecheckCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewPrecheckCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options precheckOptions
 
 	cmd := &cobra.Command{
@@ -142,7 +143,7 @@ func NewPrecheckCommand(curveadm *cli.DingoAdm) *cobra.Command {
 			return checkPrecheckOptions(options)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runPrecheck(curveadm, options)
+			return runPrecheck(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -150,6 +151,7 @@ func NewPrecheckCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	flags := cmd.Flags()
 	usage := fmt.Sprintf("Specify skipped check item (%s)", strings.Join(CHECK_ITEMS, ","))
 	flags.StringSliceVar(&options.skip, "skip", []string{}, usage)
+	flags.BoolVar(&options.useLocalImage, "local", false, "Use local image")
 	//flags.StringSliceVar(&options.only, "only", CHECK_ITEMS, usage)
 
 	return cmd
@@ -158,6 +160,17 @@ func NewPrecheckCommand(curveadm *cli.DingoAdm) *cobra.Command {
 func skipPrecheckSteps(precheckSteps []int, options precheckOptions) []int {
 	out := []int{}
 	skipped := utils.Slice2Map(options.skip)
+
+	if options.useLocalImage {
+		// remove PULL_IMAGE step
+		for i, item := range precheckSteps {
+			if item == PULL_IMAGE {
+				precheckSteps = append(precheckSteps[:i], precheckSteps[i+1:]...)
+				break
+			}
+		}
+	}
+
 	for _, step := range precheckSteps {
 		if skipped[BELONG_CHECK_ITEM[step]] {
 			continue
@@ -167,7 +180,7 @@ func skipPrecheckSteps(precheckSteps []int, options precheckOptions) []int {
 	return out
 }
 
-func genPrecheckPlaybook(curveadm *cli.DingoAdm,
+func genPrecheckPlaybook(dingoadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options precheckOptions) (*playbook.Playbook, error) {
 	kind := dcs[0].GetKind()
@@ -178,7 +191,7 @@ func genPrecheckPlaybook(curveadm *cli.DingoAdm,
 	steps = skipPrecheckSteps(steps, options)
 
 	// add playbook step
-	pb := playbook.NewPlaybook(curveadm)
+	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
 		configs := dcs
 		switch step {
@@ -186,11 +199,11 @@ func genPrecheckPlaybook(curveadm *cli.DingoAdm,
 			configs = configs[:1] // any deploy config
 		case playbook.CHECK_KERNEL_VERSION:
 			// TODO:
-			configs = curveadm.FilterDeployConfigByRole(dcs, ROLE_CHUNKSERVER)
+			configs = dingoadm.FilterDeployConfigByRole(dcs, ROLE_CHUNKSERVER)
 		case playbook.CHECK_HOST_DATE:
 			configs = configs[:1]
 		case playbook.CHECK_CHUNKFILE_POOL:
-			configs = curveadm.FilterDeployConfigByRole(dcs, ROLE_CHUNKSERVER)
+			configs = dingoadm.FilterDeployConfigByRole(dcs, ROLE_CHUNKSERVER)
 		}
 
 		pb.AddStep(&playbook.PlaybookStep{
@@ -222,15 +235,15 @@ func genPrecheckPlaybook(curveadm *cli.DingoAdm,
 	return pb, nil
 }
 
-func runPrecheck(curveadm *cli.DingoAdm, options precheckOptions) error {
+func runPrecheck(dingoadm *cli.DingoAdm, options precheckOptions) error {
 	// 1) parse cluster topology
-	dcs, err := curveadm.ParseTopology()
+	dcs, err := dingoadm.ParseTopology()
 	if err != nil {
 		return err
 	}
 
 	// 2) generate precheck playbook
-	pb, err := genPrecheckPlaybook(curveadm, dcs, options)
+	pb, err := genPrecheckPlaybook(dingoadm, dcs, options)
 	if err != nil {
 		return err
 	}
@@ -242,7 +255,7 @@ func runPrecheck(curveadm *cli.DingoAdm, options precheckOptions) error {
 	}
 
 	// 4) print success prompt
-	curveadm.WriteOutln("")
-	curveadm.WriteOutln(color.GreenString("Congratulations!!! all precheck passed :)"))
+	dingoadm.WriteOutln("")
+	dingoadm.WriteOutln(color.GreenString("Congratulations!!! all precheck passed :)"))
 	return nil
 }

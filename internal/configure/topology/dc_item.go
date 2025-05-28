@@ -58,6 +58,7 @@ const (
 	DEFAULT_SNAPSHOTCLONE_LISTEN_PROXY_PORT = 8080
 	DEFAULT_METASERVER_LISTN_PORT           = 6800
 	DEFAULT_METASERVER_LISTN_EXTARNAL_PORT  = 7800
+	DEFAULT_MDS_V2_LISTEN_PORT              = 6900
 	DEFAULT_ENABLE_EXTERNAL_SERVER          = false
 	DEFAULT_CHUNKSERVER_COPYSETS            = 100 // copysets per chunkserver
 	DEFAULT_METASERVER_COPYSETS             = 100 // copysets per metaserver
@@ -99,6 +100,9 @@ var (
 			if dc.GetKind() == KIND_CURVEBS {
 				return path.Join(LAYOUT_CURVEBS_ROOT_DIR, dc.GetRole())
 			} else if dc.GetKind() == KIND_DINGOFS {
+				if dc.GetRole() == ROLE_MDS_V2 {
+					return path.Join(LAYOUT_DINGOFS_ROOT_DIR, "dist", dc.GetRole())
+				}
 				return path.Join(LAYOUT_DINGOFS_ROOT_DIR, dc.GetRole())
 			} else if dc.GetKind() == KIND_DINGOSTORE {
 				// Deprecated, need modify dingo-store's docker-dingo-store.sh to support
@@ -181,7 +185,7 @@ var (
 	)
 
 	CONFIG_LISTEN_IP = itemset.insert(
-		KIND_DINGOFS,
+		KIND_DINGO,
 		"listen.ip",
 		REQUIRE_STRING,
 		true,
@@ -207,6 +211,8 @@ var (
 				return DEFAULT_SNAPSHOTCLONE_LISTEN_PORT
 			case ROLE_METASERVER:
 				return DEFAULT_METASERVER_LISTN_PORT
+			case ROLE_MDS_V2:
+				return DEFAULT_MDS_V2_LISTEN_PORT
 			}
 			return nil
 		},
@@ -395,6 +401,8 @@ var (
 				return DEFAULT_COORDINATOR_SERVER_PORT
 			case ROLE_STORE:
 				return DEFAULT_STORE_SERVER_PORT
+			case ROLE_MDS_V2:
+				return DEFAULT_MDS_V2_LISTEN_PORT
 			}
 			return nil
 		},
@@ -446,8 +454,8 @@ var (
 		},
 	)
 
-	CONFIG_DINGO_STORE_INSTANCE_START_ID = itemset.insert(
-		KIND_DINGOSTORE,
+	CONFIG_INSTANCE_START_ID = itemset.insert(
+		KIND_DINGO,
 		"instance_start_id",
 		REQUIRE_POSITIVE_INTEGER,
 		true,
@@ -455,6 +463,24 @@ var (
 			return DEFAULT_STORE_INSTANCE_START_ID + dc.GetHostSequence()
 		},
 	)
+
+	CONFIG_DINGOFS_V2_COORDINATOR_ADDR = itemset.insert(
+		KIND_DINGOFS,
+		"coordinator_addr",
+		REQUIRE_STRING,
+		true,
+		nil,
+	)
+
+	//CONFIG_DINGO_SERVER_NUM = itemset.insert(
+	//	KIND_DINGO,
+	//	"server_num",
+	//	REQUIRE_POSITIVE_INTEGER,
+	//	true,
+	//	func(dc *DeployConfig) interface{} {
+	//		return dc.GetHostSequence() + 1
+	//	},
+	//)
 )
 
 func (i *item) Key() string {
