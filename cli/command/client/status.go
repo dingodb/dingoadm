@@ -109,15 +109,15 @@ func displayStatus(curveadm *cli.DingoAdm, clients []storage.Client, options sta
 	curveadm.WriteOut(output)
 }
 
-func runStatus(curveadm *cli.DingoAdm, options statusOptions) error {
+func runStatus(dingoadm *cli.DingoAdm, options statusOptions) error {
 	// 1) get all clients
-	clients, err := curveadm.Storage().GetClients()
+	clients, err := dingoadm.Storage().GetClients()
 	if err != nil {
 		return errno.ERR_GET_ALL_CLIENTS_FAILED.E(err)
 	}
 
 	// 2) generate get status playbook
-	pb, err := genStatusPlaybook(curveadm, clients, options)
+	pb, err := genStatusPlaybook(dingoadm, clients, options)
 	if err != nil {
 		return err
 	}
@@ -126,6 +126,6 @@ func runStatus(curveadm *cli.DingoAdm, options statusOptions) error {
 	err = pb.Run()
 
 	// 4) display service status
-	displayStatus(curveadm, clients, options)
+	displayStatus(dingoadm, clients, options)
 	return err
 }

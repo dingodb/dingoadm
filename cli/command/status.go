@@ -54,6 +54,7 @@ type statusOptions struct {
 	host          string
 	verbose       bool
 	showInstances bool
+	withCluster   string
 }
 
 func NewStatusCommand(dingoadm *cli.DingoAdm) *cobra.Command {
@@ -75,12 +76,21 @@ func NewStatusCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	flags.StringVar(&options.host, "host", "*", "Specify service host")
 	flags.BoolVarP(&options.verbose, "verbose", "v", false, "Verbose output for status")
 	flags.BoolVarP(&options.showInstances, "show-instances", "s", false, "Display service num")
+	flags.StringVarP(&options.withCluster, "with-cluster", "w", "", "Display status of specified cluster with current default cluster")
 
 	return cmd
 }
 
 func getClusterMdsAddr(dcs []*topology.DeployConfig) string {
 	value, err := dcs[0].GetVariables().Get("cluster_mds_addr")
+	if err != nil {
+		return "-"
+	}
+	return value
+}
+
+func getClusterMdsV2Addr(dcs []*topology.DeployConfig) string {
+	value, err := dcs[0].GetVariables().Get("cluster_mdsv2_addr")
 	if err != nil {
 		return "-"
 	}
@@ -120,7 +130,7 @@ func getClusterCoorRaftAddr(dcs []*topology.DeployConfig) string {
 	return value
 }
 
-func displayStatus(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options statusOptions) {
+func displayStatus(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options statusOptions) int {
 	statuses := []task.ServiceStatus{}
 	value := dingoadm.MemStorage().Get(comm.KEY_ALL_SERVICE_STATUS)
 	if value != nil {
@@ -129,16 +139,26 @@ func displayStatus(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options
 			statuses = append(statuses, status)
 		}
 	}
-
-	output := tui.FormatStatus(dcs[0].GetKind(), statuses, options.verbose, options.showInstances)
+	excludeCols := []string{}
+	if dcs[0].GetRole() == topology.ROLE_MDS_V2 {
+		excludeCols = []string{"Data Dir"}
+	}
+	output, width := tui.FormatStatus(dcs[0].GetKind(), statuses, options.verbose, options.showInstances, excludeCols)
 	dingoadm.WriteOutln("")
 
 	switch dcs[0].GetKind() {
 	case topology.KIND_DINGOFS:
-		dingoadm.WriteOutln("cluster name      : %s", dingoadm.ClusterName())
-		dingoadm.WriteOutln("cluster kind      : %s", dcs[0].GetKind())
-		dingoadm.WriteOutln("cluster mds addr  : %s", getClusterMdsAddr(dcs))
-		dingoadm.WriteOutln("cluster mds leader: %s", getClusterMdsLeader(statuses))
+		if dcs[0].GetRole() == topology.ROLE_MDS_V2 {
+			dingoadm.WriteOutln("cluster name     : %s", dingoadm.ClusterName())
+			dingoadm.WriteOutln("cluster kind     : %s", dcs[0].GetKind())
+			dingoadm.WriteOutln("mdsv2       addr : %s", getClusterMdsV2Addr(dcs))
+			dingoadm.WriteOutln("coordinator addr : %s", dcs[0].GetDingoFsV2CoordinatorAddr())
+		} else {
+			dingoadm.WriteOutln("cluster name      : %s", dingoadm.ClusterName())
+			dingoadm.WriteOutln("cluster kind      : %s", dcs[0].GetKind())
+			dingoadm.WriteOutln("cluster mds addr  : %s", getClusterMdsAddr(dcs))
+			dingoadm.WriteOutln("cluster mds leader: %s", getClusterMdsLeader(statuses))
+		}
 	case topology.KIND_DINGOSTORE:
 		dingoadm.WriteOutln("cluster name             : %s", dingoadm.ClusterName())
 		dingoadm.WriteOutln("cluster kind             : %s", dcs[0].GetKind())
@@ -148,6 +168,7 @@ func displayStatus(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options
 
 	dingoadm.WriteOutln("")
 	dingoadm.WriteOut("%s", output)
+	return width
 }
 
 func genStatusPlaybook(dingoadm *cli.DingoAdm,
@@ -196,6 +217,26 @@ func runStatus(dingoadm *cli.DingoAdm, options statusOptions) error {
 	err = pb.Run()
 
 	// 4) display service status
-	displayStatus(dingoadm, dcs, options)
+	width := displayStatus(dingoadm, dcs, options)
+	if options.withCluster != "" {
+		dingoadm.WriteOutln("\n%s", strings.Repeat("-", width))
+		storage := dingoadm.Storage()
+		attachCluster, err := storage.GetClusterByName(options.withCluster)
+		if err != nil {
+			dingoadm.WriteOutln("Failed Found cluster: %s ", options.withCluster)
+		} else if attachCluster.Id <= 0 {
+			dingoadm.WriteOutln("Not Found cluster: %s ", options.withCluster)
+		} else {
+			err = dingoadm.SwitchCluster(attachCluster)
+			if err != nil {
+				dingoadm.WriteOutln("Switch cluster: %s failed ", options.withCluster)
+			} else {
+				dcs, err := dingoadm.ParseTopology()
+				if err == nil {
+					displayStatus(dingoadm, dcs, options)
+				}
+			}
+		}
+	}
 	return err
 }

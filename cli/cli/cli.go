@@ -547,3 +547,15 @@ func (dingoadm *DingoAdm) PostAudit(id int64, ec error) {
 			log.Field("Error", err))
 	}
 }
+
+func (dingoadm *DingoAdm) SwitchCluster(cluster storage.Cluster) error {
+
+	//dingoadm.memStorage = utils.NewSafeMap()
+	dingoadm.clusterId = cluster.Id
+	dingoadm.clusterUUId = cluster.UUId
+	dingoadm.clusterName = cluster.Name
+	dingoadm.clusterTopologyData = cluster.Topology
+	dingoadm.clusterPoolData = cluster.Pool
+
+	return nil
+}

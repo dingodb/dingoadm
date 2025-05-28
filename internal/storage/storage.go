@@ -202,6 +202,17 @@ func (s *Storage) GetClusters(name string) ([]Cluster, error) {
 	return s.getClusters(SelectCluster, name)
 }
 
+func (s *Storage) GetClusterByName(name string) (Cluster, error) {
+	clusters, err := s.getClusters(SelectClusterByName, name)
+	if err != nil {
+		return Cluster{}, err
+	}
+	if len(clusters) == 1 {
+		return clusters[0], nil
+	}
+	return Cluster{}, fmt.Errorf("cluster not found: %s", name)
+}
+
 func (s *Storage) CheckoutCluster(name string) error {
 	return s.write(CheckoutCluster, name)
 }

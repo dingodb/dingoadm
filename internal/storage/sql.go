@@ -133,6 +133,9 @@ var (
 	// select cluster
 	SelectCluster = `SELECT * FROM clusters WHERE name LIKE ?`
 
+	// slelect cluster equal name
+	SelectClusterByName = `SELECT * FROM clusters WHERE name = ?`
+
 	// get current cluster
 	GetCurrentCluster = `SELECT * FROM clusters WHERE current = 1`
 
