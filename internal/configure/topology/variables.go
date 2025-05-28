@@ -43,6 +43,7 @@ const (
 	SELECT_LISTEN_PROXY_PORT
 	SELECT_LISTEN_COOR_SERVER_PORT
 	SELECT_LISTEN_COOR_RAFT_PORT
+	SELECT_SERVER_PORT
 )
 
 type Var struct {
@@ -130,6 +131,7 @@ var (
 		{name: "cluster_metaserver_addr", kind: []string{KIND_CURVEFS, KIND_DINGOFS}},
 		{name: "cluster_coor_srv_peers", kind: []string{KIND_DINGOSTORE}},
 		{name: "cluster_coor_raft_peers", kind: []string{KIND_DINGOSTORE}},
+		{name: "cluster_mdsv2_addr", kind: []string{KIND_DINGOFS}},
 	}
 )
 
@@ -212,6 +214,8 @@ func joinPeer(dcs []*DeployConfig, selectRole string, selectPort int) string {
 			peerPort = dc.GetDingoServerPort()
 		case SELECT_LISTEN_COOR_RAFT_PORT:
 			peerPort = dc.GetDingoStoreRaftPort()
+		case SELECT_SERVER_PORT:
+			peerPort = dc.GetDingoServerPort()
 		}
 
 		peer := fmt.Sprintf("%s:%d", peerHost, peerPort)
@@ -323,6 +327,8 @@ func getValue(name string, dcs []*DeployConfig, idx int) string {
 		return joinPeer(dcs, ROLE_COORDINATOR, SELECT_LISTEN_COOR_SERVER_PORT)
 	case "cluster_coor_raft_peers":
 		return joinPeer(dcs, ROLE_COORDINATOR, SELECT_LISTEN_COOR_RAFT_PORT)
+	case "cluster_mdsv2_addr":
+		return joinPeer(dcs, ROLE_MDS_V2, SELECT_SERVER_PORT)
 	}
 	return ""
 }

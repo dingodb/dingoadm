@@ -27,6 +27,7 @@ package service
 
 import (
 	"fmt"
+	"slices"
 	"sort"
 	"strings"
 
@@ -216,7 +217,7 @@ func mergeStatues(statuses []task.ServiceStatus) []task.ServiceStatus {
 	return ss
 }
 
-func FormatStatus(kind string, statuses []task.ServiceStatus, verbose, expand bool) string {
+func FormatStatus(kind string, statuses []task.ServiceStatus, verbose, expand bool, excludeCols []string) (string, int) {
 	lines := [][]interface{}{}
 
 	// title
@@ -230,6 +231,20 @@ func FormatStatus(kind string, statuses []task.ServiceStatus, verbose, expand bo
 		"Ports",
 		"Log Dir",
 		"Data Dir",
+	}
+
+	if len(excludeCols) != 0 {
+		// Create exclusion set
+		excludeSet := make(map[string]struct{}, len(excludeCols))
+		for _, ex := range excludeCols {
+			excludeSet[ex] = struct{}{}
+		}
+
+		// Remove excluded items using efficient slice mutation
+		title = slices.DeleteFunc(title, func(t string) bool {
+			_, exists := excludeSet[t]
+			return exists
+		})
 	}
 
 	if kind == topology.KIND_DINGOSTORE {
@@ -284,7 +299,9 @@ func FormatStatus(kind string, statuses []task.ServiceStatus, verbose, expand bo
 	}
 
 	output := tui.FixedFormat(lines, 2)
-	return output
+	lastLine := fmt.Sprint(lines[len(lines)-1]...)
+	width := len(lastLine) + len(title)*2
+	return output, width
 }
 
 func sortMonitorStatues(statuses []monitor.MonitorStatus) {
