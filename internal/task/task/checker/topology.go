@@ -181,6 +181,10 @@ func (s *step2CheckServices) getHostNum(dcs []*topology.DeployConfig) int {
 
 func (s *step2CheckServices) skip(role string) bool {
 	kind := s.dcs[0].GetKind()
+	// skip dingofs v2 check
+	if kind == topology.KIND_DINGOFS && s.dcs[0].GetRole() == ROLE_MDS_V2 {
+		return true
+	}
 	// KIND_DINGOFS
 	if kind == topology.KIND_CURVEFS || kind == topology.KIND_DINGOFS {
 		if role == ROLE_CHUNKSERVER || role == ROLE_SNAPSHOTCLONE {
@@ -208,6 +212,7 @@ func (s *step2CheckServices) skip(role string) bool {
 }
 
 func (s *step2CheckServices) Execute(ctx *context.Context) error {
+
 	// (1): each role requires at least 3 services
 	items := []struct {
 		role string

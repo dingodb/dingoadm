@@ -45,7 +45,7 @@ const (
 	POLICY_NEVER_RESTART                         = "no"
 	ENV_DINGOSTORE_SERVER_LISTEN_HOST            = "SERVER_LISTEN_HOST"
 	ENV_DINGOSTORE_RAFT_LISTEN_HOST              = "RAFT_LISTEN_HOST"
-	ENV_DINGOSTORE_SERVER_HOST                   = "SERVER_HOST"
+	ENV_DINGO_SERVER_HOST                        = "SERVER_HOST"
 	ENV_DINGOSTORE_RAFT_HOST                     = "RAFT_HOST"
 	ENV_DINGOSTORE_DEFAULT_REPLICA_NUM           = "DEFAULT_REPLICA_NUM"
 	ENV_DINGOSTORE_COOR_RAFT_PEERS               = "COOR_RAFT_PEERS"
@@ -53,10 +53,16 @@ const (
 	ENV_DINGOSTROE_FLAGS_ROLE                    = "FLAGS_role"
 	ENV_DINGOSTORE_COORDINATOR_SERVER_START_PORT = "COORDINATOR_SERVER_START_PORT"
 	ENV_DINGOSTORE_COORDINATOR_RAFT_START_PORT   = "COORDINATOR_RAFT_START_PORT"
-	ENV_DINGOSTORE_SERVER_START_PORT             = "SERVER_START_PORT"
+	ENV_DINGO_SERVER_START_PORT                  = "SERVER_START_PORT"
 	ENV_DINGOSTORE_RAFT_START_PORT               = "RAFT_START_PORT"
 	ENV_DINGOSTORE_INSTANCE_START_ID             = "INSTANCE_START_ID"
 	ENV_DINGOSTORE_ENABLE_LITE                   = "ENABLE_LITE"
+
+	// dingofs mdsv2
+	ENV_DINGOFS_V2_FLAGS_ROLE        = "FLAGS_role"
+	ENV_DINGOFS_V2_FLAGS_SERVER_NUM  = "FLAGS_server_num"
+	ENV_DINGOFS_V2_COORDINATOR_ADDR  = "COORDINATOR_ADDR"
+	ENV_DINGOFS_V2_INSTANCE_START_ID = "MDSV2_INSTANCE_START_ID"
 )
 
 type Step2GetService struct {
@@ -164,7 +170,11 @@ func getArguments(dc *topology.DeployConfig) string {
 func getContainerCMD(dc *topology.DeployConfig) string {
 	switch dc.GetKind() {
 	case topology.KIND_DINGOFS:
-		return fmt.Sprintf("--role %s --args='%s'", dc.GetRole(), getArguments(dc))
+		if dc.GetRole() == topology.ROLE_MDS_V2 {
+			return ""
+		} else {
+			return fmt.Sprintf("--role %s --args='%s'", dc.GetRole(), getArguments(dc))
+		}
 	case topology.KIND_DINGOSTORE:
 		return "cleanstart"
 	default:
@@ -185,25 +195,36 @@ func GetEnvironments(dc *topology.DeployConfig) []string {
 		//	fmt.Sprintf("'LD_PRELOAD=%s'", strings.Join(preloads, " ")),
 		//}
 		envs = append(envs, fmt.Sprintf("LD_PRELOAD=%s", strings.Join(preloads, " ")))
+
+		if dc.GetRole() == topology.ROLE_MDS_V2 {
+			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_FLAGS_ROLE, dc.GetRole()))
+			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGO_SERVER_HOST, dc.GetHostname()))
+			envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGO_SERVER_START_PORT, dc.GetDingoServerPort()))
+			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_COORDINATOR_ADDR, dc.GetDingoFsV2CoordinatorAddr()))
+			envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOFS_V2_INSTANCE_START_ID, dc.GetDingoInstanceId()))
+			//envs = append(envs, "LOG_LEVEL=DEBUG")
+			//envs = append(envs, "VERBOSE=1")
+		}
+
 		env := dc.GetEnv()
 		if len(env) > 0 {
 			envs = append(envs, strings.Split(env, " ")...)
 		}
+
 	} else if dc.GetKind() == topology.KIND_DINGOSTORE {
 		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTROE_FLAGS_ROLE, dc.GetRole()))
 		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_SERVER_LISTEN_HOST, dc.GetDingoStoreServerListenHost()))
 		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_RAFT_LISTEN_HOST, dc.GetDingoStoreRaftListenHost()))
-		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_SERVER_HOST, dc.GetHostname()))
+		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGO_SERVER_HOST, dc.GetHostname()))
 		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_RAFT_HOST, dc.GetHostname()))
 		envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_DEFAULT_REPLICA_NUM, dc.GetDingoStoreReplicaNum()))
 		envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_COORDINATOR_SERVER_START_PORT,
-			dc.GetDingoStoreServerPort()))
+			dc.GetDingoServerPort()))
 		envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_COORDINATOR_RAFT_START_PORT,
 			dc.GetDingoStoreRaftPort()))
-		envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_SERVER_START_PORT, dc.GetDingoStoreServerPort()))
+		envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGO_SERVER_START_PORT, dc.GetDingoServerPort()))
 		envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_RAFT_START_PORT, dc.GetDingoStoreRaftPort()))
-		envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_INSTANCE_START_ID,
-			dc.GetDingoStoreInstanceId()))
+		envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_INSTANCE_START_ID, dc.GetDingoInstanceId()))
 		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_ENABLE_LITE, "false"))
 		cluster_coor_srv_peers, err := dc.GetVariables().Get("cluster_coor_srv_peers")
 		if err == nil {

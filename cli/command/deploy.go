@@ -57,6 +57,7 @@ const (
 	START_SNAPSHOTCLONE        = playbook.START_SNAPSHOTCLONE
 	START_METASERVER           = playbook.START_METASERVER
 	BALANCE_LEADER             = playbook.BALANCE_LEADER
+	START_MDSV2                = playbook.START_MDS_V2
 	START_COORDINATOR          = playbook.START_COORDINATOR
 	START_STORE                = playbook.START_STORE
 
@@ -65,6 +66,7 @@ const (
 	ROLE_CHUNKSERVER   = topology.ROLE_CHUNKSERVER
 	ROLE_SNAPSHOTCLONE = topology.ROLE_SNAPSHOTCLONE
 	ROLE_METASERVER    = topology.ROLE_METASERVER
+	ROLE_MDS_V2        = topology.ROLE_MDS_V2
 	ROLE_COORDINATOR   = topology.ROLE_COORDINATOR
 	ROLE_STORE         = topology.ROLE_STORE
 )
@@ -97,6 +99,14 @@ var (
 		START_METASERVER,
 	}
 
+	DINGOFS_V2_DEPLOY_STEPS = []int{
+		CLEAN_PRECHECK_ENVIRONMENT,
+		PULL_IMAGE,
+		CREATE_CONTAINER,
+		//SYNC_CONFIG,
+		START_MDSV2,
+	}
+
 	DINGOSTORE_DEPLOY_STEPS = []int{
 		CLEAN_PRECHECK_ENVIRONMENT,
 		PULL_IMAGE,
@@ -116,6 +126,7 @@ var (
 		CREATE_PHYSICAL_POOL: ROLE_MDS,
 		CREATE_LOGICAL_POOL:  ROLE_MDS,
 		BALANCE_LEADER:       ROLE_MDS,
+		START_MDSV2:          ROLE_MDS_V2,
 	}
 
 	DEPLOY_LIMIT_SERVICE = map[int]int{
@@ -244,7 +255,11 @@ func genDeployPlaybook(dingoadm *cli.DingoAdm,
 
 	switch kind {
 	case topology.KIND_DINGOFS:
-		steps = DINGOFS_DEPLOY_STEPS
+		if dcs[0].GetRole() == topology.ROLE_MDS_V2 {
+			steps = DINGOFS_V2_DEPLOY_STEPS
+		} else {
+			steps = DINGOFS_DEPLOY_STEPS
+		}
 	case topology.KIND_DINGOSTORE:
 		steps = DINGOSTORE_DEPLOY_STEPS
 	default:
@@ -275,9 +290,9 @@ func genDeployPlaybook(dingoadm *cli.DingoAdm,
 			role := DEPLOY_FILTER_ROLE[step]
 			config = dingoadm.FilterDeployConfigByRole(config, role)
 		}
-		n := len(config)
+		//n := len(config)
 		if DEPLOY_LIMIT_SERVICE[step] > 0 {
-			n = DEPLOY_LIMIT_SERVICE[step]
+			n := DEPLOY_LIMIT_SERVICE[step]
 			config = config[:n]
 		}
 

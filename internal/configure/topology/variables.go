@@ -209,7 +209,7 @@ func joinPeer(dcs []*DeployConfig, selectRole string, selectPort int) string {
 		case SELECT_LISTEN_PROXY_PORT:
 			peerPort = dc.GetListenProxyPort()
 		case SELECT_LISTEN_COOR_SERVER_PORT:
-			peerPort = dc.GetDingoStoreServerPort()
+			peerPort = dc.GetDingoServerPort()
 		case SELECT_LISTEN_COOR_RAFT_PORT:
 			peerPort = dc.GetDingoStoreRaftPort()
 		}

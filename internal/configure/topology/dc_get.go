@@ -201,7 +201,7 @@ func (dc *DeployConfig) GetDingoStoreRaftListenHost() string {
 	return dc.getString(CONFFIG_DINGO_STORE_RAFT_LISTEN_HOST)
 }
 
-func (dc *DeployConfig) GetDingoStoreServerPort() int {
+func (dc *DeployConfig) GetDingoServerPort() int {
 	return dc.getInt(CONFIG_DINGO_STORE_SERVER_PORT)
 }
 
@@ -213,9 +213,17 @@ func (dc *DeployConfig) GetDingoStoreReplicaNum() int {
 	return dc.getInt(CONFIG_DINGO_STORE_REPLICA_NUM)
 }
 
-func (dc *DeployConfig) GetDingoStoreInstanceId() int {
-	return dc.getInt(CONFIG_DINGO_STORE_INSTANCE_START_ID)
+func (dc *DeployConfig) GetDingoInstanceId() int {
+	return dc.getInt(CONFIG_INSTANCE_START_ID)
 }
+
+func (dc *DeployConfig) GetDingoFsV2CoordinatorAddr() string {
+	return dc.getString(CONFIG_DINGOFS_V2_COORDINATOR_ADDR)
+}
+
+//func (dc *DeployConfig) GetDingoServerNum() int {
+//	return dc.getInt(CONFIG_DINGO_SERVER_NUM)
+//}
 
 // (3): service project layout
 /* /curvebs
@@ -356,6 +364,9 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 			serviceDataDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_STORE_DATA_DIR
 			dingoStoreRaftDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_STORE_RAFT_DIR
 		}
+	}
+	if role == ROLE_MDS_V2 {
+		serviceLogDir = serviceRootDir + "/log" // /dingofs/mdsv2/log
 	}
 
 	return Layout{

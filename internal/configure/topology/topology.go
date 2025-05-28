@@ -58,8 +58,11 @@ type (
 		MetaserverServices    Service `mapstructure:"metaserver_services"`
 		ChunkserverServices   Service `mapstructure:"chunkserver_services"`
 		SnapshotcloneServices Service `mapstructure:"snapshotclone_services"`
-		CoordinatorServices   Service `mapstructure:"coordinator_services"`
-		StoreServices         Service `mapstructure:"store_services"`
+		// dingofs mds v2
+		MdsV2Services Service `mapstructure:"mdsv2_services"`
+		// dingo-store
+		CoordinatorServices Service `mapstructure:"coordinator_services"`
+		StoreServices       Service `mapstructure:"store_services"`
 	}
 )
 
@@ -74,6 +77,9 @@ var (
 		ROLE_ETCD,
 		ROLE_MDS,
 		ROLE_METASERVER,
+	}
+	DINGOFS_V2_ROLES = []string{
+		ROLE_MDS_V2,
 	}
 	DINGOSTORE_ROLES = []string{
 		ROLE_COORDINATOR,
@@ -126,7 +132,11 @@ func ParseTopology(data string, ctx *Context) ([]*DeployConfig, error) {
 	case KIND_CURVEBS:
 		roles = append(roles, CURVEBS_ROLES...)
 	case KIND_CURVEFS, KIND_DINGOFS:
-		roles = append(roles, DINGOFS_ROLES...)
+		if topology.MdsV2Services.Deploy != nil {
+			roles = append(roles, DINGOFS_V2_ROLES...)
+		} else {
+			roles = append(roles, DINGOFS_ROLES...)
+		}
 	case KIND_DINGOSTORE:
 		roles = append(roles, DINGOSTORE_ROLES...)
 	default:
@@ -148,6 +158,8 @@ func ParseTopology(data string, ctx *Context) ([]*DeployConfig, error) {
 			services = topology.SnapshotcloneServices
 		case ROLE_METASERVER:
 			services = topology.MetaserverServices
+		case ROLE_MDS_V2:
+			services = topology.MdsV2Services
 		case ROLE_COORDINATOR:
 			services = topology.CoordinatorServices
 		case ROLE_STORE:

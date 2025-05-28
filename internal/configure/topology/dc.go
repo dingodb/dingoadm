@@ -48,8 +48,13 @@ const (
 	ROLE_CHUNKSERVER   = "chunkserver"
 	ROLE_SNAPSHOTCLONE = "snapshotclone"
 	ROLE_METASERVER    = "metaserver"
-	ROLE_COORDINATOR   = "coordinator"
-	ROLE_STORE         = "store"
+
+	// dingofs mdsv2
+	ROLE_MDS_V2 = "mdsv2"
+
+	// dingo-store
+	ROLE_COORDINATOR = "coordinator"
+	ROLE_STORE       = "store"
 )
 
 type (

@@ -126,8 +126,8 @@ func (s *step2CheckPortStatus) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func NewCheckPortInUseTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
-	hc, err := curveadm.GetHost(dc.GetHost())
+func NewCheckPortInUseTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
+	hc, err := dingoadm.GetHost(dc.GetHost())
 	if err != nil {
 		return nil, err
 	}
@@ -141,22 +141,22 @@ func NewCheckPortInUseTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*
 	var success bool
 	t.AddStep(&step.PullImage{
 		Image:       dc.GetContainerImage(),
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.CreateContainer{
 		Image:       dc.GetContainerImage(),
 		Command:     "-c 'sleep infinity'", // keep the container running
 		Entrypoint:  "/bin/bash",
-		Name:        getCheckPortContainerName(curveadm, dc),
+		Name:        getCheckPortContainerName(dingoadm, dc),
 		Remove:      true,
 		Out:         &containerId,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.StartContainer{
 		ContainerId: &containerId,
 		Success:     &success,
 		Out:         &out,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 
 	for _, address := range addresses {
@@ -164,7 +164,7 @@ func NewCheckPortInUseTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*
 			containerId: &containerId,
 			success:     &success,
 			dc:          dc,
-			curveadm:    curveadm,
+			curveadm:    dingoadm,
 			port:        address.Port,
 		})
 	}
@@ -235,11 +235,11 @@ func getNginxListens(dc *topology.DeployConfig) string {
 	return strings.Join(listens, " ")
 }
 
-func getHTTPServerContainerName(curveadm *cli.DingoAdm, dc *topology.DeployConfig) string {
+func getHTTPServerContainerName(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) string {
 	return fmt.Sprintf("%s-%s-%s",
 		HTTP_SERVER_CONTAINER_NAME,
 		dc.GetRole(),
-		curveadm.GetServiceId(dc.GetId()))
+		dingoadm.GetServiceId(dc.GetId()))
 }
 
 func waitNginxStarted(seconds int) step.LambdaType {
