@@ -299,8 +299,8 @@ func FormatStatus(kind string, statuses []task.ServiceStatus, verbose, expand bo
 	}
 
 	output := tui.FixedFormat(lines, 2)
-	lastLine := fmt.Sprint(lines[len(lines)-1]...)
-	width := len(lastLine) + len(title)*2
+	outlines := strings.Split(output, "\n")
+	width := len(outlines[len(outlines)-2])
 	return output, width
 }
 
