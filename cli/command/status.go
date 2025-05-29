@@ -219,12 +219,11 @@ func runStatus(dingoadm *cli.DingoAdm, options statusOptions) error {
 	// 4) display service status
 	width := displayStatus(dingoadm, dcs, options)
 	if options.withCluster != "" {
-		dingoadm.WriteOutln("\n%s", strings.Repeat("-", width))
+
+		dingoadm.WriteOutln("\n%s\n", strings.Repeat("-", width))
 		storage := dingoadm.Storage()
 		attachCluster, err := storage.GetClusterByName(options.withCluster)
-		if err != nil {
-			dingoadm.WriteOutln("Failed Found cluster: %s ", options.withCluster)
-		} else if attachCluster.Id <= 0 {
+		if err != nil || attachCluster.Id <= 0 {
 			dingoadm.WriteOutln("Not Found cluster: %s ", options.withCluster)
 		} else {
 			err = dingoadm.SwitchCluster(attachCluster)
@@ -233,7 +232,11 @@ func runStatus(dingoadm *cli.DingoAdm, options statusOptions) error {
 			} else {
 				dcs, err := dingoadm.ParseTopology()
 				if err == nil {
-					displayStatus(dingoadm, dcs, options)
+					pb, err := genStatusPlaybook(dingoadm, dcs, options)
+					if err == nil {
+						pb.Run()
+						displayStatus(dingoadm, dcs, options)
+					}
 				}
 			}
 		}
