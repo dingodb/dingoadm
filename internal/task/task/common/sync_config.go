@@ -16,7 +16,7 @@
  */
 
 /*
- * Project: CurveAdm
+ * Project: dingoadm
  * Created Date: 2021-10-15
  * Author: Jingli Chen (Wine93)
  */
@@ -43,6 +43,7 @@ const (
 
 	CURVE_CRONTAB_FILE      = "/tmp/curve_crontab"
 	CONFIG_DEFAULT_ENV_FILE = "/etc/profile"
+	STORE_BUILD_BIN_DIR     = "/opt/dingo-store/build/bin"
 )
 
 func NewMutate(dc *topology.DeployConfig, delimiter string, forceRender bool) step.Mutate {
@@ -137,6 +138,10 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 	//})
 
 	if dc.GetKind() == topology.KIND_DINGOFS {
+		if dc.GetRole() == topology.ROLE_STORE || dc.GetRole() == topology.ROLE_COORDINATOR {
+			return t, nil
+		}
+
 		for _, conf := range layout.ServiceConfFiles {
 			t.AddStep(&step.SyncFile{ // sync service config
 				ContainerSrcId:    &containerId,
@@ -148,30 +153,63 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 				ExecOptions:       dingoadm.ExecOptions(),
 			})
 		}
-		t.AddStep(&step.TrySyncFile{ // sync tools-v2 config
-			ContainerSrcId:    &containerId,
-			ContainerSrcPath:  layout.ToolsV2ConfSrcPath,
-			ContainerDestId:   &containerId,
-			ContainerDestPath: layout.ToolsV2ConfSystemPath,
-			KVFieldSplit:      CONFIG_DELIMITER_COLON,
-			Mutate:            NewMutate(dc, CONFIG_DELIMITER_COLON, false),
-			ExecOptions:       dingoadm.ExecOptions(),
-		})
-		reportScript := scripts.REPORT
-		reportScriptPath := fmt.Sprintf("%s/report.sh", layout.ToolsV2BinDir) // v1: ToolsBinDir, v2: ToolsV2BinDir
-		crontab := newCrontab(dingoadm.ClusterUUId(), dc, reportScriptPath)
-		t.AddStep(&step.InstallFile{ // install report script
-			ContainerId:       &containerId,
-			ContainerDestPath: reportScriptPath,
-			Content:           &reportScript,
-			ExecOptions:       dingoadm.ExecOptions(),
-		})
-		t.AddStep(&step.InstallFile{ // install crontab file
-			ContainerId:       &containerId,
-			ContainerDestPath: CURVE_CRONTAB_FILE,
-			Content:           &crontab,
-			ExecOptions:       dingoadm.ExecOptions(),
-		})
+
+		if dc.GetRole() != topology.ROLE_COORDINATOR && dc.GetRole() != topology.ROLE_STORE {
+			t.AddStep(&step.TrySyncFile{ // sync tools-v2 config
+				ContainerSrcId:    &containerId,
+				ContainerSrcPath:  layout.ToolsV2ConfSrcPath,
+				ContainerDestId:   &containerId,
+				ContainerDestPath: layout.ToolsV2ConfSystemPath,
+				KVFieldSplit:      CONFIG_DELIMITER_COLON,
+				Mutate:            NewMutate(dc, CONFIG_DELIMITER_COLON, false),
+				ExecOptions:       dingoadm.ExecOptions(),
+			})
+		}
+
+		if dc.GetRole() == topology.ROLE_TMP {
+			// sync create_mdsv2_tables.sh
+			createTablesScript := scripts.CREATE_MDSV2_TABLES
+			createTablesScriptPath := fmt.Sprintf("%s/create_mdsv2_tables.sh", layout.MdsV2CliBinDir) // /dingofs/mdsv2-client/sbin
+			// createTablesScriptPath := fmt.Sprintf("%s/create_mdsv2_tables.sh", STORE_BUILD_BIN_DIR) // /opt/dingo-store/build/bin
+			t.AddStep(&step.InstallFile{ // install create_mdsv2_tables.sh script
+				ContainerId:       &containerId,
+				ContainerDestPath: createTablesScriptPath,
+				Content:           &createTablesScript,
+				ExecOptions:       dingoadm.ExecOptions(),
+			})
+
+			// mdsv2ServiceId := dingoadm.GetServiceId(fmt.Sprintf("%s_%s_%d_%d", topology.ROLE_MDS_V2, dc.GetHost(), dc.GetHostSequence(), dc.GetInstancesSequence()))
+			// mdsv2ContainerId, err := dingoadm.GetContainerId(mdsv2ServiceId)
+			// if err != nil {
+			// 	return nil, err
+			// }
+			// t.AddStep(&step.SyncFileDirectly{ // sync dingo-mdsv2-client file
+			// 	ContainerSrcId:    &mdsv2ContainerId,
+			// 	ContainerSrcPath:  layout.MdsV2CliBinaryPath,
+			// 	ContainerDestId:   &containerId,
+			// 	ContainerDestPath: fmt.Sprintf("%s/dingo-mdsv2-client", STORE_BUILD_BIN_DIR), // /opt/dingo-store/build/bin/dingo-mdsv2-client
+			// 	IsDir:             false,
+			// 	ExecOptions:       dingoadm.ExecOptions(),
+			// })
+
+		} else {
+			reportScript := scripts.REPORT
+			reportScriptPath := fmt.Sprintf("%s/report.sh", layout.ToolsV2BinDir) // v1: ToolsBinDir, v2: ToolsV2BinDir
+			crontab := newCrontab(dingoadm.ClusterUUId(), dc, reportScriptPath)
+			t.AddStep(&step.InstallFile{ // install report script
+				ContainerId:       &containerId,
+				ContainerDestPath: reportScriptPath,
+				Content:           &reportScript,
+				ExecOptions:       dingoadm.ExecOptions(),
+			})
+			t.AddStep(&step.InstallFile{ // install crontab file
+				ContainerId:       &containerId,
+				ContainerDestPath: CURVE_CRONTAB_FILE,
+				Content:           &crontab,
+				ExecOptions:       dingoadm.ExecOptions(),
+			})
+		}
+
 	}
 
 	if dc.GetKind() == topology.KIND_DINGOSTORE {

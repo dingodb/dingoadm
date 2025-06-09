@@ -53,6 +53,7 @@ var (
 		comm.CLEAN_ITEM_LOG,
 		comm.CLEAN_ITEM_DATA,
 		comm.CLEAN_ITEM_CONTAINER,
+		comm.CLEAN_ITEM_RAFT,
 	}
 )
 
@@ -65,7 +66,7 @@ type cleanOptions struct {
 	force          bool
 }
 
-func checkCleanOptions(curveadm *cli.DingoAdm, options cleanOptions) error {
+func checkCleanOptions(dingoadm *cli.DingoAdm, options cleanOptions) error {
 	supported := utils.Slice2Map(CLEAN_ITEMS)
 	for _, item := range options.only {
 		if !supported[item] {
@@ -73,10 +74,10 @@ func checkCleanOptions(curveadm *cli.DingoAdm, options cleanOptions) error {
 				F("clean item: %s", item)
 		}
 	}
-	return checkCommonOptions(curveadm, options.id, options.role, options.host)
+	return checkCommonOptions(dingoadm, options.id, options.role, options.host)
 }
 
-func NewCleanCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewCleanCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options cleanOptions
 
 	cmd := &cobra.Command{
@@ -85,10 +86,10 @@ func NewCleanCommand(curveadm *cli.DingoAdm) *cobra.Command {
 		Args:    cliutil.NoArgs,
 		Example: CLEAN_EXAMPLE,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return checkCleanOptions(curveadm, options)
+			return checkCleanOptions(dingoadm, options)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runClean(curveadm, options)
+			return runClean(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}

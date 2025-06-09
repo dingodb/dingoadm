@@ -47,6 +47,7 @@ const (
 	CLEAN_PRECHECK_ENVIRONMENT = playbook.CLEAN_PRECHECK_ENVIRONMENT
 	PULL_IMAGE                 = playbook.PULL_IMAGE
 	CREATE_CONTAINER           = playbook.CREATE_CONTAINER
+	CREATE_TMP_CONTAINER       = playbook.CREATE_TMP_CONTAINER
 	SYNC_CONFIG                = playbook.SYNC_CONFIG
 	START_ETCD                 = playbook.START_ETCD
 	ENABLE_ETCD_AUTH           = playbook.ENABLE_ETCD_AUTH
@@ -60,6 +61,9 @@ const (
 	START_MDSV2                = playbook.START_MDS_V2
 	START_COORDINATOR          = playbook.START_COORDINATOR
 	START_STORE                = playbook.START_STORE
+	START_TMP_CONTAINER        = playbook.START_TMP_CONTAINER
+	SYNC_MDSV2_CONFIG          = playbook.SYNC_CONFIG
+	CREATE_META_TABLES         = playbook.CREATE_META_TABLES
 
 	ROLE_ETCD          = topology.ROLE_ETCD
 	ROLE_MDS           = topology.ROLE_MDS
@@ -69,6 +73,7 @@ const (
 	ROLE_MDS_V2        = topology.ROLE_MDS_V2
 	ROLE_COORDINATOR   = topology.ROLE_COORDINATOR
 	ROLE_STORE         = topology.ROLE_STORE
+	ROLE_TMP           = topology.ROLE_TMP // tmp role: create meta tables
 )
 
 var (
@@ -99,11 +104,25 @@ var (
 		START_METASERVER,
 	}
 
-	DINGOFS_V2_DEPLOY_STEPS = []int{
+	DINGOFS_MDSV2_ONLY_DEPLOY_STEPS = []int{
 		CLEAN_PRECHECK_ENVIRONMENT,
 		PULL_IMAGE,
 		CREATE_CONTAINER,
-		//SYNC_CONFIG,
+		// SYNC_MDSV2_CONFIG
+		// CREATE_META_TABLES,
+		START_MDSV2,
+	}
+
+	DINGOFS_MDSV2_FOLLOW_DEPLOY_STEPS = []int{
+		CLEAN_PRECHECK_ENVIRONMENT,
+		PULL_IMAGE,
+		CREATE_CONTAINER,
+		CREATE_TMP_CONTAINER,
+		START_COORDINATOR,
+		START_STORE,
+		SYNC_MDSV2_CONFIG,
+		START_TMP_CONTAINER,
+		CREATE_META_TABLES,
 		START_MDSV2,
 	}
 
@@ -127,13 +146,22 @@ var (
 		CREATE_LOGICAL_POOL:  ROLE_MDS,
 		BALANCE_LEADER:       ROLE_MDS,
 		START_MDSV2:          ROLE_MDS_V2,
+		START_COORDINATOR:    ROLE_COORDINATOR,
+		START_STORE:          ROLE_STORE,
+		START_TMP_CONTAINER:  ROLE_TMP,
+		CREATE_META_TABLES:   ROLE_TMP,
+		// SYNC_MDSV2_CONFIG:    ROLE_COORDINATOR,
+		CREATE_TMP_CONTAINER: ROLE_TMP,
 	}
 
+	// DEPLOY_LIMIT_SERVICE is used to limit the number of services
 	DEPLOY_LIMIT_SERVICE = map[int]int{
 		CREATE_PHYSICAL_POOL: 1,
 		CREATE_LOGICAL_POOL:  1,
 		BALANCE_LEADER:       1,
 		ENABLE_ETCD_AUTH:     1,
+		CREATE_META_TABLES:   1,
+		CREATE_TMP_CONTAINER: 1,
 	}
 
 	CAN_SKIP_ROLES = []string{
@@ -253,10 +281,19 @@ func genDeployPlaybook(dingoadm *cli.DingoAdm,
 	var steps []int
 	kind := dcs[0].GetKind()
 
+	// extract all deloy configs's role and deduplicate same role
+	roles := dingoadm.GetRoles(dcs)
+
 	switch kind {
 	case topology.KIND_DINGOFS:
-		if dcs[0].GetRole() == topology.ROLE_MDS_V2 {
-			steps = DINGOFS_V2_DEPLOY_STEPS
+		if utils.Contains(roles, topology.ROLE_MDS_V2) {
+			if len(roles) == 1 {
+				// only mds v2, no coordinator/store
+				steps = DINGOFS_MDSV2_ONLY_DEPLOY_STEPS
+			} else {
+				// mds v2 with coordinator/store
+				steps = DINGOFS_MDSV2_FOLLOW_DEPLOY_STEPS
+			}
 		} else {
 			steps = DINGOFS_DEPLOY_STEPS
 		}

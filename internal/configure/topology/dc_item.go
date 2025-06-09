@@ -53,7 +53,7 @@ const (
 	DEFAULT_STORE_SERVER_LISTEN_HOST        = "0.0.0.0"
 	DEFAULT_STORE_RAFT_LISTEN_HOST          = "0.0.0.0"
 	DEFAULT_STORE_REPLICA_NUM               = 3
-	DEFAULT_STORE_INSTANCE_START_ID         = 1000
+	DEFAULT_STORE_INSTANCE_START_ID         = 1001
 	DEFAULT_SNAPSHOTCLONE_LISTEN_DUMMY_PORT = 8081
 	DEFAULT_SNAPSHOTCLONE_LISTEN_PROXY_PORT = 8080
 	DEFAULT_METASERVER_LISTN_PORT           = 6800
@@ -211,8 +211,13 @@ var (
 				return DEFAULT_SNAPSHOTCLONE_LISTEN_PORT
 			case ROLE_METASERVER:
 				return DEFAULT_METASERVER_LISTN_PORT
-			case ROLE_MDS_V2:
+			case ROLE_MDS_V2,
+				ROLE_TMP:
 				return DEFAULT_MDS_V2_LISTEN_PORT
+			case ROLE_COORDINATOR:
+				return DEFAULT_COORDINATOR_SERVER_PORT
+			case ROLE_STORE:
+				return DEFAULT_STORE_SERVER_PORT
 			}
 			return nil
 		},
@@ -391,7 +396,7 @@ var (
 	)
 
 	CONFIG_DINGO_STORE_SERVER_PORT = itemset.insert(
-		KIND_DINGOSTORE,
+		KIND_DINGO,
 		"server.port",
 		REQUIRE_POSITIVE_INTEGER,
 		true,
@@ -409,7 +414,7 @@ var (
 	)
 
 	CONFIG_DINGO_STORE_RAFT_PORT = itemset.insert(
-		KIND_DINGOSTORE,
+		KIND_DINGO,
 		"raft.port",
 		REQUIRE_POSITIVE_INTEGER,
 		true,
@@ -425,7 +430,7 @@ var (
 	)
 
 	CONFFIG_DINGO_STORE_SERVER_LISTEN_HOST = itemset.insert(
-		KIND_DINGOSTORE,
+		KIND_DINGO,
 		"server_listen_host",
 		REQUIRE_STRING,
 		true,
@@ -435,7 +440,7 @@ var (
 	)
 
 	CONFFIG_DINGO_STORE_RAFT_LISTEN_HOST = itemset.insert(
-		KIND_DINGOSTORE,
+		KIND_DINGO,
 		"raft_listen_host",
 		REQUIRE_STRING,
 		true,
@@ -445,7 +450,7 @@ var (
 	)
 
 	CONFIG_DINGO_STORE_REPLICA_NUM = itemset.insert(
-		KIND_DINGOSTORE,
+		KIND_DINGO,
 		"default_replica_num",
 		REQUIRE_POSITIVE_INTEGER,
 		true,
@@ -469,7 +474,13 @@ var (
 		"coordinator_addr",
 		REQUIRE_STRING,
 		true,
-		nil,
+		func(dc *DeployConfig) interface{} {
+			value, err := dc.GetVariables().Get("coordinator_addr")
+			if err != nil {
+				return "-"
+			}
+			return value
+		},
 	)
 
 	//CONFIG_DINGO_SERVER_NUM = itemset.insert(

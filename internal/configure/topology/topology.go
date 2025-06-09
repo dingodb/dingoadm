@@ -78,8 +78,14 @@ var (
 		ROLE_MDS,
 		ROLE_METASERVER,
 	}
-	DINGOFS_V2_ROLES = []string{
+	DINGOFS_MDSV2_ONLY_ROLES = []string{
 		ROLE_MDS_V2,
+	}
+	DINGOFS_MDSV2_FOLLOW_ROLES = []string{
+		ROLE_MDS_V2,
+		ROLE_COORDINATOR,
+		ROLE_STORE,
+		ROLE_TMP,
 	}
 	DINGOSTORE_ROLES = []string{
 		ROLE_COORDINATOR,
@@ -133,7 +139,11 @@ func ParseTopology(data string, ctx *Context) ([]*DeployConfig, error) {
 		roles = append(roles, CURVEBS_ROLES...)
 	case KIND_CURVEFS, KIND_DINGOFS:
 		if topology.MdsV2Services.Deploy != nil {
-			roles = append(roles, DINGOFS_V2_ROLES...)
+			if topology.CoordinatorServices.Deploy != nil && topology.StoreServices.Deploy != nil {
+				roles = append(roles, DINGOFS_MDSV2_FOLLOW_ROLES...)
+			} else {
+				roles = append(roles, DINGOFS_MDSV2_ONLY_ROLES...)
+			}
 		} else {
 			roles = append(roles, DINGOFS_ROLES...)
 		}
@@ -164,6 +174,14 @@ func ParseTopology(data string, ctx *Context) ([]*DeployConfig, error) {
 			services = topology.CoordinatorServices
 		case ROLE_STORE:
 			services = topology.StoreServices
+		case ROLE_TMP:
+			// create tables role, only used to create meta tables
+			// just keep one deploy config
+			tmpDeploy := topology.MdsV2Services.Deploy[0]
+			services = Service{
+				Config: newIfNil(topology.MdsV2Services.Config),
+				Deploy: []Deploy{tmpDeploy},
+			}
 		}
 
 		// merge global config into services config

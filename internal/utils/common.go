@@ -316,3 +316,12 @@ func EncryptFile(srcfile, dstfile, secret string) error {
 	outfile.Write(iv)
 	return nil
 }
+
+func Contains(list []string, str string) bool {
+	for _, v := range list {
+		if v == str {
+			return true
+		}
+	}
+	return false
+}

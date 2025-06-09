@@ -51,7 +51,7 @@ func checkContainerStatus(host, role, containerId string, status *string) step.L
 
 func WaitContainerStart(seconds int) step.LambdaType {
 	return func(ctx *context.Context) error {
-		time.Sleep(time.Duration(seconds))
+		time.Sleep(time.Duration(seconds) * time.Second)
 		return nil
 	}
 }

@@ -432,7 +432,7 @@ func (dingoadm *DingoAdm) CheckRole(role string) error {
 			return errno.ERR_UNSUPPORT_CURVEBS_ROLE.
 				F("role: %s", role)
 		}
-		return errno.ERR_UNSUPPORT_CURVEFS_ROLE.
+		return errno.ERR_UNSUPPORT_DINGOFS_ROLE.
 			F("role: %s", role)
 	}
 	return nil
@@ -558,4 +558,20 @@ func (dingoadm *DingoAdm) SwitchCluster(cluster storage.Cluster) error {
 	dingoadm.clusterPoolData = cluster.Pool
 
 	return nil
+}
+
+// extract all deploy configs's role and deduplicate same role
+func (dingoadm *DingoAdm) GetRoles(dcs []*topology.DeployConfig) []string {
+	roles := []string{}
+	roleMap := make(map[string]bool)
+
+	for _, dc := range dcs {
+		role := dc.GetRole()
+		if _, ok := roleMap[role]; !ok {
+			roleMap[role] = true
+			roles = append(roles, role)
+		}
+	}
+
+	return roles
 }

@@ -129,6 +129,10 @@ func getCleanFiles(clean map[string]bool, dc *topology.DeployConfig, recycle boo
 				chunkserverIdMetafile := fmt.Sprintf("%s/%s", dataDir, METAFILE_CHUNKSERVER_ID)
 				files = append(files, copysetsDir, chunkserverIdMetafile)
 			}
+		case comm.CLEAN_ITEM_RAFT:
+			if dc.GetRole() == topology.ROLE_COORDINATOR || dc.GetRole() == topology.ROLE_STORE {
+				files = append(files, dc.GetDingoRaftDir())
+			}
 		}
 	}
 	return files

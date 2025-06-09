@@ -129,9 +129,10 @@ var (
 		{name: "cluster_snapshotclone_dummy_port", kind: []string{KIND_CURVEBS}},
 		{name: "cluster_snapshotclone_nginx_upstream", kind: []string{KIND_CURVEBS}},
 		{name: "cluster_metaserver_addr", kind: []string{KIND_CURVEFS, KIND_DINGOFS}},
-		{name: "cluster_coor_srv_peers", kind: []string{KIND_DINGOSTORE}},
-		{name: "cluster_coor_raft_peers", kind: []string{KIND_DINGOSTORE}},
+		{name: "cluster_coor_srv_peers", kind: []string{KIND_DINGOSTORE, KIND_DINGOFS}},
+		{name: "cluster_coor_raft_peers", kind: []string{KIND_DINGOSTORE, KIND_DINGOFS}},
 		{name: "cluster_mdsv2_addr", kind: []string{KIND_DINGOFS}},
+		{name: "coordinator_addr", kind: []string{KIND_DINGOFS}},
 	}
 )
 
@@ -323,7 +324,8 @@ func getValue(name string, dcs []*DeployConfig, idx int) string {
 		return joinNginxUpstreamServer(dcs)
 	case "cluster_metaserver_addr":
 		return joinPeer(dcs, ROLE_METASERVER, SELECT_LISTEN_PORT)
-	case "cluster_coor_srv_peers":
+	case "cluster_coor_srv_peers",
+		"coordinator_addr":
 		return joinPeer(dcs, ROLE_COORDINATOR, SELECT_LISTEN_COOR_SERVER_PORT)
 	case "cluster_coor_raft_peers":
 		return joinPeer(dcs, ROLE_COORDINATOR, SELECT_LISTEN_COOR_RAFT_PORT)

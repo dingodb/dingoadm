@@ -36,6 +36,7 @@ import (
 	"github.com/dingodb/dingoadm/internal/playbook"
 	task "github.com/dingodb/dingoadm/internal/task/task/common"
 	tui "github.com/dingodb/dingoadm/internal/tui/service"
+	"github.com/dingodb/dingoadm/internal/utils"
 	cliutil "github.com/dingodb/dingoadm/internal/utils"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -97,6 +98,14 @@ func getClusterMdsV2Addr(dcs []*topology.DeployConfig) string {
 	return value
 }
 
+func getClusterCoorAddr(dcs []*topology.DeployConfig) string {
+	value, err := dcs[0].GetVariables().Get("coordinator_addr")
+	if err != nil {
+		return "-"
+	}
+	return value
+}
+
 func getClusterMdsLeader(statuses []task.ServiceStatus) string {
 	leaders := []string{}
 	for _, status := range statuses {
@@ -140,7 +149,8 @@ func displayStatus(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options
 		}
 	}
 	excludeCols := []string{}
-	if dcs[0].GetRole() == topology.ROLE_MDS_V2 {
+	roles := dingoadm.GetRoles(dcs)
+	if utils.Contains(roles, topology.ROLE_MDS_V2) {
 		excludeCols = []string{"Data Dir"}
 	}
 	output, width := tui.FormatStatus(dcs[0].GetKind(), statuses, options.verbose, options.showInstances, excludeCols)
@@ -148,11 +158,15 @@ func displayStatus(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options
 
 	switch dcs[0].GetKind() {
 	case topology.KIND_DINGOFS:
-		if dcs[0].GetRole() == topology.ROLE_MDS_V2 {
+		if utils.Contains(roles, topology.ROLE_MDS_V2) {
 			dingoadm.WriteOutln("cluster name     : %s", dingoadm.ClusterName())
 			dingoadm.WriteOutln("cluster kind     : %s", dcs[0].GetKind())
 			dingoadm.WriteOutln("mdsv2       addr : %s", getClusterMdsV2Addr(dcs))
-			dingoadm.WriteOutln("coordinator addr : %s", dcs[0].GetDingoFsV2CoordinatorAddr())
+			if len(roles) == 1 {
+				dingoadm.WriteOutln("coordinator addr : %s", dcs[0].GetDingoFsV2CoordinatorAddr())
+			} else {
+				dingoadm.WriteOutln("coordinator addr : %s", getClusterCoorAddr(dcs))
+			}
 		} else {
 			dingoadm.WriteOutln("cluster name      : %s", dingoadm.ClusterName())
 			dingoadm.WriteOutln("cluster kind      : %s", dcs[0].GetKind())
@@ -179,6 +193,15 @@ func genStatusPlaybook(dingoadm *cli.DingoAdm,
 		Role: options.role,
 		Host: options.host,
 	})
+
+	// skip ROLE_TMP dc
+	for i := 0; i < len(dcs); i++ {
+		if dcs[i].GetRole() == topology.ROLE_TMP {
+			dcs = append(dcs[:i], dcs[i+1:]...)
+			i-- // adjust index after removal
+		}
+	}
+
 	if len(dcs) == 0 {
 		return nil, errno.ERR_NO_SERVICES_MATCHED
 	}

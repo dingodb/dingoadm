@@ -172,6 +172,9 @@ func getContainerCMD(dc *topology.DeployConfig) string {
 	case topology.KIND_DINGOFS:
 		if dc.GetRole() == topology.ROLE_MDS_V2 {
 			return ""
+		} else if dc.GetRole() == topology.ROLE_COORDINATOR || dc.GetRole() == topology.ROLE_STORE {
+			// coordinator and store use cleanstart
+			return "cleanstart"
 		} else {
 			return fmt.Sprintf("--role %s --args='%s'", dc.GetRole(), getArguments(dc))
 		}
@@ -196,14 +199,25 @@ func GetEnvironments(dc *topology.DeployConfig) []string {
 		//}
 		envs = append(envs, fmt.Sprintf("LD_PRELOAD=%s", strings.Join(preloads, " ")))
 
-		if dc.GetRole() == topology.ROLE_MDS_V2 {
+		switch dc.GetRole() {
+		case topology.ROLE_MDS_V2,
+			topology.ROLE_TMP:
 			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_FLAGS_ROLE, dc.GetRole()))
 			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGO_SERVER_HOST, dc.GetHostname()))
 			envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGO_SERVER_START_PORT, dc.GetDingoServerPort()))
-			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_COORDINATOR_ADDR, dc.GetDingoFsV2CoordinatorAddr()))
+			coordinator_addr := dc.GetDingoFsV2CoordinatorAddr()
+			if len(coordinator_addr) == 1 {
+				coordinator_addr, _ = dc.GetVariables().Get("coordinator_addr")
+			}
+			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_COORDINATOR_ADDR, coordinator_addr))
 			envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOFS_V2_INSTANCE_START_ID, dc.GetDingoInstanceId()))
 			//envs = append(envs, "LOG_LEVEL=DEBUG")
 			//envs = append(envs, "VERBOSE=1")
+		case topology.ROLE_COORDINATOR,
+			topology.ROLE_STORE:
+			envs = configDingoStoreENV(envs, dc)
+		default:
+			// just keep the old envs
 		}
 
 		env := dc.GetEnv()
@@ -212,32 +226,38 @@ func GetEnvironments(dc *topology.DeployConfig) []string {
 		}
 
 	} else if dc.GetKind() == topology.KIND_DINGOSTORE {
-		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTROE_FLAGS_ROLE, dc.GetRole()))
-		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_SERVER_LISTEN_HOST, dc.GetDingoStoreServerListenHost()))
-		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_RAFT_LISTEN_HOST, dc.GetDingoStoreRaftListenHost()))
-		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGO_SERVER_HOST, dc.GetHostname()))
-		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_RAFT_HOST, dc.GetHostname()))
-		envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_DEFAULT_REPLICA_NUM, dc.GetDingoStoreReplicaNum()))
-		envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_COORDINATOR_SERVER_START_PORT,
-			dc.GetDingoServerPort()))
-		envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_COORDINATOR_RAFT_START_PORT,
-			dc.GetDingoStoreRaftPort()))
-		envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGO_SERVER_START_PORT, dc.GetDingoServerPort()))
-		envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_RAFT_START_PORT, dc.GetDingoStoreRaftPort()))
-		envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_INSTANCE_START_ID, dc.GetDingoInstanceId()))
-		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_ENABLE_LITE, "false"))
-		cluster_coor_srv_peers, err := dc.GetVariables().Get("cluster_coor_srv_peers")
-		if err == nil {
-			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_COOR_SRV_PEERS, cluster_coor_srv_peers))
-		}
-		cluster_coor_raft_peers, err := dc.GetVariables().Get("cluster_coor_raft_peers")
-		if err == nil {
-			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_COOR_RAFT_PEERS, cluster_coor_raft_peers))
-		}
+		envs = configDingoStoreENV(envs, dc)
 		if len(dc.GetEnv()) > 0 {
 			env := strings.Split(dc.GetEnv(), " ")
 			envs = append(envs, env...)
 		}
+	}
+	return envs
+}
+
+func configDingoStoreENV(envs []string, dc *topology.DeployConfig) []string {
+	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTROE_FLAGS_ROLE, dc.GetRole()))
+	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_SERVER_LISTEN_HOST, dc.GetDingoStoreServerListenHost()))
+	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_RAFT_LISTEN_HOST, dc.GetDingoStoreRaftListenHost()))
+	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGO_SERVER_HOST, dc.GetHostname()))
+	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_RAFT_HOST, dc.GetHostname()))
+	envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_DEFAULT_REPLICA_NUM, dc.GetDingoStoreReplicaNum()))
+	envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_COORDINATOR_SERVER_START_PORT,
+		dc.GetDingoServerPort()))
+	envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_COORDINATOR_RAFT_START_PORT,
+		dc.GetDingoStoreRaftPort()))
+	envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGO_SERVER_START_PORT, dc.GetDingoServerPort()))
+	envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_RAFT_START_PORT, dc.GetDingoStoreRaftPort()))
+	envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_INSTANCE_START_ID, dc.GetDingoInstanceId()))
+	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_ENABLE_LITE, "false"))
+	cluster_coor_srv_peers, err := dc.GetVariables().Get("cluster_coor_srv_peers")
+	if err == nil {
+		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_COOR_SRV_PEERS, cluster_coor_srv_peers))
+		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_COORDINATOR_ADDR, cluster_coor_srv_peers))
+	}
+	cluster_coor_raft_peers, err := dc.GetVariables().Get("cluster_coor_raft_peers")
+	if err == nil {
+		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_COOR_RAFT_PEERS, cluster_coor_raft_peers))
 	}
 	return envs
 }
@@ -275,7 +295,7 @@ func getMountVolumes(dc *topology.DeployConfig) []step.Volume {
 		})
 	}
 
-	if dc.GetKind() == topology.KIND_DINGOSTORE {
+	if dc.GetRole() == topology.ROLE_COORDINATOR || dc.GetRole() == topology.ROLE_STORE {
 		volumes = append(volumes, step.Volume{
 			HostPath:      dc.GetDingoRaftDir(),
 			ContainerPath: layout.DingoStoreRaftDir,
@@ -304,6 +324,9 @@ func TrimContainerId(containerId *string) step.LambdaType {
 }
 
 func NewCreateContainerTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
+	if dc.GetRole() == topology.ROLE_TMP {
+		return nil, nil
+	}
 	hc, err := dingoadm.GetHost(dc.GetHost())
 	if err != nil {
 		return nil, err
@@ -353,6 +376,63 @@ func NewCreateContainerTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (
 		//--ulimit nofile=65535:65535: Sets both the soft and hard limits for the number of open files to 65535.
 		Ulimits:     getUlimits(dc),
 		Volumes:     getMountVolumes(dc),
+		Out:         &containerId,
+		ExecOptions: dingoadm.ExecOptions(),
+	})
+	t.AddStep(&step.Lambda{
+		Lambda: TrimContainerId(&containerId),
+	})
+	t.AddStep(&Step2InsertService{
+		ClusterId:      clusterId,
+		ServiceId:      serviceId,
+		ContainerId:    &containerId,
+		OldContainerId: &oldContainerId,
+		Storage:        dingoadm.Storage(),
+	})
+
+	return t, nil
+}
+
+func NewCreateTmpContainerTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
+	hc, err := dingoadm.GetHost(dc.GetHost())
+	if err != nil {
+		return nil, err
+	}
+
+	// new task
+	subname := fmt.Sprintf("host=%s role=%s", dc.GetHost(), dc.GetRole())
+	t := task.NewTask("Create Container", subname, hc.GetSSHConfig())
+
+	// add step to task
+	var oldContainerId, containerId string
+	clusterId := dingoadm.ClusterId()
+	dcId := dc.GetId()
+	serviceId := dingoadm.GetServiceId(dcId)
+	kind := dc.GetKind()
+	role := dc.GetRole()
+	hostname := fmt.Sprintf("%s-%s-%s", kind, role, serviceId)
+	options := dingoadm.ExecOptions()
+	options.ExecWithSudo = false
+
+	t.AddStep(&Step2GetService{ // if service exist, break task
+		ServiceId:   serviceId,
+		ContainerId: &oldContainerId,
+		Storage:     dingoadm.Storage(),
+	})
+
+	t.AddStep(&step.CreateContainer{
+		Image:      dc.GetContainerImage(),
+		Entrypoint: "bash",
+		Command:    "-c \"while true; do sleep 3600; done\"",
+		AddHost:    []string{fmt.Sprintf("%s:127.0.0.1", hostname)},
+		Envs:       GetEnvironments(dc),
+		Hostname:   hostname,
+		Init:       true,
+		Name:       hostname,
+		Privileged: true,
+		Restart:    POLICY_NEVER_RESTART,
+		//--ulimit core=-1: Sets the core dump file size limit to -1, meaning there’s no restriction on the core dump size.
+		//--ulimit nofile=65535:65535: Sets both the soft and hard limits for the number of open files to 65535.
 		Out:         &containerId,
 		ExecOptions: dingoadm.ExecOptions(),
 	})
