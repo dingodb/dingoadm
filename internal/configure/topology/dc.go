@@ -51,6 +51,7 @@ const (
 
 	// dingofs mdsv2
 	ROLE_MDS_V2 = "mdsv2"
+	ROLE_TMP    = "tmp" // tmp role: e.g. create meta tables
 
 	// dingo-store
 	ROLE_COORDINATOR = "coordinator"

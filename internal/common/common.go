@@ -77,6 +77,7 @@ const (
 	CLEAN_ITEM_LOG       = "log"
 	CLEAN_ITEM_DATA      = "data"
 	CLEAN_ITEM_CONTAINER = "container"
+	CLEAN_ITEM_RAFT      = "raft"
 	CLEANED_CONTAINER_ID = "-"
 
 	// client

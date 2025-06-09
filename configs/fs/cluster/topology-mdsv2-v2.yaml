@@ -1,0 +1,40 @@
+kind: dingofs
+global:
+  container_image: dockerproxy.zetyun.cn/docker.io/dingodatabase/dingofs:mdsv2-226b854
+  data_dir: ${home}/dingofs/data/${service_role}
+  log_dir: ${home}/dingofs/logs/${service_role}
+  raft_dir: ${home}/dingofs/raft/${service_role}
+  default_replica_num: 3
+  variable:
+    home: /tmp
+    machine1: server-host1
+    machine2: server-host2
+    machine3: server-host3
+
+coordinator_services:
+  config:
+    container_image: dockerproxy.zetyun.cn/docker.io/dingodatabase/dingo-store:latest
+    server.port: 6500
+    raft.port: 7500
+  deploy:
+    - host: ${machine1}
+    - host: ${machine2}
+    - host: ${machine3}
+
+store_services:
+  config:
+    container_image: dockerproxy.zetyun.cn/docker.io/dingodatabase/dingo-store:latest
+    server.port: 6600
+    raft.port: 7600
+  deploy:
+    - host: ${machine1}
+    - host: ${machine2}
+    - host: ${machine3}
+
+mdsv2_services:
+  config:
+    server.port: 6900
+  deploy:
+    - host: ${machine1}
+    - host: ${machine2}
+    - host: ${machine3}

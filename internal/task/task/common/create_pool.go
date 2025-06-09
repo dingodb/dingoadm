@@ -27,6 +27,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/dingodb/dingoadm/cli/cli"
 	"github.com/dingodb/dingoadm/internal/build"
@@ -289,6 +290,69 @@ func NewCreateTopologyTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*
 			storage:     dingoadm.Storage(),
 		})
 	}
+
+	return t, nil
+}
+
+func checkWaitCreateTablesSuccess(success *bool, out *string, seconds int) step.LambdaType {
+	return func(ctx *context.Context) error {
+		if !*success {
+			return errno.ERR_WAIT_MDS_ELECTION_SUCCESS_TIMEOUT
+		}
+		// sleep for a while to wait for create tables success
+		time.Sleep(time.Duration(seconds) * time.Second)
+		return nil
+	}
+}
+
+func NewCreateMetaTablesTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
+	serviceId := dingoadm.GetServiceId(dc.GetId())
+	containerId, err := dingoadm.GetContainerId(serviceId)
+	if dingoadm.IsSkip(dc) {
+		return nil, nil
+	} else if err != nil {
+		return nil, err
+	}
+	hc, err := dingoadm.GetHost(dc.GetHost())
+	if err != nil {
+		return nil, err
+	}
+
+	// new task
+	t := task.NewTask("Create Meta Tables", "Create Meta Tables", hc.GetSSHConfig())
+
+	// add step to task
+	var success bool
+	var out string
+	t.AddStep(&step.ListContainers{
+		ShowAll:     true,
+		Format:      `"{{.ID}}"`,
+		Filter:      fmt.Sprintf("id=%s", containerId),
+		Out:         &out,
+		ExecOptions: dingoadm.ExecOptions(),
+	})
+	t.AddStep(&step.Lambda{
+		Lambda: CheckContainerExist(dc.GetHost(), dc.GetRole(), containerId, &out),
+	})
+
+	// wait coordinator leader election success
+	t.AddStep(&step.Lambda{
+		Lambda: WaitContainerStart(30),
+	})
+
+	t.AddStep(&step.ContainerExec{
+		Command: fmt.Sprintf("bash %s/create_mdsv2_tables.sh %s", dc.GetProjectLayout().MdsV2CliBinDir, dc.GetProjectLayout().MdsV2CliBinaryPath),
+		//Command:     fmt.Sprintf("bash %s/create_mdsv2_tables.sh %s/dingo-mdsv2-client", dc.GetProjectLayout().DingoStoreBinDir, dc.GetProjectLayout().DingoStoreBinDir),
+		ContainerId: &containerId,
+		Success:     &success,
+		Out:         &out,
+		ExecOptions: dingoadm.ExecOptions(),
+	})
+	// wait tables created successfully
+	t.AddStep(&step.Lambda{
+		// Lambda: WaitContainerStart(5),
+		Lambda: checkWaitCreateTablesSuccess(&success, &out, 3),
+	})
 
 	return t, nil
 }

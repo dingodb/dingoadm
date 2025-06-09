@@ -38,6 +38,7 @@ const (
 	// service project layout
 	LAYOUT_DINGO_ROOT_DIR                    = "/dingo"
 	LAYOUT_DINGOFS_ROOT_DIR                  = "/dingofs"
+	LAYOUT_DINGOSTORE_BIN_DIR                = "/opt/dingo-store/build/bin"
 	LAYOUT_DINGOSTORE_ROOT_DIR               = "/opt/dingo-store/dist"
 	LAYOUT_CURVEFS_ROOT_DIR                  = "/curvefs"
 	LAYOUT_CURVEBS_ROOT_DIR                  = "/curvebs"
@@ -49,6 +50,7 @@ const (
 	LAYOUT_SERVICE_DATA_DIR                  = "/data"
 	LAYOUT_TOOLS_DIR                         = "/tools"
 	LAYOUT_TOOLS_V2_DIR                      = "/tools-v2"
+	LAYOUT_MDSV2_CLIENT_DIR                  = "/mdsv2-client"
 	LAYOUT_CURVEBS_CHUNKFILE_POOL_DIR        = "chunkfilepool"
 	LAYOUT_CURVEBS_COPYSETS_DIR              = "copysets"
 	LAYOUT_CURVEBS_RECYCLER_DIR              = "recycler"
@@ -67,6 +69,7 @@ const (
 	BINARY_CURVEBS_FORMAT   = "curve_format"
 	BINARY_CURVEFS_TOOL     = "dingo-tool"
 	BINARY_DINGO_TOOL_V2    = "dingo"
+	BINARY_MDSV2_CLIENT     = "dingo-mdsv2-client"
 	METAFILE_CHUNKFILE_POOL = "chunkfilepool.meta"
 	METAFILE_CHUNKSERVER_ID = "chunkserver.dat"
 )
@@ -298,6 +301,13 @@ type (
 		ToolsV2ConfSystemPath string // /etc/dingo/dingo.yaml
 		ToolsV2BinaryPath     string // /curvebs/tools-v2/sbin/curve
 
+		// mdsv2 client
+		MdsV2RootDir        string // /dingofs/mdsv2-client
+		MdsV2CliBinDir      string // /dingofs/mdsv2-client/sbin
+		MdsV2CliConfDir     string // /dingofs/mdsv2-client/conf
+		MdsV2CliConfSrcPath string // /dingofs/mdsv2-client/conf/coor_list
+		MdsV2CliBinaryPath  string // /dingofs/mdsv2-client/sbin/dingo-mdsv2-client
+
 		// dingo-store coordinator.template.yaml
 		CoordinatorConfSrcPath string // /opt/dingo-store/conf/coordinator.template.yaml
 		StoreConfSrcPath       string // /opt/dingo-store/conf/store.template.yaml
@@ -309,6 +319,7 @@ type (
 		ChunkfilePoolMetaPath string // /curvebs/chunkserver/data/chunkfilepool.meta
 
 		// dingo-store
+		DingoStoreBinDir  string // /opt/dingo-store/build/bin
 		DingoStoreRaftDir string // /opt/dingo-store/xxx/data/raft
 
 		// core
@@ -354,18 +365,15 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 	serviceLogDir := serviceRootDir + LAYOUT_SERVICE_LOG_DIR
 	serviceDataDir := serviceRootDir + LAYOUT_SERVICE_DATA_DIR
 	dingoStoreRaftDir := ""
-	if kind == KIND_DINGOSTORE {
-		if role == ROLE_COORDINATOR {
-			serviceLogDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_COOR_LOG_DIR
-			serviceDataDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_COOR_DATA_DIR
-			dingoStoreRaftDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_COOR_RAFT_DIR
-		} else if role == ROLE_STORE {
-			serviceLogDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_STORE_LOG_DIR
-			serviceDataDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_STORE_DATA_DIR
-			dingoStoreRaftDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_STORE_RAFT_DIR
-		}
-	}
-	if role == ROLE_MDS_V2 {
+	if role == ROLE_COORDINATOR {
+		serviceLogDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_COOR_LOG_DIR
+		serviceDataDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_COOR_DATA_DIR
+		dingoStoreRaftDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_COOR_RAFT_DIR
+	} else if role == ROLE_STORE {
+		serviceLogDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_STORE_LOG_DIR
+		serviceDataDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_STORE_DATA_DIR
+		dingoStoreRaftDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_STORE_RAFT_DIR
+	} else if role == ROLE_MDS_V2 {
 		serviceLogDir = serviceRootDir + "/log" // /dingofs/mdsv2/log
 	}
 
@@ -403,6 +411,13 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 		ToolsV2ConfSystemPath: toolsV2ConfSystemPath,
 		ToolsV2BinaryPath:     fmt.Sprintf("%s/%s", toolsV2BinDir, toolsV2BinaryName),
 
+		// mdsv2 client
+		MdsV2RootDir:        root + LAYOUT_MDSV2_CLIENT_DIR,
+		MdsV2CliBinDir:      root + LAYOUT_MDSV2_CLIENT_DIR + LAYOUT_SERVICE_BIN_DIR,
+		MdsV2CliConfDir:     root + LAYOUT_MDSV2_CLIENT_DIR + LAYOUT_SERVICE_CONF_DIR,
+		MdsV2CliConfSrcPath: fmt.Sprintf("%s/coor_list", root+LAYOUT_MDSV2_CLIENT_DIR+LAYOUT_SERVICE_CONF_DIR), // /dingofs/mdsv2-client/conf/coor_list
+		MdsV2CliBinaryPath:  fmt.Sprintf("%s/%s", root+LAYOUT_MDSV2_CLIENT_DIR+LAYOUT_SERVICE_BIN_DIR, BINARY_MDSV2_CLIENT),
+
 		// format
 		FormatBinaryPath:      fmt.Sprintf("%s/%s", toolsBinDir, BINARY_CURVEBS_FORMAT),
 		ChunkfilePoolRootDir:  chunkserverDataDir,
@@ -410,6 +425,7 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 		ChunkfilePoolMetaPath: fmt.Sprintf("%s/%s", chunkserverDataDir, METAFILE_CHUNKFILE_POOL),
 
 		// dingo-store
+		DingoStoreBinDir:  LAYOUT_DINGOSTORE_BIN_DIR,
 		DingoStoreRaftDir: dingoStoreRaftDir,
 		// core
 		CoreSystemDir: LAYOUT_CORE_SYSTEM_DIR,

@@ -58,11 +58,15 @@ var (
 	//go:embed shell/recycle.sh
 	RECYCLE string
 
-	// CurveFS
+	// DingoFS
 
 	//go:embed shell/create_fs_v2.sh
 	CREATE_FS string
 
 	//go:embed shell/start_gateway.sh
 	START_GATEWAY string
+
+	// DingoFS MdsV2
+	//go:embed shell/create_mdsv2_tables.sh
+	CREATE_MDSV2_TABLES string
 )

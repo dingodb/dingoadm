@@ -63,6 +63,7 @@ const (
 	// common
 	PULL_IMAGE
 	CREATE_CONTAINER
+	CREATE_TMP_CONTAINER
 	SYNC_CONFIG
 	START_SERVICE
 	START_ETCD
@@ -74,10 +75,12 @@ const (
 	START_MDS_V2
 	START_COORDINATOR
 	START_STORE
+	START_TMP_CONTAINER
 	STOP_SERVICE
 	RESTART_SERVICE
 	CREATE_PHYSICAL_POOL
 	CREATE_LOGICAL_POOL
+	CREATE_META_TABLES
 	UPDATE_TOPOLOGY
 	INIT_SERVIE_STATUS
 	GET_SERVICE_STATUS
@@ -214,6 +217,8 @@ func (p *Playbook) createTasks(step *PlaybookStep) (*tasks.Tasks, error) {
 			t, err = comm.NewPullImageTask(dingoadm, config.GetDC(i))
 		case CREATE_CONTAINER:
 			t, err = comm.NewCreateContainerTask(dingoadm, config.GetDC(i))
+		case CREATE_TMP_CONTAINER:
+			t, err = comm.NewCreateTmpContainerTask(dingoadm, config.GetDC(i))
 		case SYNC_CONFIG:
 			t, err = comm.NewSyncConfigTask(dingoadm, config.GetDC(i))
 		case START_SERVICE,
@@ -224,7 +229,8 @@ func (p *Playbook) createTasks(step *PlaybookStep) (*tasks.Tasks, error) {
 			START_METASERVER,
 			START_MDS_V2,
 			START_COORDINATOR,
-			START_STORE:
+			START_STORE,
+			START_TMP_CONTAINER:
 			t, err = comm.NewStartServiceTask(dingoadm, config.GetDC(i))
 		case ENABLE_ETCD_AUTH:
 			t, err = comm.NewEnableEtcdAuthTask(dingoadm, config.GetDC(i))
@@ -235,6 +241,8 @@ func (p *Playbook) createTasks(step *PlaybookStep) (*tasks.Tasks, error) {
 		case CREATE_PHYSICAL_POOL,
 			CREATE_LOGICAL_POOL:
 			t, err = comm.NewCreateTopologyTask(dingoadm, config.GetDC(i))
+		case CREATE_META_TABLES:
+			t, err = comm.NewCreateMetaTablesTask(dingoadm, config.GetDC(i))
 		case UPDATE_TOPOLOGY:
 			t, err = comm.NewUpdateTopologyTask(dingoadm, nil)
 		case INIT_SERVIE_STATUS:
