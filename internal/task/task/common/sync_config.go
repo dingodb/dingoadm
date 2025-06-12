@@ -138,10 +138,6 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 	//})
 
 	if dc.GetKind() == topology.KIND_DINGOFS {
-		if dc.GetRole() == topology.ROLE_STORE || dc.GetRole() == topology.ROLE_COORDINATOR {
-			return t, nil
-		}
-
 		for _, conf := range layout.ServiceConfFiles {
 			t.AddStep(&step.SyncFile{ // sync service config
 				ContainerSrcId:    &containerId,
@@ -153,8 +149,19 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 				ExecOptions:       dingoadm.ExecOptions(),
 			})
 		}
+		if dc.GetRole() == topology.ROLE_COORDINATOR || dc.GetRole() == topology.ROLE_STORE {
+			// sync check_store_health.sh
+			checkStoreScript := scripts.CHECK_STORE_HEALTH
+			checkStoreScriptPath := fmt.Sprintf("%s/check_store_health.sh", layout.DingoStoreScriptDir) // /opt/dingo-store/scripts
+			t.AddStep(&step.InstallFile{                                                                // install create_mdsv2_tables.sh script
+				ContainerId:       &containerId,
+				ContainerDestPath: checkStoreScriptPath,
+				Content:           &checkStoreScript,
+				ExecOptions:       dingoadm.ExecOptions(),
+			})
 
-		if dc.GetRole() != topology.ROLE_COORDINATOR && dc.GetRole() != topology.ROLE_STORE {
+			return t, nil
+		} else {
 			t.AddStep(&step.TrySyncFile{ // sync tools-v2 config
 				ContainerSrcId:    &containerId,
 				ContainerSrcPath:  layout.ToolsV2ConfSrcPath,

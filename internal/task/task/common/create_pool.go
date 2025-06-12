@@ -335,11 +335,6 @@ func NewCreateMetaTablesTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) 
 		Lambda: CheckContainerExist(dc.GetHost(), dc.GetRole(), containerId, &out),
 	})
 
-	// wait coordinator leader election success
-	t.AddStep(&step.Lambda{
-		Lambda: WaitContainerStart(30),
-	})
-
 	t.AddStep(&step.ContainerExec{
 		Command: fmt.Sprintf("bash %s/create_mdsv2_tables.sh %s", dc.GetProjectLayout().MdsV2CliBinDir, dc.GetProjectLayout().MdsV2CliBinaryPath),
 		//Command:     fmt.Sprintf("bash %s/create_mdsv2_tables.sh %s/dingo-mdsv2-client", dc.GetProjectLayout().DingoStoreBinDir, dc.GetProjectLayout().DingoStoreBinDir),
@@ -347,11 +342,6 @@ func NewCreateMetaTablesTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) 
 		Success:     &success,
 		Out:         &out,
 		ExecOptions: dingoadm.ExecOptions(),
-	})
-	// wait tables created successfully
-	t.AddStep(&step.Lambda{
-		// Lambda: WaitContainerStart(5),
-		Lambda: checkWaitCreateTablesSuccess(&success, &out, 3),
 	})
 
 	return t, nil

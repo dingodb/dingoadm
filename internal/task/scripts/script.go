@@ -69,4 +69,8 @@ var (
 	// DingoFS MdsV2
 	//go:embed shell/create_mdsv2_tables.sh
 	CREATE_MDSV2_TABLES string
+
+	// DingoStore
+	//go:embed shell/check_store_health.sh
+	CHECK_STORE_HEALTH string
 )

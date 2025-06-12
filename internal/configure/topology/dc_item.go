@@ -109,7 +109,7 @@ var (
 				//return path.Join(LAYOUT_DINGOSTORE_ROOT_DIR, fmt.Sprintf("%s%d", dc.GetRole(), dc.GetHostSequence()+1))
 				// TODO
 				//return path.Join(LAYOUT_DINGOSTORE_ROOT_DIR, dc.GetRole())
-				return LAYOUT_DINGOSTORE_ROOT_DIR
+				return LAYOUT_DINGOSTORE_DIST_DIR
 			}
 			return path.Join(LAYOUT_DINGO_ROOT_DIR, dc.GetRole())
 		},
