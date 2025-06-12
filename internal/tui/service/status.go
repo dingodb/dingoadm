@@ -50,6 +50,7 @@ const (
 	ROLE_SNAPSHOTCLONE = topology.ROLE_SNAPSHOTCLONE
 	ROLE_COORDINATOR   = topology.ROLE_COORDINATOR
 	ROLE_STORE         = topology.ROLE_STORE
+	ROLE_MDS_V2        = topology.ROLE_MDS_V2
 
 	ITEM_ID = iota
 	ITEM_CONTAINER_ID
@@ -77,6 +78,7 @@ var (
 		ROLE_CHUNKSERVER:   2,
 		ROLE_METASERVER:    2,
 		ROLE_SNAPSHOTCLONE: 3,
+		ROLE_MDS_V2:        3,
 	}
 	MONITOT_ROLE_SCORE = map[string]int{
 		configure.ROLE_NODE_EXPORTER: 0,

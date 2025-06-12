@@ -92,6 +92,7 @@ const (
 	COLLECT_CLIENT
 	BACKUP_ETCD_DATA
 	CHECK_MDS_ADDRESS
+	CHECK_STORE_HEALTH
 	INIT_CLIENT_STATUS
 	GET_CLIENT_STATUS
 	INSTALL_CLIENT
@@ -210,6 +211,8 @@ func (p *Playbook) createTasks(step *PlaybookStep) (*tasks.Tasks, error) {
 			t, err = checker.NewCheckS3Task(dingoadm, config.GetDC(i))
 		case CHECK_MDS_ADDRESS:
 			t, err = checker.NewCheckMdsAddressTask(dingoadm, config.GetCC(i))
+		case CHECK_STORE_HEALTH:
+			t, err = comm.NewCheckStoreHealthTask(dingoadm, config.GetDC(i))
 		case CLEAN_PRECHECK_ENVIRONMENT:
 			t, err = checker.NewCleanEnvironmentTask(dingoadm, config.GetDC(i))
 		// common

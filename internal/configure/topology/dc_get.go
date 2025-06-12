@@ -38,8 +38,9 @@ const (
 	// service project layout
 	LAYOUT_DINGO_ROOT_DIR                    = "/dingo"
 	LAYOUT_DINGOFS_ROOT_DIR                  = "/dingofs"
+	LAYOUT_DINGOSTORE_ROOT_DIR               = "/opt/dingo-store"
 	LAYOUT_DINGOSTORE_BIN_DIR                = "/opt/dingo-store/build/bin"
-	LAYOUT_DINGOSTORE_ROOT_DIR               = "/opt/dingo-store/dist"
+	LAYOUT_DINGOSTORE_DIST_DIR               = "/opt/dingo-store/dist"
 	LAYOUT_CURVEFS_ROOT_DIR                  = "/curvefs"
 	LAYOUT_CURVEBS_ROOT_DIR                  = "/curvebs"
 	LAYOUT_PLAYGROUND_ROOT_DIR               = "playground"
@@ -319,8 +320,9 @@ type (
 		ChunkfilePoolMetaPath string // /curvebs/chunkserver/data/chunkfilepool.meta
 
 		// dingo-store
-		DingoStoreBinDir  string // /opt/dingo-store/build/bin
-		DingoStoreRaftDir string // /opt/dingo-store/xxx/data/raft
+		DingoStoreBinDir    string // /opt/dingo-store/build/bin
+		DingoStoreRaftDir   string // /opt/dingo-store/xxx/data/raft
+		DingoStoreScriptDir string // /opt/dingo-store/scripts
 
 		// core
 		CoreSystemDir string
@@ -366,13 +368,13 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 	serviceDataDir := serviceRootDir + LAYOUT_SERVICE_DATA_DIR
 	dingoStoreRaftDir := ""
 	if role == ROLE_COORDINATOR {
-		serviceLogDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_COOR_LOG_DIR
-		serviceDataDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_COOR_DATA_DIR
-		dingoStoreRaftDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_COOR_RAFT_DIR
+		serviceLogDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_COOR_LOG_DIR
+		serviceDataDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_COOR_DATA_DIR
+		dingoStoreRaftDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_COOR_RAFT_DIR
 	} else if role == ROLE_STORE {
-		serviceLogDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_STORE_LOG_DIR
-		serviceDataDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_STORE_DATA_DIR
-		dingoStoreRaftDir = LAYOUT_DINGOSTORE_ROOT_DIR + LAYOUT_DINGO_STORE_RAFT_DIR
+		serviceLogDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_STORE_LOG_DIR
+		serviceDataDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_STORE_DATA_DIR
+		dingoStoreRaftDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_STORE_RAFT_DIR
 	} else if role == ROLE_MDS_V2 {
 		serviceLogDir = serviceRootDir + "/log" // /dingofs/mdsv2/log
 	}
@@ -425,8 +427,9 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 		ChunkfilePoolMetaPath: fmt.Sprintf("%s/%s", chunkserverDataDir, METAFILE_CHUNKFILE_POOL),
 
 		// dingo-store
-		DingoStoreBinDir:  LAYOUT_DINGOSTORE_BIN_DIR,
-		DingoStoreRaftDir: dingoStoreRaftDir,
+		DingoStoreBinDir:    LAYOUT_DINGOSTORE_BIN_DIR,
+		DingoStoreRaftDir:   dingoStoreRaftDir,
+		DingoStoreScriptDir: LAYOUT_DINGOSTORE_ROOT_DIR + "/scripts",
 		// core
 		CoreSystemDir: LAYOUT_CORE_SYSTEM_DIR,
 	}

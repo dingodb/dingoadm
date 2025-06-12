@@ -132,8 +132,8 @@ func (s *step2CheckClientS3Configure) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func NewCheckChunkfilePoolTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
-	hc, err := curveadm.GetHost(dc.GetHost())
+func NewCheckChunkfilePoolTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
+	hc, err := dingoadm.GetHost(dc.GetHost())
 	if err != nil {
 		return nil, err
 	}
@@ -143,13 +143,13 @@ func NewCheckChunkfilePoolTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig
 
 	t.AddStep(&step2CheckChunkfilePool{
 		dc:          dc,
-		execOptions: curveadm.ExecOptions(),
+		execOptions: dingoadm.ExecOptions(),
 	})
 
 	return t, nil
 }
 
-func NewCheckS3Task(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
+func NewCheckS3Task(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
 	subname := fmt.Sprintf("host=%s role=%s", dc.GetHost(), dc.GetRole())
 	t := task.NewTask("Check S3", subname, nil)
 
@@ -163,9 +163,9 @@ func NewCheckS3Task(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Ta
 	return t, nil
 }
 
-func NewCheckMdsAddressTask(curveadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.Task, error) {
-	host := curveadm.MemStorage().Get(comm.KEY_CLIENT_HOST).(string)
-	hc, err := curveadm.GetHost(host)
+func NewCheckMdsAddressTask(dingoadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.Task, error) {
+	host := dingoadm.MemStorage().Get(comm.KEY_CLIENT_HOST).(string)
+	hc, err := dingoadm.GetHost(host)
 	if err != nil {
 		return nil, err
 	}
@@ -177,7 +177,7 @@ func NewCheckMdsAddressTask(curveadm *cli.DingoAdm, cc *configure.ClientConfig) 
 	return t, nil
 }
 
-func NewClientS3ConfigureTask(curveadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.Task, error) {
+func NewClientS3ConfigureTask(dingoadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.Task, error) {
 	t := task.NewTask("Check S3 Configure <service>", "", nil)
 
 	t.AddStep(&step2CheckClientS3Configure{
@@ -187,6 +187,6 @@ func NewClientS3ConfigureTask(curveadm *cli.DingoAdm, cc *configure.ClientConfig
 	return t, nil
 }
 
-func NewCheckDiskUsageTask(curveadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.Task, error) {
+func NewCheckDiskUsageTask(dingoadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.Task, error) {
 	return nil, nil
 }
