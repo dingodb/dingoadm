@@ -1,0 +1,277 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "dingoadm deploy -k --local",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {
+                "CGO_ENABLED": "1",
+                "PATH": "/opt/rh/gcc-toolset-13/root/usr/bin:${env:PATH}"
+            },
+            "args": [
+                "deploy",
+                "-k",
+                "--local"
+            ],
+            "showLog": true,
+            //"preLaunchTask": "enable-gcc-toolset"
+        },
+        {
+            "name": "dingoadm -u",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {
+                "CGO_ENABLED": "1",
+                "PATH": "/opt/rh/gcc-toolset-13/root/usr/bin:${env:PATH}"
+            },
+            "args": [
+                "-u",
+            ],
+            "showLog": true,
+        },
+        {
+            "name": "dingoadm status -sv",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {
+                "CGO_ENABLED": "1",
+                "PATH": "/opt/rh/gcc-toolset-13/root/usr/bin:${env:PATH}"
+            },
+            "args": [
+                "status",
+                "-sv",
+            ],
+            "showLog": true,
+        },
+        {
+            "name": "dingoadm status -v",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {
+                "CGO_ENABLED": "1",
+                "PATH": "/opt/rh/gcc-toolset-13/root/usr/bin:${env:PATH}"
+            },
+            "args": [
+                "status",
+                "-v",
+            ],
+            "showLog": true,
+        },
+        {
+            "name": "dingoadm status -sv -w store-cluster",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {
+                "CGO_ENABLED": "1",
+                "PATH": "/opt/rh/gcc-toolset-13/root/usr/bin:${env:PATH}"
+            },
+            "args": [
+                "status",
+                "-sv",
+                "-w",
+                "store-cluster",
+            ],
+            "showLog": true,
+        },
+        {
+            "name": "dingoadm cluster add",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {
+                "CGO_ENABLED": "1",
+                "PATH": "/opt/rh/gcc-toolset-13/root/usr/bin:${env:PATH}"
+            },
+            "args": [
+                "cluster",
+                "add",
+                "v2-cluster",
+                "-f=/home/dongwei/deploy/topology-dingofs-v2.yaml",
+            ],
+            "showLog": true,
+        },
+        {
+            "name": "dingoadm cluster checkout",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {
+                "CGO_ENABLED": "1",
+                "PATH": "/opt/rh/gcc-toolset-13/root/usr/bin:${env:PATH}"
+            },
+            "args": [
+                "cluster",
+                "checkout",
+                "v2-cluster",
+            ],
+            "showLog": true,
+        },
+        {
+            "name": "dingoadm precheck",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {
+                "CGO_ENABLED": "1",
+                "PATH": "/opt/rh/gcc-toolset-13/root/usr/bin:${env:PATH}"
+            },
+            "args": [
+                "precheck",
+            ],
+            "showLog": true,
+            //"preLaunchTask": "enable-gcc-toolset"
+        },
+        {
+            "name": "dingoadm mount",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {},
+            "args": [
+                // --- gateway senario ---
+                //"gateway",
+                //"start",
+                //"--host=dingo7232",
+                //"--listen-address=:29000",
+                //"--console-address=:29002",
+                //"--mountpoint=/home/dongw/dingofs/cli/cli1"
+                //--- mount senario ---
+                "mount",
+                "dwfs",
+                "/home/dongw/dingofs/cli/cli1",
+                "--host=dingo7232",
+                "-c=/home/dongw/test/client_minio_quota.yaml"
+            ],
+            "showLog": true
+        },
+        {
+            "name": "dingoadm mount skip pull image",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {},
+            "args": [
+                "mount",
+                "dwfs",
+                "/home/dongw/dingofs/cli/cli1",
+                "--host=dingo7232",
+                "-c=/home/dongw/test/client_minio_quota.yaml",
+                "--local"
+            ],
+            "showLog": true
+        },
+        {
+            "name": "dingoadm config commit",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {},
+            "args": [
+                "config",
+                "commit",
+                "/home/dongw/.dingoadm/topology-test.yaml"
+            ],
+            "showLog": true
+        },
+        {
+            "name": "dingoadm status",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {},
+            "args": [
+                "status",
+            ],
+            "showLog": true
+        },
+        {
+            "name": "dingoadm monitor",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {},
+            "args": [
+                "monitor",
+                "deploy",
+                "-c=/home/dongw/dingofs-monitor/monitor.yaml",
+            ],
+            "showLog": true
+        },
+        {
+            "name": "dingoadm playbook -l host1,host2",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {
+                "CGO_ENABLED": "1",
+                "PATH": "/opt/rh/gcc-toolset-13/root/usr/bin:${env:PATH}"
+            },
+            "args": [
+                "playbook",
+                "/home/dongwei/code/any.sh"
+                "-l",
+                "host1,host2",
+            ],
+            "showLog": true,
+        },
+        {
+            "name": "dingoadm cluster add store-cluster",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {
+                "CGO_ENABLED": "1",
+                "PATH": "/opt/rh/gcc-toolset-13/root/usr/bin:${env:PATH}"
+            },
+            "args": [
+                "cluster",
+                "add"
+                "store-cluster",
+                "-f",
+                "/home/dongwei/deploy/topology-store.yaml"
+            ],
+            "showLog": true,
+        },
+        {
+            "name": "dingoadm cluster checkout store-cluster",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {
+                "CGO_ENABLED": "1",
+                "PATH": "/opt/rh/gcc-toolset-13/root/usr/bin:${env:PATH}"
+            },
+            "args": [
+                "cluster",
+                "checkout"
+                "store-cluster",
+            ],
+            "showLog": true,
+        },
+    ]
+}
