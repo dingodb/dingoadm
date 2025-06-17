@@ -31,16 +31,20 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 
 	tui "github.com/dingodb/dingoadm/internal/tui/common"
 	"github.com/go-resty/resty/v2"
+	"github.com/vbauerster/mpb/v7"
+	"github.com/vbauerster/mpb/v7/decor"
 )
 
 const (
-	URL_LATEST_VERSION   = "http://curveadm.nos-eastchina1.126.net/release/__version" // TODO replace url
+	URL_LATEST_VERSION   = "https://github.com/dingodb/dingoadm/releases/download/latest/commit_id" // TODO replace url
 	URL_INSTALL_SCRIPT   = "https://raw.githubusercontent.com/dingodb/dingoadm/master/scripts/install_dingoadm.sh"
 	HEADER_VERSION       = "X-Nos-Meta-Curveadm-Latest-Version"
-	ENV_DINGOADM_UPGRADE = "DINOGADM_UPGRADE"
+	ENV_DINGOADM_UPGRADE = "DINGOADM_UPGRADE"
 	ENV_DINGOADM_VERSION = "DINGOADM_VERSION"
 )
 
@@ -92,16 +96,81 @@ func GetLatestVersion(currentVersion string) (string, error) {
 	return v[0], nil
 }
 
-func Upgrade2Latest(currentVersion string) error {
-	version, err := GetLatestVersion(currentVersion)
+func GetLatestCommitId(currentCommit string) (string, error) {
+	// get latest commit id from remote
+	client := resty.New()
+	client.SetTimeout(time.Duration(10 * time.Second)) // 10 seconds
+	resp, err := client.R().
+		SetHeader("Content-Type", "application/json").
+		Get(URL_LATEST_VERSION)
+
 	if err != nil {
-		return err
-	} else if len(version) == 0 {
+		fmt.Println("request error:", err)
+		return "", err
+	}
+
+	// check response content
+	if resp.StatusCode() != 200 {
+		return "", fmt.Errorf("failed to get latest commit, status code: %d", resp.StatusCode())
+	}
+	latestCommitId := string(resp.Body())
+	if len(latestCommitId) == 0 {
+		return "", fmt.Errorf("failed to get latest commit, response is empty")
+	}
+
+	if currentCommit == latestCommitId {
+		return "", nil // already up to date
+	}
+
+	return latestCommitId, nil
+}
+
+func Upgrade2Latest(currentCommit string) error {
+	// Create a progress bar with actual file size
+	wg := sync.WaitGroup{}
+	p := mpb.New(mpb.WithWaitGroup(&wg), mpb.WithOutput(os.Stdout))
+	checkBar := p.New(1,
+		mpb.BarStyle().Lbound("").Filler("").Tip("").Padding("").Rbound(""),
+		mpb.PrependDecorators(
+			decor.Name("Checking for update: ", decor.WC{W: 20}),
+			decor.OnComplete(decor.Spinner([]string{}), ""),
+			//decor.Spinner([]string{"-", "\\", "|", "/"}, decor.WCSyncSpace),
+		),
+		mpb.AppendDecorators(
+			decor.Elapsed(decor.ET_STYLE_GO, decor.WC{W: 4}),
+		),
+	)
+
+	version, err := GetLatestCommitId(currentCommit)
+	if err != nil {
+		checkBar.Abort(true)
+		p.Wait()
+		return fmt.Errorf("failed to check for updates: %w", err)
+	}
+
+	if len(version) == 0 {
+		p.Wait()
 		fmt.Println("The current version is up-to-date")
 		return nil
-	} else if pass := tui.ConfirmYes("Upgrade dingoadm to %s?", version); !pass {
+	}
+	checkBar.Abort(true)
+	p.Wait()
+
+	if pass := tui.ConfirmYes("Upgrade dingoadm to %s?", version); !pass {
 		return nil
 	}
+
+	// Step 2: Download new version
+	//downloadBar := p.AddBar(100,
+	//	mpb.PrependDecorators(
+	//		decor.Name("Downloading update", decor.WC{W: 20}),
+	//		decor.CountersNoUnit("%d / %d", decor.WCSyncWidth),
+	//	),
+	//	mpb.AppendDecorators(
+	//		decor.EwmaSpeed(decor.UnitKiB, "% .2f", 60),
+	//		decor.Percentage(decor.WCSyncSpace),
+	//	),
+	//)
 
 	cmd := exec.Command("/bin/bash", "-c", fmt.Sprintf("curl -fsSL %s | bash", URL_INSTALL_SCRIPT))
 	cmd.Env = append(os.Environ(), fmt.Sprintf("%s=true", ENV_DINGOADM_UPGRADE))
