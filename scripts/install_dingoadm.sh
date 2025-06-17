@@ -44,6 +44,12 @@ backup() {
     fi
 }
 
+backup_binary() {
+    if [ -f "${g_bin_dir}/dingoadm" ]; then
+        mv "${g_bin_dir}/dingoadm" "${g_bin_dir}/dingoadm-$(date +%s).backup"
+    fi
+}
+
 setup() {
     mkdir -p "${g_dingoadm_home}"/{bin,data,module,logs,temp}
 
@@ -147,6 +153,7 @@ install() {
 
 upgrade() {
     local source=$1
+    backup_binary
     install_binary "$source"
     print_upgrade_success
 }
