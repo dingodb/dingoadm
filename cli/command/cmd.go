@@ -123,7 +123,7 @@ func NewDingoAdmCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 			if options.debug {
 				return errno.List()
 			} else if options.upgrade {
-				return tools.Upgrade2Latest(cli.Version)
+				return tools.Upgrade2Latest(cli.CommitId)
 			} else if len(args) == 0 {
 				return cliutil.ShowHelp(dingoadm.Err())(cmd, args)
 			}
