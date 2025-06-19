@@ -41,6 +41,9 @@ var (
 
 // task options
 const (
+	// cluster
+	KEY_ENV_ACTIVATE_CLUSTER = "DINGO_ACTIVATE_CLUSTER"
+
 	// common
 	KEY_ALL_DEPLOY_CONFIGS    = "ALL_DEPLOY_CONFIGS"
 	KEY_POOLSET               = "KEY_POOLSET"
