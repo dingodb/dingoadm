@@ -164,15 +164,34 @@ func (dingoadm *DingoAdm) init() error {
 	}
 
 	// (7) Get current cluster
-	cluster, err := s.GetCurrentCluster()
-	if err != nil {
-		log.Error("Get current cluster failed",
-			log.Field("Error", err))
-		return errno.ERR_GET_CURRENT_CLUSTER_FAILED.E(err)
+	var cluster storage.Cluster
+	// check current active cluster config in env or not
+
+	if activatedClusterName, exists := os.LookupEnv(comm.KEY_ENV_ACTIVATE_CLUSTER); exists && len(activatedClusterName) > 0 {
+		cluster, err = s.GetClusterByName(activatedClusterName)
+		if err != nil {
+			log.Error("Get cluster by name failed",
+				log.Field("Error", err))
+			return errno.ERR_GET_CLUSTER_BY_NAME_FAILED.E(err)
+		}
+	} else if activatedClusterName, exists = os.LookupEnv(strings.ToLower(comm.KEY_ENV_ACTIVATE_CLUSTER)); exists && len(activatedClusterName) > 0 {
+		cluster, err = s.GetClusterByName(activatedClusterName)
+		if err != nil {
+			log.Error("Get cluster by name failed",
+				log.Field("Error", err))
+			return errno.ERR_GET_CLUSTER_BY_NAME_FAILED.E(err)
+		}
 	} else {
-		log.Info("Get current cluster success",
-			log.Field("ClusterId", cluster.Id),
-			log.Field("ClusterName", cluster.Name))
+		cluster, err = s.GetCurrentCluster()
+		if err != nil {
+			log.Error("Get current cluster failed",
+				log.Field("Error", err))
+			return errno.ERR_GET_CURRENT_CLUSTER_FAILED.E(err)
+		} else {
+			log.Info("Get current cluster success",
+				log.Field("ClusterId", cluster.Id),
+				log.Field("ClusterName", cluster.Name))
+		}
 	}
 
 	// (8) Get monitor configure

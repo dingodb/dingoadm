@@ -248,7 +248,7 @@ var (
 	// 210: command options (cluster)
 	ERR_ID_NOT_FOUND                   = EC(210000, "id not found")
 	ERR_UNSUPPORT_CURVEBS_ROLE         = EC(210001, "unsupport curvebs role (etcd/mds/chunkserver/snapshotclone)")
-	ERR_UNSUPPORT_DINGOFS_ROLE         = EC(210002, "unsupport dingofs role (etcd/mds/metaserver)")
+	ERR_UNSUPPORT_DINGOFS_ROLE         = EC(210002, "unsupport dingofs role (etcd/mds/metaserver/coordinator/store/mdsv2)")
 	ERR_UNSUPPORT_SKIPPED_SERVICE_ROLE = EC(210003, "unsupport skipped service role")
 	ERR_UNSUPPORT_SKIPPED_CHECK_ITEM   = EC(210004, "unsupport skipped check item")
 	ERR_UNSUPPORT_CLEAN_ITEM           = EC(210005, "unsupport clean item")
