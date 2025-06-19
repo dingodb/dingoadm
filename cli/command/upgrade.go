@@ -57,7 +57,7 @@ type upgradeOptions struct {
 	useLocalImage bool
 }
 
-func NewUpgradeCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewUpgradeCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options upgradeOptions
 
 	cmd := &cobra.Command{
@@ -65,10 +65,10 @@ func NewUpgradeCommand(curveadm *cli.DingoAdm) *cobra.Command {
 		Short: "Upgrade service",
 		Args:  cliutil.NoArgs,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return checkCommonOptions(curveadm, options.id, options.role, options.host)
+			return checkCommonOptions(dingoadm, options.id, options.role, options.host)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runUpgrade(curveadm, options)
+			return runUpgrade(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -83,10 +83,10 @@ func NewUpgradeCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	return cmd
 }
 
-func genUpgradePlaybook(curveadm *cli.DingoAdm,
+func genUpgradePlaybook(dingoadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options upgradeOptions) (*playbook.Playbook, error) {
-	dcs = curveadm.FilterDeployConfig(dcs, topology.FilterOption{
+	dcs = dingoadm.FilterDeployConfig(dcs, topology.FilterOption{
 		Id:   options.id,
 		Role: options.role,
 		Host: options.host,
@@ -105,7 +105,7 @@ func genUpgradePlaybook(curveadm *cli.DingoAdm,
 			}
 		}
 	}
-	pb := playbook.NewPlaybook(curveadm)
+	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
 		pb.AddStep(&playbook.PlaybookStep{
 			Type:    step,
@@ -119,28 +119,28 @@ func genUpgradePlaybook(curveadm *cli.DingoAdm,
 	return pb, nil
 }
 
-func displayTitle(curveadm *cli.DingoAdm, dcs []*topology.DeployConfig, options upgradeOptions) {
+func displayTitle(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options upgradeOptions) {
 	total := len(dcs)
 	if options.force {
-		curveadm.WriteOutln(color.YellowString("Upgrade %d services at once", total))
+		dingoadm.WriteOutln(color.YellowString("Upgrade %d services at once", total))
 	} else {
-		curveadm.WriteOutln(color.YellowString("Upgrade %d services one by one", total))
+		dingoadm.WriteOutln(color.YellowString("Upgrade %d services one by one", total))
 	}
-	curveadm.WriteOutln(color.YellowString("Upgrade services: %s", serviceStats(dcs)))
+	dingoadm.WriteOutln(color.YellowString("Upgrade services: %s", serviceStats(dcs)))
 }
 
-func upgradeAtOnce(curveadm *cli.DingoAdm, dcs []*topology.DeployConfig, options upgradeOptions) error {
+func upgradeAtOnce(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options upgradeOptions) error {
 	// 1) display upgrade title
-	displayTitle(curveadm, dcs, options)
+	displayTitle(dingoadm, dcs, options)
 
 	// 2) confirm by user
-	if pass := tui.ConfirmYes(tui.DEFAULT_CONFIRM_PROMPT); !pass {
-		curveadm.WriteOut(tui.PromptCancelOpetation("upgrade service"))
-		return errno.ERR_CANCEL_OPERATION
-	}
+	// if pass := tui.ConfirmYes(tui.DEFAULT_CONFIRM_PROMPT); !pass {
+	// 	dingoadm.WriteOut(tui.PromptCancelOpetation("upgrade service"))
+	// 	return errno.ERR_CANCEL_OPERATION
+	// }
 
 	// 3) generate upgrade playbook
-	pb, err := genUpgradePlaybook(curveadm, dcs, options)
+	pb, err := genUpgradePlaybook(dingoadm, dcs, options)
 	if err != nil {
 		return err
 	}
@@ -152,29 +152,29 @@ func upgradeAtOnce(curveadm *cli.DingoAdm, dcs []*topology.DeployConfig, options
 	}
 
 	// 5) print success prompt
-	curveadm.WriteOutln("")
-	curveadm.WriteOutln(color.GreenString("Upgrade %d services success :)", len(dcs)))
+	dingoadm.WriteOutln("")
+	dingoadm.WriteOutln(color.GreenString("Upgrade %d services success :)", len(dcs)))
 	return nil
 }
 
-func upgradeOneByOne(curveadm *cli.DingoAdm, dcs []*topology.DeployConfig, options upgradeOptions) error {
+func upgradeOneByOne(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options upgradeOptions) error {
 	// 1) display upgrade title
-	displayTitle(curveadm, dcs, options)
+	displayTitle(dingoadm, dcs, options)
 
 	// 2) upgrade service one by one
 	total := len(dcs)
 	for i, dc := range dcs {
 		// 2.1) confirm by user
-		curveadm.WriteOutln("")
-		curveadm.WriteOutln("Upgrade %s service:", color.BlueString("%d/%d", i+1, total))
-		curveadm.WriteOutln("  + host=%s  role=%s  image=%s", dc.GetHost(), dc.GetRole(), dc.GetContainerImage())
+		dingoadm.WriteOutln("")
+		dingoadm.WriteOutln("Upgrade %s service:", color.BlueString("%d/%d", i+1, total))
+		dingoadm.WriteOutln("  + host=%s  role=%s  image=%s", dc.GetHost(), dc.GetRole(), dc.GetContainerImage())
 		if pass := tui.ConfirmYes(tui.DEFAULT_CONFIRM_PROMPT); !pass {
-			curveadm.WriteOut(tui.PromptCancelOpetation("upgrade service"))
+			dingoadm.WriteOut(tui.PromptCancelOpetation("upgrade service"))
 			return errno.ERR_CANCEL_OPERATION
 		}
 
 		// 2.2) generate upgrade playbook
-		pb, err := genUpgradePlaybook(curveadm, []*topology.DeployConfig{dc}, options)
+		pb, err := genUpgradePlaybook(dingoadm, []*topology.DeployConfig{dc}, options)
 		if err != nil {
 			return err
 		}
@@ -186,21 +186,21 @@ func upgradeOneByOne(curveadm *cli.DingoAdm, dcs []*topology.DeployConfig, optio
 		}
 
 		// 2.4) print success prompt
-		curveadm.WriteOutln("")
-		curveadm.WriteOutln(color.GreenString("Upgrade %d/%d sucess :)"), i+1, total)
+		dingoadm.WriteOutln("")
+		dingoadm.WriteOutln(color.GreenString("Upgrade %d/%d sucess :)"), i+1, total)
 	}
 	return nil
 }
 
-func runUpgrade(curveadm *cli.DingoAdm, options upgradeOptions) error {
+func runUpgrade(dingoadm *cli.DingoAdm, options upgradeOptions) error {
 	// 1) parse cluster topology
-	dcs, err := curveadm.ParseTopology()
+	dcs, err := dingoadm.ParseTopology()
 	if err != nil {
 		return err
 	}
 
 	// 2) filter deploy config
-	dcs = curveadm.FilterDeployConfig(dcs, topology.FilterOption{
+	dcs = dingoadm.FilterDeployConfig(dcs, topology.FilterOption{
 		Id:   options.id,
 		Role: options.role,
 		Host: options.host,
@@ -211,9 +211,9 @@ func runUpgrade(curveadm *cli.DingoAdm, options upgradeOptions) error {
 
 	// 3.1) upgrade service at once
 	if options.force {
-		return upgradeAtOnce(curveadm, dcs, options)
+		return upgradeAtOnce(dingoadm, dcs, options)
 	}
 
 	// 3.2) OR upgrade service one by one
-	return upgradeOneByOne(curveadm, dcs, options)
+	return upgradeOneByOne(dingoadm, dcs, options)
 }
