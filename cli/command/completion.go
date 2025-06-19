@@ -33,7 +33,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewCompletionCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewCompletionCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var completionCmd = &cobra.Command{
 		Use:   "completion [bash|zsh|fish|powershell]",
 		Short: "Generate completion script",
@@ -75,7 +75,7 @@ PowerShell:
   # To load completions for every new session, run:
   PS> %[1]s completion powershell > %[1]s.ps1
   # and source this file from your PowerShell profile.
-`, "curveadm"),
+`, "dingoadm"),
 		DisableFlagsInUseLine: true,
 		ValidArgs:             []string{"bash", "zsh", "fish", "powershell"},
 		Args:                  cobra.ExactValidArgs(1),
