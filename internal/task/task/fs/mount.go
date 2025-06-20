@@ -79,21 +79,24 @@ var (
 		"-o default_permissions",
 		"-o allow_other",
 		"-o fsname=%s", // fsname
-		"-o fstype=%s", // fstype, `s3` or `volume`
-		"-o user=curvefs",
+		"-o fstype=%s", // fstype, `vfs`
+		"-o user=dingofs",
 		"-o conf=%s", // config path
 		"%s",         // mount path
 	}
 )
 
-func getMountCommand(cc *configure.ClientConfig, mountFSName string, mountFSType string, mountPoint string) string {
+func getMountCommand(cc *configure.ClientConfig, mountFSName string, mountFSType string, mountPoint string, useNewDingo bool) string {
 	format := strings.Join(FORMAT_FUSE_ARGS, " ")
-	fuseArgs := fmt.Sprintf(format, mountFSName, mountFSType,
-		configure.GetFSClientConfPath(), configure.GetFSClientMountPath(mountPoint))
+	// TODO change mountFSType
+	fuseArgs := fmt.Sprintf(format, mountFSName, mountFSType, configure.GetFSClientConfPath(), configure.GetFSClientMountPath(mountPoint))
 
-	fmt.Printf("docker bootstrap command: /client.sh %s %s --role=client --args='%s' --capacity=%d --inodes=%d\n", mountFSName, mountFSType, fuseArgs, cc.GetQuotaCapacity(), cc.GetQuotaInodes())
-
-	return fmt.Sprintf("/client.sh %s %s --role=client --args='%s' --capacity=%d --inodes=%d", mountFSName, mountFSType, fuseArgs, cc.GetQuotaCapacity(), cc.GetQuotaInodes())
+	//fmt.Printf("docker bootstrap command: /client.sh %s %s --role=client --args='%s' --capacity=%d --inodes=%d\n", mountFSName, mountFSType, fuseArgs, cc.GetQuotaCapacity(), cc.GetQuotaInodes())
+	if useNewDingo {
+		return fmt.Sprintf("/client.sh %s %s --role=client --args='%s' --capacity=%d --inodes=%d --new-dingo", mountFSName, mountFSType, fuseArgs, cc.GetQuotaCapacity(), cc.GetQuotaInodes())
+	} else {
+		return fmt.Sprintf("/client.sh %s %s --role=client --args='%s' --capacity=%d --inodes=%d", mountFSName, mountFSType, fuseArgs, cc.GetQuotaCapacity(), cc.GetQuotaInodes())
+	}
 
 }
 
@@ -230,11 +233,16 @@ func newToolsV2Mutate(cc *configure.ClientConfig, delimiter string) step.Mutate 
 	clientConfig := cc.GetServiceConfig()
 	// mapping client config to dingo config
 	tools2client := map[string]string{
-		"mdsAddr":    "mdsOpt.rpcRetryOpt.addrs",
-		"ak":         "s3.ak",
-		"sk":         "s3.sk",
-		"endpoint":   "s3.endpoint",
-		"bucketname": "s3.bucket_name",
+		"mdsAddr":     "mdsOpt.rpcRetryOpt.addrs",
+		"ak":          "s3.ak",
+		"sk":          "s3.sk",
+		"endpoint":    "s3.endpoint",
+		"bucketname":  "s3.bucket_name",
+		"storagetype": "storage.type",
+		"username":    "rados.username",
+		"key":         "rados.key",
+		"mon":         "rados.mon",
+		"poolname":    "rados.poolname",
 	}
 	return func(in, key, value string) (out string, err error) {
 		if len(key) == 0 {
@@ -256,7 +264,7 @@ func newToolsV2Mutate(cc *configure.ClientConfig, delimiter string) step.Mutate 
 }
 
 func mountPoint2ContainerName(mountPoint string) string {
-	return fmt.Sprintf("curvefs-filesystem-%s", utils.MD5Sum(mountPoint))
+	return fmt.Sprintf("dingofs-filesystem-%s", utils.MD5Sum(mountPoint))
 }
 
 func checkMountStatus(mountPoint, name string, out *string) step.LambdaType {
@@ -319,9 +327,10 @@ func checkStartContainerStatus(success *bool, out *string) step.LambdaType {
 	}
 }
 
-func NewMountFSTask(curveadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.Task, error) {
-	options := curveadm.MemStorage().Get(comm.KEY_MOUNT_OPTIONS).(MountOptions)
-	hc, err := curveadm.GetHost(options.Host)
+func NewMountFSTask(dingoadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.Task, error) {
+	options := dingoadm.MemStorage().Get(comm.KEY_MOUNT_OPTIONS).(MountOptions)
+	useNewDingo := dingoadm.MemStorage().Get(comm.KEY_USE_NEW_DINGO).(bool)
+	hc, err := dingoadm.GetHost(options.Host)
 	if err != nil {
 		return nil, err
 	}
@@ -346,31 +355,31 @@ func NewMountFSTask(curveadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.T
 	t.AddStep(&step.EngineInfo{
 		Success:     &success,
 		Out:         &out,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.Lambda{
-		Lambda: checker.CheckEngineInfo(options.Host, curveadm.ExecOptions().ExecWithEngine, &success, &out),
+		Lambda: checker.CheckEngineInfo(options.Host, dingoadm.ExecOptions().ExecWithEngine, &success, &out),
 	})
 	t.AddStep(&step.ListContainers{
 		ShowAll:     true,
 		Format:      "'{{.Names}}'",
 		Filter:      fmt.Sprintf("name=%s", containerName),
 		Out:         &out,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.Lambda{
 		Lambda: checkMountStatus(mountPoint, containerName, &out),
 	})
-	useLocalImage := curveadm.MemStorage().Get(comm.KEY_USE_LOCAL_IMAGE).(bool)
+	useLocalImage := dingoadm.MemStorage().Get(comm.KEY_USE_LOCAL_IMAGE).(bool)
 	if !useLocalImage {
 		t.AddStep(&step.PullImage{
 			Image:       cc.GetContainerImage(),
-			ExecOptions: curveadm.ExecOptions(),
+			ExecOptions: dingoadm.ExecOptions(),
 		})
 	}
 	t.AddStep(&step.CreateContainer{
 		Image:             cc.GetContainerImage(),
-		Command:           getMountCommand(cc, mountFSName, mountFSType, mountPoint),
+		Command:           getMountCommand(cc, mountFSName, mountFSType, mountPoint, useNewDingo),
 		Entrypoint:        "/bin/bash",
 		Envs:              getEnvironments(cc),
 		Init:              true,
@@ -384,10 +393,10 @@ func NewMountFSTask(curveadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.T
 		Pid:               cc.GetContainerPid(),
 		Privileged:        true,
 		Out:               &containerId,
-		ExecOptions:       curveadm.ExecOptions(),
+		ExecOptions:       dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step2InsertClient{
-		curveadm:    curveadm,
+		curveadm:    dingoadm,
 		options:     options,
 		config:      cc,
 		containerId: &containerId,
@@ -401,7 +410,7 @@ func NewMountFSTask(curveadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.T
 			ContainerDestPath: CURVEBS_CONF_PATH,
 			KVFieldSplit:      comm.CLIENT_CONFIG_DELIMITER,
 			Mutate:            newCurveBSMutate(cc, comm.CLIENT_CONFIG_DELIMITER),
-			ExecOptions:       curveadm.ExecOptions(),
+			ExecOptions:       dingoadm.ExecOptions(),
 		})
 	}
 
@@ -412,7 +421,7 @@ func NewMountFSTask(curveadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.T
 		ContainerDestPath: fmt.Sprintf("%s/conf/client.conf", prefix),
 		KVFieldSplit:      comm.CLIENT_CONFIG_DELIMITER,
 		Mutate:            newMutate(cc, comm.CLIENT_CONFIG_DELIMITER),
-		ExecOptions:       curveadm.ExecOptions(),
+		ExecOptions:       dingoadm.ExecOptions(),
 	})
 	//t.AddStep(&step.SyncFile{ // sync tools config
 	//	ContainerSrcId:    &containerId,
@@ -430,19 +439,19 @@ func NewMountFSTask(curveadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.T
 		ContainerDestPath: topology.GetDingoFSProjectLayout().ToolsV2ConfSystemPath,
 		KVFieldSplit:      comm.TOOLS_V2_CONFIG_DELIMITER,
 		Mutate:            newToolsV2Mutate(cc, comm.TOOLS_V2_CONFIG_DELIMITER),
-		ExecOptions:       curveadm.ExecOptions(),
+		ExecOptions:       dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.InstallFile{ // install client.sh shell
 		ContainerId:       &containerId,
 		ContainerDestPath: createfsScriptPath,
 		Content:           &createfsScript,
-		ExecOptions:       curveadm.ExecOptions(),
+		ExecOptions:       dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.StartContainer{
 		ContainerId: &containerId,
 		Success:     &success,
 		Out:         &out,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.Lambda{
 		Lambda: checkStartContainerStatus(&success, &out),

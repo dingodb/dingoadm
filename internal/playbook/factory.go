@@ -129,6 +129,7 @@ const (
 
 	// fs
 	CHECK_CLIENT_S3
+	CREATE_DINGOFS
 	MOUNT_FILESYSTEM
 	UMOUNT_FILESYSTEM
 
@@ -305,6 +306,8 @@ func (p *Playbook) createTasks(step *PlaybookStep) (*tasks.Tasks, error) {
 		// fs
 		case CHECK_CLIENT_S3:
 			t, err = checker.NewClientS3ConfigureTask(dingoadm, config.GetCC(i))
+		case CREATE_DINGOFS:
+			t, err = fs.NewCreateDingoFSTask(dingoadm, config.GetCC(i))
 		case MOUNT_FILESYSTEM:
 			t, err = fs.NewMountFSTask(dingoadm, config.GetCC(i))
 		case UMOUNT_FILESYSTEM:

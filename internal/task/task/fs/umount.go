@@ -46,31 +46,31 @@ type (
 		containerId string
 		status      *string
 		mountPoint  string
-		curveadm    *cli.DingoAdm
+		dingoadm    *cli.DingoAdm
 	}
 
 	step2RemoveContainer struct {
 		status      *string
 		containerId string
-		curveadm    *cli.DingoAdm
+		dingoadm    *cli.DingoAdm
 	}
 
 	step2DeleteClient struct {
 		fsId     string
-		curveadm *cli.DingoAdm
+		dingoadm *cli.DingoAdm
 	}
 )
 
 func (s *step2UmountFS) Execute(ctx *context.Context) error {
-	if len(*s.status) == 0 { // container already removed
-		return nil
-	} else if !strings.HasPrefix(*s.status, "Up") { // not runing, remove it directly
+	if len(*s.status) == 0 || !strings.HasPrefix(*s.status, "Up") { // container already removed or not runing, remove it directly
+		cmd := ctx.Module().Shell().Umount(s.mountPoint)
+		cmd.Execute(s.dingoadm.ExecOptions())
 		return nil
 	}
 
 	command := fmt.Sprintf("umount %s", configure.GetFSClientMountPath(s.mountPoint))
 	dockerCli := ctx.Module().DockerCli().ContainerExec(s.containerId, command)
-	out, err := dockerCli.Execute(s.curveadm.ExecOptions())
+	out, err := dockerCli.Execute(s.dingoadm.ExecOptions())
 	if strings.Contains(out, SIGNATURE_NOT_MOUNTED) {
 		return nil
 	} else if err == nil {
@@ -80,12 +80,12 @@ func (s *step2UmountFS) Execute(ctx *context.Context) error {
 }
 
 func (s *step2DeleteClient) Execute(ctx *context.Context) error {
-	err := s.curveadm.Storage().DeleteClient(s.fsId)
+	err := s.dingoadm.Storage().DeleteClient(s.fsId)
 	if err != nil {
 		return errno.ERR_DELETE_CLIENT_FAILED.E(err)
 	}
 
-	err = s.curveadm.Storage().DeleteClientConfig(s.fsId)
+	err = s.dingoadm.Storage().DeleteClientConfig(s.fsId)
 	if err != nil {
 		return errno.ERR_DELETE_CLIENT_CONFIG_FAILED.E(err)
 	}
@@ -99,7 +99,7 @@ func (s *step2RemoveContainer) Execute(ctx *context.Context) error {
 	}
 
 	steps := []task.Step{}
-	options := s.curveadm.ExecOptions()
+	options := s.dingoadm.ExecOptions()
 	options.ExecTimeoutSec = ONE_DAY_SECONDS // wait all data flushed to S3
 	if strings.HasPrefix(*s.status, "Up") {
 		// stop container
@@ -115,7 +115,7 @@ func (s *step2RemoveContainer) Execute(ctx *context.Context) error {
 	}
 	steps = append(steps, &step.RemoveContainer{
 		ContainerId: s.containerId,
-		ExecOptions: s.curveadm.ExecOptions(),
+		ExecOptions: s.dingoadm.ExecOptions(),
 	})
 
 	for _, step := range steps {
@@ -127,10 +127,10 @@ func (s *step2RemoveContainer) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func NewUmountFSTask(curveadm *cli.DingoAdm, v interface{}) (*task.Task, error) {
-	options := curveadm.MemStorage().Get(comm.KEY_MOUNT_OPTIONS).(MountOptions)
-	fsId := curveadm.GetFilesystemId(options.Host, options.MountPoint)
-	hc, err := curveadm.GetHost(options.Host)
+func NewUmountFSTask(dingoadm *cli.DingoAdm, v interface{}) (*task.Task, error) {
+	options := dingoadm.MemStorage().Get(comm.KEY_MOUNT_OPTIONS).(MountOptions)
+	fsId := dingoadm.GetFilesystemId(options.Host, options.MountPoint)
+	hc, err := dingoadm.GetHost(options.Host)
 	if err != nil {
 		return nil, err
 	}
@@ -149,21 +149,21 @@ func NewUmountFSTask(curveadm *cli.DingoAdm, v interface{}) (*task.Task, error) 
 		Format:      "'{{.Status}}'",
 		Filter:      fmt.Sprintf("name=%s", containerId),
 		Out:         &status,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step2UmountFS{
 		containerId: containerId,
 		status:      &status,
 		mountPoint:  options.MountPoint,
-		curveadm:    curveadm,
+		dingoadm:    dingoadm,
 	})
 	t.AddStep(&step2RemoveContainer{
 		status:      &status,
 		containerId: containerId,
-		curveadm:    curveadm,
+		dingoadm:    dingoadm,
 	})
 	t.AddStep(&step2DeleteClient{
-		curveadm: curveadm,
+		dingoadm: dingoadm,
 		fsId:     fsId,
 	})
 

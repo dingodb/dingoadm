@@ -40,8 +40,9 @@ import (
 
 const (
 	MOUNT_EXAMPLE = `Examples:
-  $ dingoadm mount /s3_001     /path/to/mount --host machine -c client.yaml [--fstype s3]    # Mount a s3 CurveFS '/s3_001' to '/path/to/mount'
-  $ dingoadm mount /volume_001 /path/to/mount --host machine -c client.yaml --fstype volume  # Mount a volume CurveFS '/volume_001' to '/path/to/mount'`
+  $ dingoadm mount fs1  /path/to/mount --host machine -c client.yaml   			   # Mount a classic s3 DingoFS 'fs1' to '/path/to/mount'
+  $ dingoadm mount fs2  /path/to/mount --host machine -c client.yaml --new-dingo   # Mount a support rados type DingoFS 'fs2' to '/path/to/mount'
+  `
 )
 
 var (
@@ -61,9 +62,10 @@ type mountOptions struct {
 	filename      string
 	insecure      bool
 	useLocalImage bool
+	newDingo      bool // whether to create a new dingo which support rados fs type
 }
 
-func checkMountOptions(curveadm *cli.DingoAdm, options mountOptions) error {
+func checkMountOptions(dingoadm *cli.DingoAdm, options mountOptions) error {
 	if !strings.HasPrefix(options.mountPoint, "/") {
 		return errno.ERR_FS_MOUNTPOINT_REQUIRE_ABSOLUTE_PATH.
 			F("mount point: %s", options.mountPoint)
@@ -71,23 +73,23 @@ func checkMountOptions(curveadm *cli.DingoAdm, options mountOptions) error {
 	return nil
 }
 
-func NewMountCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewMountCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options mountOptions
 
 	cmd := &cobra.Command{
-		Use:     "mount NAME_OF_CURVEFS MOUNT_POINT [OPTIONS]",
+		Use:     "mount NAME_OF_DINGOFS MOUNT_POINT [OPTIONS]",
 		Short:   "Mount filesystem",
 		Args:    utils.ExactArgs(2),
 		Example: MOUNT_EXAMPLE,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			options.mountFSName = args[0]
 			options.mountPoint = args[1]
-			return checkMountOptions(curveadm, options)
+			return checkMountOptions(dingoadm, options)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			options.mountFSName = args[0]
 			options.mountPoint = args[1]
-			return runMount(curveadm, options)
+			return runMount(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -98,15 +100,16 @@ func NewMountCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	flags.StringVar(&options.mountFSType, "fstype", "s3", "Specify fs data backend")
 	flags.BoolVarP(&options.insecure, "insecure", "k", false, "Mount without precheck")
 	flags.BoolVar(&options.useLocalImage, "local", false, "Use local image to mount")
+	flags.BoolVar(&options.newDingo, "new-dingo", false, "support create rados type fs")
 
 	return cmd
 }
 
-func genMountPlaybook(curveadm *cli.DingoAdm,
+func genMountPlaybook(dingoadm *cli.DingoAdm,
 	ccs []*configure.ClientConfig,
 	options mountOptions) (*playbook.Playbook, error) {
 	steps := MOUNT_PLAYBOOK_STEPS
-	pb := playbook.NewPlaybook(curveadm)
+	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
 		if step == playbook.CHECK_KERNEL_MODULE &&
 			options.insecure {
@@ -126,6 +129,7 @@ func genMountPlaybook(curveadm *cli.DingoAdm,
 				comm.KEY_CLIENT_HOST:              options.host, // for checker
 				comm.KEY_CHECK_KERNEL_MODULE_NAME: comm.KERNERL_MODULE_FUSE,
 				comm.KEY_USE_LOCAL_IMAGE:          options.useLocalImage,
+				comm.KEY_USE_NEW_DINGO:            options.newDingo,
 			},
 			ExecOptions: playbook.ExecOptions{
 				SilentSubBar: step == playbook.CHECK_CLIENT_S3,
@@ -135,7 +139,7 @@ func genMountPlaybook(curveadm *cli.DingoAdm,
 	return pb, nil
 }
 
-func runMount(curveadm *cli.DingoAdm, options mountOptions) error {
+func runMount(dingoadm *cli.DingoAdm, options mountOptions) error {
 	// 1) parse client configure
 	cc, err := configure.ParseClientConfig(options.filename)
 	if err != nil {
@@ -146,7 +150,7 @@ func runMount(curveadm *cli.DingoAdm, options mountOptions) error {
 	}
 
 	// 2) generate mount playbook
-	pb, err := genMountPlaybook(curveadm, []*configure.ClientConfig{cc}, options)
+	pb, err := genMountPlaybook(dingoadm, []*configure.ClientConfig{cc}, options)
 	if err != nil {
 		return err
 	}
@@ -158,8 +162,8 @@ func runMount(curveadm *cli.DingoAdm, options mountOptions) error {
 	}
 
 	// 4) print success prompt
-	curveadm.WriteOutln("")
-	curveadm.WriteOutln(color.GreenString("Mount %s to %s (%s) success ^_^"),
+	dingoadm.WriteOutln("")
+	dingoadm.WriteOutln(color.GreenString("Mount %s to %s (%s) success ^_^"),
 		options.mountFSName, options.mountPoint, options.host)
 	return nil
 }
