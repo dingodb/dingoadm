@@ -77,7 +77,7 @@ var (
 	}
 
 	LAYOUT_CURVEBS_ROOT_DIR = topology.GetCurveBSProjectLayout().ProjectRootDir
-	LAYOUT_CURVEFS_ROOT_DIR = topology.GetDingoFSProjectLayout().ProjectRootDir
+	LAYOUT_DINGOFS_ROOT_DIR = topology.GetDingoFSProjectLayout().ProjectRootDir
 )
 
 type (
@@ -242,7 +242,7 @@ func (cc *ClientConfig) GetClusterMDSAddr() string {
 
 // wrapper interface: curvefs client related
 func GetFSProjectRoot() string {
-	return LAYOUT_CURVEFS_ROOT_DIR
+	return LAYOUT_DINGOFS_ROOT_DIR
 }
 
 func GetBSProjectRoot() string {
@@ -250,13 +250,14 @@ func GetBSProjectRoot() string {
 }
 
 func GetFSClientPrefix() string {
-	return fmt.Sprintf("%s/client", LAYOUT_CURVEFS_ROOT_DIR)
+	return fmt.Sprintf("%s/client", LAYOUT_DINGOFS_ROOT_DIR)
 }
 
 func GetFSClientConfPath() string {
-	return fmt.Sprintf("%s/client/conf/client.conf", LAYOUT_CURVEFS_ROOT_DIR)
+	return fmt.Sprintf("%s/client/conf/client.conf", LAYOUT_DINGOFS_ROOT_DIR)
 }
 
 func GetFSClientMountPath(subPath string) string {
-	return fmt.Sprintf("%s/client/mnt%s", LAYOUT_CURVEFS_ROOT_DIR, subPath)
+	// return fmt.Sprintf("%s/client/mnt%s", LAYOUT_DINGOFS_ROOT_DIR, subPath)
+	return fmt.Sprintf("/host%s", subPath)
 }
