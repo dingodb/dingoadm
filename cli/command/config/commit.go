@@ -55,7 +55,7 @@ type commitOptions struct {
 	force    bool
 }
 
-func NewCommitCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewCommitCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options commitOptions
 
 	cmd := &cobra.Command{
@@ -65,7 +65,7 @@ func NewCommitCommand(curveadm *cli.DingoAdm) *cobra.Command {
 		Example: COMMIT_EXAMPLE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			options.filename = args[0]
-			return runCommit(curveadm, options)
+			return runCommit(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -85,8 +85,8 @@ func skipError(err error) bool {
 	return false
 }
 
-func checkDiff(curveadm *cli.DingoAdm, newData string) error {
-	diffs, err := curveadm.DiffTopology(curveadm.ClusterTopologyData(), newData)
+func checkDiff(dingoadm *cli.DingoAdm, newData string) error {
+	diffs, err := dingoadm.DiffTopology(dingoadm.ClusterTopologyData(), newData)
 	if err != nil && !skipError(err) {
 		return err
 	}
@@ -105,11 +105,11 @@ func checkDiff(curveadm *cli.DingoAdm, newData string) error {
 	return nil
 }
 
-func genCheckTopologyPlaybook(curveadm *cli.DingoAdm,
+func genCheckTopologyPlaybook(dingoadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options commitOptions) (*playbook.Playbook, error) {
 	steps := CHECK_TOPOLOGY_PLAYBOOK_STEPS
-	pb := playbook.NewPlaybook(curveadm)
+	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
 		pb.AddStep(&playbook.PlaybookStep{
 			Type:    step,
@@ -129,7 +129,7 @@ func genCheckTopologyPlaybook(curveadm *cli.DingoAdm,
 	return pb, nil
 }
 
-func readTopology(curveadm *cli.DingoAdm, options commitOptions) (string, error) {
+func readTopology(dingoadm *cli.DingoAdm, options commitOptions) (string, error) {
 	filename := options.filename
 	if len(filename) == 0 {
 		return "", nil
@@ -143,26 +143,26 @@ func readTopology(curveadm *cli.DingoAdm, options commitOptions) (string, error)
 		return "", errno.ERR_READ_TOPOLOGY_FILE_FAILED.E(err)
 	}
 
-	oldData := curveadm.ClusterTopologyData()
+	oldData := dingoadm.ClusterTopologyData()
 	if !options.slient {
 		diff := utils.Diff(oldData, data)
-		curveadm.WriteOutln("%s", diff)
+		dingoadm.WriteOutln("%s", diff)
 	}
 	return data, nil
 }
 
-func checkTopology(curveadm *cli.DingoAdm, data string, options commitOptions) error {
+func checkTopology(dingoadm *cli.DingoAdm, data string, options commitOptions) error {
 	if options.force {
 		return nil
 	}
 
 	// 1) check topology content is ok
-	dcs, err := curveadm.ParseTopologyData(data)
+	dcs, err := dingoadm.ParseTopologyData(data)
 	if err != nil {
 		return err
 	}
 
-	pb, err := genCheckTopologyPlaybook(curveadm, dcs, options)
+	pb, err := genCheckTopologyPlaybook(dingoadm, dcs, options)
 	if err != nil {
 		return err
 	}
@@ -173,8 +173,8 @@ func checkTopology(curveadm *cli.DingoAdm, data string, options commitOptions) e
 	}
 
 	// 2) check wether add/delete service
-	if len(curveadm.ClusterTopologyData()) > 0 {
-		err = checkDiff(curveadm, data)
+	if len(dingoadm.ClusterTopologyData()) > 0 {
+		err = checkDiff(dingoadm, data)
 		if err != nil {
 			return err
 		}
@@ -183,38 +183,40 @@ func checkTopology(curveadm *cli.DingoAdm, data string, options commitOptions) e
 	return nil
 }
 
-func runCommit(curveadm *cli.DingoAdm, options commitOptions) error {
+func runCommit(dingoadm *cli.DingoAdm, options commitOptions) error {
 	// 1) parse cluster topology
-	_, err := curveadm.ParseTopology()
+	_, err := dingoadm.ParseTopology()
 	if err != nil && !skipError(err) {
 		return err
 	}
 
 	// 2) read  topology
-	data, err := readTopology(curveadm, options)
+	data, err := readTopology(dingoadm, options)
 	if err != nil {
 		return err
 	}
 
 	// 3) check topology
-	err = checkTopology(curveadm, data, options)
+	err = checkTopology(dingoadm, data, options)
 	if err != nil {
 		return err
 	}
 
-	// 4) confirm by user
-	if pass := tui.ConfirmYes("Do you want to continue?"); !pass {
-		curveadm.WriteOutln(tui.PromptCancelOpetation("commit topology"))
-		return errno.ERR_CANCEL_OPERATION
+	if !options.force {
+		// 4) confirm by user
+		if pass := tui.ConfirmYes("Do you want to continue?"); !pass {
+			dingoadm.WriteOutln(tui.PromptCancelOpetation("commit topology"))
+			return errno.ERR_CANCEL_OPERATION
+		}
 	}
 
 	// 5) update cluster topology in database
-	err = curveadm.Storage().SetClusterTopology(curveadm.ClusterId(), data)
+	err = dingoadm.Storage().SetClusterTopology(dingoadm.ClusterId(), data)
 	if err != nil {
 		return errno.ERR_UPDATE_CLUSTER_TOPOLOGY_FAILED.E(err)
 	}
 
 	// 6) print success prompt
-	curveadm.WriteOutln("Cluster '%s' topology updated", curveadm.ClusterName())
+	dingoadm.WriteOutln("Cluster '%s' topology updated", dingoadm.ClusterName())
 	return err
 }
