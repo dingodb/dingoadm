@@ -12,7 +12,10 @@ g_quota_capacity="--capacity="
 g_quota_inodes="--inodes="
 g_entrypoint="/entrypoint.sh"
 g_mnt=""
-g_tool_config="/dingofs/client/conf/client.conf"
+g_client_binary="/dingofs/client/sbin/dingo-fuse"
+g_client_config="/dingofs/client/conf/client.conf"
+g_tool_config="/etc/dingo/dingo.yaml"
+g_fuse_args=""
 new_dingo="false"
 
 function cleanMountpoint(){
@@ -27,7 +30,7 @@ function cleanMountpoint(){
     fi
 
     # Get the MDS address from the client.conf file
-    mdsaddr=$(grep 'mdsOpt.rpcRetryOpt.addrs' "${g_tool_config}" | awk -F '=' '{print $2}')
+    mdsaddr=$(grep 'mdsOpt.rpcRetryOpt.addrs' "${g_client_config}" | awk -F '=' '{print $2}')
         
     # Get the metric port from the mountpoint list
     mnt_info=$(${g_dingofs_tool} list mountpoint --mdsaddr=${mdsaddr} | grep ${g_mnt} | grep $(hostname))
@@ -57,11 +60,13 @@ function createfs() {
 
     if [ "$new_dingo" == "true" ]; then
         # create fs command: dingo create fs --fsname <fsname> --storagetype <storagetype> xxx
-        g_fstype=$g_storagetype$2
+        storagetype=$(grep 'storagetype:' "${g_tool_config}" | awk '{print $2}')
+        g_fstype=$g_storagetype$storagetype
     else
         # create fs command: dingo create fs --fsname <fsname> --fstype s3 xxx
         g_fstype=$g_fstype$2
     fi
+    echo "create fs command: $g_dingofs_tool $g_dingofs_tool_operator $g_fsname $g_fstype"
     $g_dingofs_tool $g_dingofs_tool_operator "$g_fsname" "$g_fstype"
 }
 
@@ -69,6 +74,35 @@ function configfs() {
     # config fs quota: dingo config fs --fsname <fsname>  --capacity <capacity> --inodes <inodes>
     echo "$g_dingofs_tool $g_dingofs_tool_config $g_fsname $g_quota_capacity$1 $g_quota_inodes$2"
     $g_dingofs_tool $g_dingofs_tool_config "$g_fsname" "$g_quota_capacity$1" "$g_quota_inodes$2" 
+}
+
+function get_options() {
+    local long_opts="role:,args:,help"
+    local fuse_args=`getopt -o ra --long $long_opts -n "$0" -- "$@"`
+    eval set -- "${fuse_args}"
+    while true
+    do
+        case "$1" in
+            -r|--role)
+                shift 2
+                ;;
+            -a|--args)
+                g_fuse_args=$2
+                shift 2
+                ;;
+            -h)
+                usage
+                exit 1
+                ;;
+            --)
+                shift
+                break
+                ;;
+            *)
+                exit 1
+                ;;
+        esac
+    done
 }
 
 # Parse command parameters
@@ -93,7 +127,14 @@ for arg in "$@"; do
 done
 
 echo "create fs args: ${args[@]}"
-g_mnt=${!#}
+# fetch args last element as mountpoint
+g_mnt=$(echo "${args[@]}" | awk '{print $NF}')
+echo "mountpoint is ${g_mnt}"
+if [[ ! -d "${g_mnt}" ]]; then
+    echo "Mountpoint ${g_mnt} does not exist, creating it..."
+    mkdir -p "${g_mnt}"
+fi
+
 cleanMountpoint
 createfs "${args[@]}"
 
@@ -103,7 +144,14 @@ if [ $ret -eq 0 ]; then
         echo "config fs quota: capacity=$capacity, inodes=$inodes"
         configfs "$capacity" "$inodes"
     fi
-    $g_entrypoint "${args[@]}"
+    if [ "$new_dingo" == "true" ]; then
+        get_options "${args[@]}"
+        echo "Bootstrap dingo-fuse service, command: $g_client_binary ${g_fuse_args}"
+        exec $g_client_binary ${g_fuse_args}
+    else
+        echo "old dingo, using entrypoint script: $g_entrypoint"
+        $g_entrypoint "${args[@]}"
+    fi
     ret=$?
     exit $ret
 else

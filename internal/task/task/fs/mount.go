@@ -19,6 +19,8 @@
  * Project: CurveAdm
  * Created Date: 2021-10-15
  * Author: Jingli Chen (Wine93)
+ * Modified Date: 2025-06-20
+ * Modified By: Dongwei
  */
 
 package fs
@@ -79,7 +81,7 @@ var (
 		"-o default_permissions",
 		"-o allow_other",
 		"-o fsname=%s", // fsname
-		"-o fstype=%s", // fstype, `vfs`
+		"-o fstype=%s", // v1: s3, mdsv2: vfs
 		"-o user=dingofs",
 		"-o conf=%s", // config path
 		"%s",         // mount path
@@ -233,16 +235,17 @@ func newToolsV2Mutate(cc *configure.ClientConfig, delimiter string) step.Mutate 
 	clientConfig := cc.GetServiceConfig()
 	// mapping client config to dingo config
 	tools2client := map[string]string{
-		"mdsAddr":     "mdsOpt.rpcRetryOpt.addrs",
-		"ak":          "s3.ak",
-		"sk":          "s3.sk",
-		"endpoint":    "s3.endpoint",
-		"bucketname":  "s3.bucket_name",
-		"storagetype": "storage.type",
-		"username":    "rados.username",
-		"key":         "rados.key",
-		"mon":         "rados.mon",
-		"poolname":    "rados.poolname",
+		"mdsAddr":         "mdsOpt.rpcRetryOpt.addrs",
+		"ak":              "s3.ak",
+		"sk":              "s3.sk",
+		"endpoint":        "s3.endpoint",
+		"bucketname":      "s3.bucket_name",
+		"storagetype":     "storage.type",
+		"username":        "rados.username",
+		"key":             "rados.key",
+		"mon":             "rados.mon",
+		"poolname":        "rados.poolname",
+		"mds_api_version": "mds.api_version",
 	}
 	return func(in, key, value string) (out string, err error) {
 		if len(key) == 0 {
