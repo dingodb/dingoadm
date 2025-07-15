@@ -136,6 +136,7 @@ if [[ ! -d "${g_mnt}" ]]; then
 fi
 
 cleanMountpoint
+// TODO check fs is exist or not
 createfs "${args[@]}"
 
 ret=$?
