@@ -127,7 +127,8 @@ func getMountVolumes(cc *configure.ClientConfig) []step.Volume {
 	if len(coreDir) > 0 {
 		volumes = append(volumes, step.Volume{
 			HostPath:      coreDir,
-			ContainerPath: cc.GetCoreLocateDir(),
+			ContainerPath: coreDir,
+			//ContainerPath: cc.GetCoreLocateDir(),
 		})
 	}
 
