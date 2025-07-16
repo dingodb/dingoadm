@@ -354,7 +354,9 @@ func NewCreateContainerTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (
 	})
 
 	createDir := []string{dc.GetLogDir(), dc.GetDataDir()}
-	if dc.GetKind() == topology.KIND_DINGOSTORE {
+	if dc.GetKind() == topology.KIND_DINGOSTORE ||
+		dc.GetRole() == topology.ROLE_COORDINATOR ||
+		dc.GetRole() == topology.ROLE_STORE {
 		createDir = append(createDir, dc.GetDingoRaftDir())
 	}
 
