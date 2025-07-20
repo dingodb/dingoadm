@@ -162,9 +162,13 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 
 			return t, nil
 		} else {
+			containerToolsSrcPath := layout.ToolsV2ConfSrcPath
+			if dc.GetRole() == topology.ROLE_MDS_V2 {
+				containerToolsSrcPath = layout.ToolsV2ConfSrcPath2
+			}
 			t.AddStep(&step.TrySyncFile{ // sync tools-v2 config
 				ContainerSrcId:    &containerId,
-				ContainerSrcPath:  layout.ToolsV2ConfSrcPath,
+				ContainerSrcPath:  containerToolsSrcPath,
 				ContainerDestId:   &containerId,
 				ContainerDestPath: layout.ToolsV2ConfSystemPath,
 				KVFieldSplit:      CONFIG_DELIMITER_COLON,

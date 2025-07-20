@@ -45,6 +45,7 @@ const (
 	LAYOUT_CURVEBS_ROOT_DIR                  = "/curvebs"
 	LAYOUT_PLAYGROUND_ROOT_DIR               = "playground"
 	LAYOUT_CONF_SRC_DIR                      = "/conf"
+	LAYOUT_V2_CONF_SRC_DIR                   = "/confv2"
 	LAYOUT_SERVICE_BIN_DIR                   = "/sbin"
 	LAYOUT_SERVICE_CONF_DIR                  = "/conf"
 	LAYOUT_SERVICE_LOG_DIR                   = "/logs"
@@ -299,6 +300,7 @@ type (
 		ToolsV2BinDir         string // /dingofs/tools-v2/sbin
 		ToolsV2ConfDir        string // /dingofs/tools-v2/conf
 		ToolsV2ConfSrcPath    string // /dingofs/conf/dingo.yaml
+		ToolsV2ConfSrcPath2   string // /dingofs/confv2/dingo.yaml
 		ToolsV2ConfSystemPath string // /etc/dingo/dingo.yaml
 		ToolsV2BinaryPath     string // /curvebs/tools-v2/sbin/curve
 
@@ -337,6 +339,7 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 
 	// service
 	confSrcDir := root + LAYOUT_CONF_SRC_DIR
+	confSrcDirV2 := root + LAYOUT_V2_CONF_SRC_DIR
 	serviceRootDir := dc.GetPrefix()
 	serviceConfDir := fmt.Sprintf("%s/conf", serviceRootDir)
 	serviceConfFiles := []ConfFile{}
@@ -410,6 +413,7 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 		ToolsV2BinDir:         toolsV2RootDir + LAYOUT_SERVICE_BIN_DIR,
 		ToolsV2ConfDir:        toolsV2RootDir + LAYOUT_SERVICE_CONF_DIR,
 		ToolsV2ConfSrcPath:    fmt.Sprintf("%s/dingo.yaml", confSrcDir),
+		ToolsV2ConfSrcPath2:   fmt.Sprintf("%s/dingo.yaml", confSrcDirV2),
 		ToolsV2ConfSystemPath: toolsV2ConfSystemPath,
 		ToolsV2BinaryPath:     fmt.Sprintf("%s/%s", toolsV2BinDir, toolsV2BinaryName),
 
