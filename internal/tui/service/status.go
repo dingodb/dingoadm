@@ -294,10 +294,15 @@ func FormatStatus(kind string, statuses []task.ServiceStatus, verbose, expand bo
 	// cut column
 	locate := utils.Locate(title)
 	if !verbose {
-		tui.CutColumn(lines, locate["Ports"])    // Ports info
-		tui.CutColumn(lines, locate["Data Dir"]) // Data Dir
-		tui.CutColumn(lines, locate["Log Dir"])  // Log Dir
-		tui.CutColumn(lines, locate["Raft Dir"]) // Raft Dir
+		tui.CutColumn(lines, locate["Ports"]) // Ports info
+		// check title array have "Data Dir" or not
+		if utils.Contains(title, "Data Dir") {
+			tui.CutColumn(lines, locate["Data Dir"]) // Data Dir
+		}
+		tui.CutColumn(lines, locate["Log Dir"]) // Log Dir
+		if utils.Contains(title, "Raft Dir") {
+			tui.CutColumn(lines, locate["Raft Dir"]) // Raft Dir
+		}
 	}
 
 	output := tui.FixedFormat(lines, 2)
