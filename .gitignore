@@ -9,7 +9,7 @@ logs/*
 .playground
 .build/
 .vscode/*
-!.vscode/launch.json
+# !.vscode/launch.json
 .CHANGELOG
 vendor/
 TODO.md
