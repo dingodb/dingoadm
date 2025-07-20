@@ -170,7 +170,8 @@ func getServiceListenAddresses(dc *topology.DeployConfig) []Address {
 		address = append(address, Address{
 			Role: ROLE_MDS_V2,
 			IP:   dc.GetListenIp(),
-			Port: dc.GetListenPort(),
+			// Port: dc.GetListenPort(),
+			Port: dc.GetDingoServerPort(),
 		})
 
 	case ROLE_COORDINATOR:
