@@ -105,6 +105,16 @@ var (
 		START_METASERVER,
 	}
 
+	DINGOFS_MDS_DEPLOY_STEPS = []int{
+		CLEAN_PRECHECK_ENVIRONMENT,
+		PULL_IMAGE,
+		CREATE_CONTAINER,
+		SYNC_CONFIG,
+		START_ETCD,
+		ENABLE_ETCD_AUTH,
+		START_MDS,
+	}
+
 	DINGOFS_MDSV2_ONLY_DEPLOY_STEPS = []int{
 		CLEAN_PRECHECK_ENVIRONMENT,
 		PULL_IMAGE,
@@ -298,6 +308,8 @@ func genDeployPlaybook(dingoadm *cli.DingoAdm,
 				// mds v2 with coordinator/store
 				steps = DINGOFS_MDSV2_FOLLOW_DEPLOY_STEPS
 			}
+		} else if !utils.Contains(roles, topology.ROLE_METASERVER) {
+			steps = DINGOFS_MDS_DEPLOY_STEPS
 		} else {
 			steps = DINGOFS_DEPLOY_STEPS
 		}

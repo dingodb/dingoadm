@@ -188,6 +188,14 @@ func genPrecheckPlaybook(dingoadm *cli.DingoAdm,
 	if kind == topology.KIND_CURVEBS {
 		steps = CURVEBS_PRECHECK_STEPS
 	}
+
+	allowAbsent := false
+	roles := dingoadm.GetRoles(dcs)
+	if kind == topology.KIND_DINGOFS && !utils.Contains(roles, topology.ROLE_METASERVER) {
+		// if no metaservers, allow absent metaservers
+		allowAbsent = true
+	}
+
 	steps = skipPrecheckSteps(steps, options)
 
 	// add playbook step
@@ -213,6 +221,7 @@ func genPrecheckPlaybook(dingoadm *cli.DingoAdm,
 				comm.KEY_ALL_DEPLOY_CONFIGS:       dcs,
 				comm.KEY_CHECK_WITH_WEAK:          false,
 				comm.KEY_CHECK_SKIP_SNAPSHOECLONE: options.skipSnapshotClone,
+				comm.KEY_ALLOW_ABSENT:             allowAbsent,
 			},
 			ExecOptions: playbook.ExecOptions{
 				SilentSubBar: step == playbook.CHECK_HOST_DATE,

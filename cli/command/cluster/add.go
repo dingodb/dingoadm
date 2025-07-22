@@ -54,7 +54,7 @@ type addOptions struct {
 	name        string
 	descriotion string
 	filename    string
-	allowSingle bool
+	allowAbsent bool
 }
 
 func NewAddCommand(dingoadm *cli.DingoAdm) *cobra.Command {
@@ -75,7 +75,7 @@ func NewAddCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	flags := cmd.Flags()
 	flags.StringVarP(&options.descriotion, "description", "m", "", "Description for cluster")
 	flags.StringVarP(&options.filename, "topology", "f", "", "Specify the path of topology file")
-	flags.BoolVarP(&options.allowSingle, "allow-single", "", false, "Allow single node cluster, default is false")
+	flags.BoolVarP(&options.allowAbsent, "absent", "", false, "Allow some service absent, default is false")
 
 	return cmd
 }
@@ -99,6 +99,14 @@ func genCheckTopologyPlaybook(dingoadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options addOptions) (*playbook.Playbook, error) {
 	steps := CHECK_TOPOLOGY_PLAYBOOK_STEPS
+
+	kind := dcs[0].GetKind()
+	roles := dingoadm.GetRoles(dcs)
+
+	if kind == topology.KIND_DINGOFS && !utils.Contains(roles, topology.ROLE_METASERVER) {
+		// if no metaservers, allow absent metaservers
+		options.allowAbsent = true
+	}
 	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
 		pb.AddStep(&playbook.PlaybookStep{
@@ -108,6 +116,7 @@ func genCheckTopologyPlaybook(dingoadm *cli.DingoAdm,
 				comm.KEY_ALL_DEPLOY_CONFIGS:       dcs,
 				comm.KEY_CHECK_SKIP_SNAPSHOECLONE: false,
 				comm.KEY_CHECK_WITH_WEAK:          true,
+				comm.KEY_ALLOW_ABSENT:             options.allowAbsent,
 			},
 			ExecOptions: playbook.ExecOptions{
 				Concurrency:   100,

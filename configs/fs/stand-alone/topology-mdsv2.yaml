@@ -1,0 +1,41 @@
+kind: dingofs
+global:
+  container_image: dingodatabase/dingofs:mdsv2-4533f26
+  data_dir: ${home}/dingofs/data/${service_role}
+  log_dir: ${home}/dingofs/logs/${service_role}
+  raft_dir: ${home}/dingofs/raft/${service_role}
+  default_replica_num: 3
+  #source_core_dir: ${home}/core
+  #target_core_dir: ${home}/core
+  variable:
+    home: /tmp
+    target: server-host
+
+coordinator_services:
+  config:
+    container_image: dingodatabase/dingo-store:latest
+    server.port: 6500
+    raft.port: 7500
+  deploy:
+    - host: ${target}
+    - host: ${target}
+    - host: ${target}
+
+store_services:
+  config:
+    container_image: dingodatabase/dingo-store:latest
+    server.port: 6600
+    raft.port: 7600
+  deploy:
+    - host: ${target}
+    - host: ${target}
+    - host: ${target}
+
+mdsv2_services:
+  config:
+    server.port: 6900
+  deploy:
+    - host: ${target}
+    - host: ${target}
+    - host: ${target}
+

@@ -291,10 +291,13 @@ func NewCheckTopologyTask(dingoadm *cli.DingoAdm, null interface{}) (*task.Task,
 	}
 	t.AddStep(&step2CheckDataDirectoryDuplicate{dcs: dcs})
 	t.AddStep(&step2CheckAddressDuplicate{dcs: dcs})
-	t.AddStep(&step2CheckServices{
-		dcs:      dcs,
-		dingoadm: dingoadm,
-	})
+	allowAbsent := dingoadm.MemStorage().Get(comm.KEY_ALLOW_ABSENT).(bool)
+	if !allowAbsent {
+		t.AddStep(&step2CheckServices{
+			dcs:      dcs,
+			dingoadm: dingoadm,
+		})
+	}
 	for _, dc := range dcs {
 		t.AddStep(&step2CheckS3Configure{
 			dc:       dc,

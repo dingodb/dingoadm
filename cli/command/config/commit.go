@@ -110,6 +110,15 @@ func genCheckTopologyPlaybook(dingoadm *cli.DingoAdm,
 	options commitOptions) (*playbook.Playbook, error) {
 	steps := CHECK_TOPOLOGY_PLAYBOOK_STEPS
 	pb := playbook.NewPlaybook(dingoadm)
+
+	allowAbsent := false
+	kind := dcs[0].GetKind()
+	roles := dingoadm.GetRoles(dcs)
+	if kind == topology.KIND_DINGOFS && !utils.Contains(roles, topology.ROLE_METASERVER) {
+		// if no metaservers, allow absent metaservers
+		allowAbsent = true
+	}
+
 	for _, step := range steps {
 		pb.AddStep(&playbook.PlaybookStep{
 			Type:    step,
@@ -118,6 +127,7 @@ func genCheckTopologyPlaybook(dingoadm *cli.DingoAdm,
 				comm.KEY_ALL_DEPLOY_CONFIGS:       dcs,
 				comm.KEY_CHECK_SKIP_SNAPSHOECLONE: false,
 				comm.KEY_CHECK_WITH_WEAK:          true,
+				comm.KEY_ALLOW_ABSENT:             allowAbsent,
 			},
 			ExecOptions: playbook.ExecOptions{
 				Concurrency:   100,

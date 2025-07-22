@@ -1,4 +1,4 @@
-kind: curvefs
+kind: dingofs
 global:
   report_usage: true
   data_dir: ${home}/dingofs/data/${service_role}${service_host_sequence}
