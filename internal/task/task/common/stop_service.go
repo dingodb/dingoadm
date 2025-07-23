@@ -58,14 +58,22 @@ func checkContainerId(containerId string) step.LambdaType {
 	}
 }
 
-func NewStopServiceTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
-	hc, err := curveadm.GetHost(dc.GetHost())
+func NewStopServiceTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
+	hc, err := dingoadm.GetHost(dc.GetHost())
 	if err != nil {
 		return nil, err
 	}
-	serviceId := curveadm.GetServiceId(dc.GetId())
-	containerId, err := curveadm.GetContainerId(serviceId)
-	if curveadm.IsSkip(dc) {
+	host, role := dc.GetHost(), dc.GetRole()
+	if role == topology.ROLE_TMP {
+		skipTmp := dingoadm.MemStorage().Get(comm.KEY_SKIP_TMP)
+		if skipTmp != nil && skipTmp.(bool) {
+			return nil, nil
+		}
+	}
+
+	serviceId := dingoadm.GetServiceId(dc.GetId())
+	containerId, err := dingoadm.GetContainerId(serviceId)
+	if dingoadm.IsSkip(dc) {
 		return nil, nil
 	} else if err != nil {
 		return nil, err
@@ -78,7 +86,6 @@ func NewStopServiceTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*tas
 
 	// add step to task
 	var out string
-	host, role := dc.GetHost(), dc.GetRole()
 	t.AddStep(&step.Lambda{
 		Lambda: checkContainerId(containerId),
 	})
@@ -87,14 +94,14 @@ func NewStopServiceTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*tas
 		Format:      `"{{.ID}}"`,
 		Filter:      fmt.Sprintf("id=%s", containerId),
 		Out:         &out,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.Lambda{
 		Lambda: CheckContainerExist(host, role, containerId, &out),
 	})
 	t.AddStep(&step.StopContainer{
 		ContainerId: containerId,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	return t, nil
 }

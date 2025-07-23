@@ -136,6 +136,9 @@ const (
 	// delimiter symbol
 	CLIENT_CONFIG_DELIMITER   = "="
 	TOOLS_V2_CONFIG_DELIMITER = ": "
+
+	// mdsv2
+	KEY_SKIP_TMP = "SKIP_TMP"
 )
 
 // others

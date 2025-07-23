@@ -151,6 +151,13 @@ func NewCleanServiceTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*ta
 		return nil, err
 	}
 
+	if dc.GetRole() == topology.ROLE_TMP {
+		skipTmp := dingoadm.MemStorage().Get(comm.KEY_SKIP_TMP)
+		if skipTmp != nil && skipTmp.(bool) {
+			return nil, nil
+		}
+	}
+
 	// new task
 	only := dingoadm.MemStorage().Get(comm.KEY_CLEAN_ITEMS).([]string)
 	recycle := dingoadm.MemStorage().Get(comm.KEY_CLEAN_BY_RECYCLE).(bool)

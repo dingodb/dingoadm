@@ -113,6 +113,7 @@ func genUpgradePlaybook(dingoadm *cli.DingoAdm,
 			Options: map[string]interface{}{
 				comm.KEY_CLEAN_ITEMS:      []string{comm.CLEAN_ITEM_CONTAINER},
 				comm.KEY_CLEAN_BY_RECYCLE: true,
+				comm.KEY_SKIP_TMP:         true,
 			},
 		})
 	}

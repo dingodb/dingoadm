@@ -30,6 +30,7 @@ import (
 	"strings"
 
 	"github.com/dingodb/dingoadm/cli/cli"
+	comm "github.com/dingodb/dingoadm/internal/common"
 	"github.com/dingodb/dingoadm/internal/configure/topology"
 	"github.com/dingodb/dingoadm/internal/task/scripts"
 	"github.com/dingodb/dingoadm/internal/task/step"
@@ -90,6 +91,13 @@ func newCrontab(uuid string, dc *topology.DeployConfig, reportScriptPath string)
 }
 
 func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
+	if dc.GetRole() == topology.ROLE_TMP {
+		skipTmp := dingoadm.MemStorage().Get(comm.KEY_SKIP_TMP)
+		if skipTmp != nil && skipTmp.(bool) {
+			return nil, nil
+		}
+	}
+
 	serviceId := dingoadm.GetServiceId(dc.GetId())
 	containerId, err := dingoadm.GetContainerId(serviceId)
 	if dingoadm.IsSkip(dc) {
