@@ -125,7 +125,7 @@ func (e *ErrorCode) Error() string {
 }
 
 /*
- * 0xx: init curveadm
+ * 0xx: init dingoadm
  *
  * 1xx: database/SQL
  *   100: init failed
@@ -143,7 +143,7 @@ func (e *ErrorCode) Error() string {
  *   21*: cluster
  *   22*: client
  *
- * 3xx: configure (curveadm.cfg, hosts.yaml, topology.yaml, format.yaml...)
+ * 3xx: configure (dingoadm.cfg, hosts.yaml, topology.yaml, format.yaml...)
  *   300: common
  *   31*: curvreadm.cfg
  *     * 310: parse failed
@@ -165,7 +165,7 @@ func (e *ErrorCode) Error() string {
  *   40*: hosts
  *   41*: services command
  *   42*: curvebs client
- *   43*: curvefs client
+ *   43*: dingofs client
  *   44*: polarfs
  *   45*: playground
  *
@@ -195,9 +195,9 @@ func (e *ErrorCode) Error() string {
  * 9xx: others
  */
 var (
-	// 000: init curveadm
+	// 000: init dingoadm
 	ERR_GET_USER_HOME_DIR_FAILED            = EC(000001, "get user home dir failed")
-	ERR_CREATE_CURVEADM_SUBDIRECTORY_FAILED = EC(000002, "create curveadm subdirectory failed")
+	ERR_CREATE_CURVEADM_SUBDIRECTORY_FAILED = EC(000002, "create dingoadm subdirectory failed")
 	ERR_INIT_LOGGER_FAILED                  = EC(000003, "init logger failed")
 
 	// 100: database/SQL (init failed)
@@ -276,7 +276,7 @@ var (
 
 	// 230: command options (playground)
 	ERR_UNSUPPORT_PLAYGROUND_KIND                      = EC(230000, "unsupport playground kind")
-	ERR_MUST_SPECIFY_MOUNTPOINT_FOR_CURVEFS_PLAYGROUND = EC(230001, "you must specify mountpoint for curvefs playground")
+	ERR_MUST_SPECIFY_MOUNTPOINT_FOR_CURVEFS_PLAYGROUND = EC(230001, "you must specify mountpoint for dingofs playground")
 	ERR_PLAYGROUND_MOUNTPOINT_REQUIRE_ABSOLUTE_PATH    = EC(230002, "mount point must be an absolute path")
 	ERR_PLAYGROUND_MOUNTPOINT_NOT_EXIST                = EC(230003, "mount point not exist")
 
@@ -291,12 +291,12 @@ var (
 	ERR_UNSUPPORT_VARIABLE_VALUE_TYPE             = EC(301100, "unsupport variable value type")
 	ERR_INVALID_VARIABLE_VALUE                    = EC(301101, "invalid variable value")
 
-	// 310: configure (curveadm.cfg: parse failed)
-	ERR_PARSE_CURVRADM_CONFIGURE_FAILED = EC(310000, "parse curveadm configure failed")
-	// 311: configure (curveadm.cfg: invalid configure value)
-	ERR_UNSUPPORT_CURVEADM_LOG_LEVEL      = EC(311000, "unsupport curveadm log level")
-	ERR_UNSUPPORT_CURVEADM_CONFIGURE_ITEM = EC(311001, "unsupport curveadm configure item")
-	ERR_UNSUPPORT_CURVEADM_DATABASE_URL   = EC(311002, "unsupport curveadm database url")
+	// 310: configure (dingoadm.cfg: parse failed)
+	ERR_PARSE_DINGOADM_CONFIGURE_FAILED = EC(310000, "parse dingoadm configure failed")
+	// 311: configure (dingoadm.cfg: invalid configure value)
+	ERR_UNSUPPORT_DINGOADM_LOG_LEVEL      = EC(311000, "unsupport dingoadm log level")
+	ERR_UNSUPPORT_DINGOADM_CONFIGURE_ITEM = EC(311001, "unsupport dingoadm configure item")
+	ERR_UNSUPPORT_DINGOADM_DATABASE_URL   = EC(311002, "unsupport dingoadm database url")
 
 	// 320: configure (hosts.yaml: parse failed)
 	ERR_HOSTS_FILE_NOT_FOUND   = EC(320000, "hosts file not found")
@@ -369,7 +369,7 @@ var (
 	ERR_UNSUPPORT_CLIENT_CONFIGURE_KIND            = EC(351000, "unsupport client configure kind")
 	ERR_UNSUPPORT_CLIENT_CONFIGURE_VALUE_TYPE      = EC(351001, "unsupport client configure value type")
 	ERR_REQUIRE_CURVEBS_KIND_CLIENT_CONFIGURE_FILE = EC(351002, "require curvebs kind client configure file")
-	ERR_REQUIRE_CURVEFS_KIND_CLIENT_CONFIGURE_FILE = EC(351003, "require curvefs kind client configure file")
+	ERR_REQUIRE_CURVEFS_KIND_CLIENT_CONFIGURE_FILE = EC(351003, "require dingofs kind client configure file")
 	ERR_INVALID_CLUSTER_LISTEN_MDS_ADDRESS         = EC(351004, "invalid cluster MDS listen address")
 
 	// 360: configure (gateway.yaml: parse failed)
@@ -415,7 +415,7 @@ var (
 	ERR_OLD_TARGET_DAEMON_IS_ABNORMAL     = EC(420007, "old target daemon is abnormal")
 	ERR_TARGET_DAEMON_IS_ABNORMAL         = EC(420008, "target daemon is abnormal")
 
-	// 430: common (curvefs client)
+	// 430: common (dingofs client)
 	ERR_FS_PATH_ALREADY_MOUNTED  = EC(430000, "path already mounted")
 	ERR_CREATE_FILESYSTEM_FAILED = EC(430001, "create filesystem failed")
 	ERR_MOUNT_FILESYSTEM_FAILED  = EC(430002, "mount filesystem failed")
@@ -479,10 +479,10 @@ var (
 	ERR_CHUNKFILE_POOL_NOT_EXIST = EC(560000, "there is no chunkfile pool in data directory")
 
 	// 570: checker (client)
-	ERR_INVALID_CURVEFS_CLIENT_S3_ACCESS_KEY  = EC(570000, "invalid curvefs client S3 access key")
-	ERR_INVALID_CURVEFS_CLIENT_S3_SECRET_KEY  = EC(570001, "invalid curvefs client S3 secret key")
-	ERR_INVALID_CURVEFS_CLIENT_S3_ADDRESS     = EC(570002, "invalid curvefs client S3 address")
-	ERR_INVALID_CURVEFS_CLIENT_S3_BUCKET_NAME = EC(570003, "invalid curvefs client S3 bucket name")
+	ERR_INVALID_CURVEFS_CLIENT_S3_ACCESS_KEY  = EC(570000, "invalid dingofs client S3 access key")
+	ERR_INVALID_CURVEFS_CLIENT_S3_SECRET_KEY  = EC(570001, "invalid dingofs client S3 secret key")
+	ERR_INVALID_CURVEFS_CLIENT_S3_ADDRESS     = EC(570002, "invalid dingofs client S3 address")
+	ERR_INVALID_CURVEFS_CLIENT_S3_BUCKET_NAME = EC(570003, "invalid dingofs client S3 bucket name")
 
 	// 590: checker (others)
 	ERR_CONTAINER_ENGINE_NOT_INSTALLED = EC(590000, "container engine docker/podman not installed")
@@ -552,9 +552,12 @@ var (
 	ERR_UPDATE_CONTAINER_FAILED          = EC(630014, "update container failed")
 	ERR_CONTAINER_NOT_EXISTED            = EC(630015, "container not existed")
 
-	// 640: gateway (curve gateway)
+	// 640: gateway (dingofs gateway)
 	ERR_NO_HOST_FOR_GATEWAY  = EC(640000, "no host found")
 	ERR_START_GATEWAY_FAILED = EC(640001, "start s3 gateway failed")
+
+	// 650: mdsv2
+	ERR_CREATE_META_TABLE_FAILED = EC(650000, "create meta table failed")
 
 	// 690: execuetr task (others)
 	ERR_START_CRONTAB_IN_CONTAINER_FAILED = EC(690000, "start crontab in container failed")

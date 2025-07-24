@@ -16,16 +16,16 @@ function error_exit() {
 }
 
 # Usage: initCoorList MdsV2ConfDir
-function init_coor_list() {
-    # Check if COORDINATOR_ADDR is set
-    if [ -z "$COORDINATOR_ADDR" ]; then
-      error_exit "COORDINATOR_ADDR environment variable is not set"
-    fi
-
-    log "Initializing coordinator list at $g_mdsv2_conf"
-    echo "$COORDINATOR_ADDR" > "$g_mdsv2_conf" || error_exit "Failed to write to $g_mdsv2_conf"
-    log "Coordinator list initialized successfully"
-}
+#function init_coor_list() {
+#    # Check if COORDINATOR_ADDR is set
+#    if [ -z "$COORDINATOR_ADDR" ]; then
+#      error_exit "COORDINATOR_ADDR environment variable is not set"
+#    fi
+#
+#    log "Initializing coordinator list at $g_mdsv2_conf"
+#    echo "$COORDINATOR_ADDR" > "$g_mdsv2_conf" || error_exit "Failed to write to $g_mdsv2_conf"
+#    log "Coordinator list initialized successfully"
+#}
 
 function create_tables() {
     # Check if binary exists and is executable

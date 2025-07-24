@@ -149,7 +149,7 @@ func parseDefaultsSection(cfg *DingoAdmConfig, defaults map[string]interface{}) 
 		// log_level
 		case KEY_LOG_LEVEL:
 			if !SUPPORT_LOG_LEVEL[v.(string)] {
-				return errno.ERR_UNSUPPORT_CURVEADM_LOG_LEVEL.
+				return errno.ERR_UNSUPPORT_DINGOADM_LOG_LEVEL.
 					F("%s: %s", KEY_LOG_LEVEL, v.(string))
 			}
 			cfg.LogLevel = v.(string)
@@ -179,7 +179,7 @@ func parseDefaultsSection(cfg *DingoAdmConfig, defaults map[string]interface{}) 
 			cfg.AutoUpgrade = yes
 
 		default:
-			return errno.ERR_UNSUPPORT_CURVEADM_CONFIGURE_ITEM.
+			return errno.ERR_UNSUPPORT_DINGOADM_CONFIGURE_ITEM.
 				F("%s: %s", k, v)
 		}
 	}
@@ -211,7 +211,7 @@ func parseConnectionSection(cfg *DingoAdmConfig, connection map[string]interface
 			cfg.SSHTimeout = num
 
 		default:
-			return errno.ERR_UNSUPPORT_CURVEADM_CONFIGURE_ITEM.
+			return errno.ERR_UNSUPPORT_DINGOADM_CONFIGURE_ITEM.
 				F("%s: %s", k, v)
 		}
 	}
@@ -232,12 +232,12 @@ func parseDatabaseSection(cfg *DingoAdmConfig, database map[string]interface{}) 
 			pattern := regexp.MustCompile(REGEX_DB_URL)
 			mu := pattern.FindStringSubmatch(dbUrl)
 			if len(mu) == 0 {
-				return errno.ERR_UNSUPPORT_CURVEADM_DATABASE_URL.F("url: %s", dbUrl)
+				return errno.ERR_UNSUPPORT_DINGOADM_DATABASE_URL.F("url: %s", dbUrl)
 			}
 			cfg.DBUrl = dbUrl
 
 		default:
-			return errno.ERR_UNSUPPORT_CURVEADM_CONFIGURE_ITEM.
+			return errno.ERR_UNSUPPORT_DINGOADM_CONFIGURE_ITEM.
 				F("%s: %s", k, v)
 		}
 	}
@@ -263,13 +263,13 @@ func ParseDingoAdmConfig(filename string) (*DingoAdmConfig, error) {
 	parser.SetConfigType("ini")
 	err := parser.ReadInConfig()
 	if err != nil {
-		return nil, errno.ERR_PARSE_CURVRADM_CONFIGURE_FAILED.E(err)
+		return nil, errno.ERR_PARSE_DINGOADM_CONFIGURE_FAILED.E(err)
 	}
 
 	global := &DingoAdm{}
 	err = parser.Unmarshal(global)
 	if err != nil {
-		return nil, errno.ERR_PARSE_CURVRADM_CONFIGURE_FAILED.E(err)
+		return nil, errno.ERR_PARSE_DINGOADM_CONFIGURE_FAILED.E(err)
 	}
 
 	items := []sectionParser{
