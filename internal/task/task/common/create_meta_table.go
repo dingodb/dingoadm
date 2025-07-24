@@ -20,6 +20,8 @@ import (
 
 	"github.com/dingodb/dingoadm/cli/cli"
 	"github.com/dingodb/dingoadm/internal/configure/topology"
+	"github.com/dingodb/dingoadm/internal/errno"
+	"github.com/dingodb/dingoadm/internal/task/context"
 	"github.com/dingodb/dingoadm/internal/task/step"
 	"github.com/dingodb/dingoadm/internal/task/task"
 )
@@ -64,5 +66,18 @@ func NewCreateMetaTablesTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) 
 		ExecOptions: dingoadm.ExecOptions(),
 	})
 
+	t.AddStep(&step.Lambda{
+		Lambda: checkCreateTableSuccess(&success, &out),
+	})
+
 	return t, nil
+}
+
+func checkCreateTableSuccess(success *bool, out *string) step.LambdaType {
+	return func(ctx *context.Context) error {
+		if !*success {
+			return errno.ERR_CREATE_META_TABLE_FAILED.S(*out)
+		}
+		return nil
+	}
 }

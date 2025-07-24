@@ -403,7 +403,7 @@ func NewCreateTmpContainerTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig
 
 	// new task
 	subname := fmt.Sprintf("host=%s role=%s", dc.GetHost(), dc.GetRole())
-	t := task.NewTask("Create Container", subname, hc.GetSSHConfig())
+	t := task.NewTask("Create mdsv2 client Container", subname, hc.GetSSHConfig())
 
 	// add step to task
 	var oldContainerId, containerId string
