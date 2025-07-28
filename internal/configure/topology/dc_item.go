@@ -102,6 +102,8 @@ var (
 			} else if dc.GetKind() == KIND_DINGOFS {
 				if dc.GetRole() == ROLE_MDS_V2 {
 					return path.Join(LAYOUT_DINGOFS_ROOT_DIR, "dist", dc.GetRole())
+				} else if dc.GetRole() == ROLE_COORDINATOR || dc.GetRole() == ROLE_STORE {
+					return LAYOUT_DINGOSTORE_ROOT_DIR
 				}
 				return path.Join(LAYOUT_DINGOFS_ROOT_DIR, dc.GetRole())
 			} else if dc.GetKind() == KIND_DINGOSTORE {
