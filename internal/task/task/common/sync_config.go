@@ -58,8 +58,16 @@ func NewMutate(dc *topology.DeployConfig, delimiter string, forceRender bool) st
 			return
 		}
 
+		muteKey := strings.TrimSpace(key)
+		if dc.GetRole() == topology.ROLE_COORDINATOR || dc.GetRole() == topology.ROLE_STORE {
+			// key is like -xxx , replace  '-' to 'gflags.'
+			if strings.HasPrefix(key, "-") {
+				muteKey = fmt.Sprintf("gflags.%s", strings.TrimPrefix(key, "-"))
+			}
+		}
+
 		// replace config
-		v, ok := serviceConfig[strings.ToLower(key)]
+		v, ok := serviceConfig[strings.ToLower(muteKey)]
 		if ok {
 			value = v
 		}

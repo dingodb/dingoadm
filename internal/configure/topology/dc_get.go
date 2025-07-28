@@ -78,7 +78,7 @@ const (
 
 var (
 	DefaultCurveBSDeployConfig = &DeployConfig{kind: KIND_CURVEBS}
-	DefaultCurveFSDeployConfig = &DeployConfig{kind: KIND_CURVEFS}
+	DefaultCurveFSDeployConfig = &DeployConfig{kind: KIND_DINGOFS}
 
 	ServiceConfigs = map[string][]string{
 		ROLE_ETCD:          []string{"etcd.conf"},
@@ -86,6 +86,8 @@ var (
 		ROLE_CHUNKSERVER:   []string{"chunkserver.conf", "cs_client.conf", "s3.conf"},
 		ROLE_SNAPSHOTCLONE: []string{"snapshotclone.conf", "snap_client.conf", "s3.conf", "nginx.conf"},
 		ROLE_METASERVER:    []string{"metaserver.conf"},
+		ROLE_COORDINATOR:   []string{"coordinator-gflags.conf "},
+		ROLE_STORE:         []string{"store-gflags.conf"},
 	}
 )
 
@@ -344,10 +346,15 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 	serviceConfDir := fmt.Sprintf("%s/conf", serviceRootDir)
 	serviceConfFiles := []ConfFile{}
 	for _, item := range ServiceConfigs[role] {
+		sourcePath := fmt.Sprintf("%s/%s", confSrcDir, item)
+		if role == ROLE_COORDINATOR || role == ROLE_STORE {
+			// dingo-store coordinator/store gflags config
+			sourcePath = fmt.Sprintf("%s/%s", serviceConfDir, item)
+		}
 		serviceConfFiles = append(serviceConfFiles, ConfFile{
 			Name:       item,
 			Path:       fmt.Sprintf("%s/%s", serviceConfDir, item),
-			SourcePath: fmt.Sprintf("%s/%s", confSrcDir, item),
+			SourcePath: sourcePath,
 		})
 	}
 
