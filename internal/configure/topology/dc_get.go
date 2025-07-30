@@ -185,6 +185,10 @@ func (dc *DeployConfig) GetEnableChunkfilePool() bool {
 	return dc.getBool(CONFIG_ENABLE_CHUNKFILE_POOL)
 }
 
+func (dc *DeployConfig) GetDingoServerListenHost() string {
+	return dc.getString(CONFFIG_DINGO_SERVER_LISTEN_HOST)
+}
+
 func (dc *DeployConfig) GetEnableExternalServer() bool {
 	return dc.getBool(CONFIG_ENABLE_EXTERNAL_SERVER)
 }

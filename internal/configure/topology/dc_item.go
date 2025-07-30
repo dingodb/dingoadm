@@ -58,6 +58,7 @@ const (
 	DEFAULT_SNAPSHOTCLONE_LISTEN_PROXY_PORT = 8080
 	DEFAULT_METASERVER_LISTN_PORT           = 6800
 	DEFAULT_METASERVER_LISTN_EXTARNAL_PORT  = 7800
+	DEFAULT_DINGO_SERVER_LISTEN_HOST        = "0.0.0.0"
 	DEFAULT_MDS_V2_LISTEN_PORT              = 6900
 	DEFAULT_ENABLE_EXTERNAL_SERVER          = false
 	DEFAULT_CHUNKSERVER_COPYSETS            = 100 // copysets per chunkserver
@@ -482,6 +483,16 @@ var (
 				return "-"
 			}
 			return value
+		},
+	)
+
+	CONFFIG_DINGO_SERVER_LISTEN_HOST = itemset.insert(
+		KIND_DINGO,
+		"server_listen_host",
+		REQUIRE_STRING,
+		true,
+		func(dc *DeployConfig) interface{} {
+			return DEFAULT_DINGO_SERVER_LISTEN_HOST
 		},
 	)
 
