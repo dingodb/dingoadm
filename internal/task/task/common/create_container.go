@@ -45,6 +45,7 @@ const (
 	POLICY_NEVER_RESTART                         = "no"
 	ENV_DINGOSTORE_SERVER_LISTEN_HOST            = "SERVER_LISTEN_HOST"
 	ENV_DINGOSTORE_RAFT_LISTEN_HOST              = "RAFT_LISTEN_HOST"
+	ENV_DINGO_SERVER_LISTEN_HOST                 = "SERVER_LISTEN_HOST"
 	ENV_DINGO_SERVER_HOST                        = "SERVER_HOST"
 	ENV_DINGOSTORE_RAFT_HOST                     = "RAFT_HOST"
 	ENV_DINGOSTORE_DEFAULT_REPLICA_NUM           = "DEFAULT_REPLICA_NUM"
@@ -203,6 +204,7 @@ func GetEnvironments(dc *topology.DeployConfig) []string {
 		case topology.ROLE_MDS_V2,
 			topology.ROLE_TMP:
 			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_FLAGS_ROLE, dc.GetRole()))
+			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGO_SERVER_LISTEN_HOST, dc.GetDingoServerListenHost()))
 			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGO_SERVER_HOST, dc.GetHostname()))
 			envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGO_SERVER_START_PORT, dc.GetDingoServerPort()))
 			coordinator_addr := dc.GetDingoFsV2CoordinatorAddr()
