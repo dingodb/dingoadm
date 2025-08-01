@@ -39,13 +39,6 @@ func Execute() {
 		os.Exit(1)
 	}
 
-	//yes, err := curveadm.Upgrade()
-	//if err != nil {
-	//	os.Exit(1)
-	//} else if yes {
-	//	os.Exit(0)
-	//}
-
 	id := dingoadm.PreAudit(time.Now(), os.Args[1:])
 	cmd := command.NewDingoAdmCommand(dingoadm)
 	err = cmd.Execute()
