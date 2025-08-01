@@ -32,6 +32,7 @@ import (
 	"github.com/dingodb/dingoadm/internal/errno"
 	"github.com/dingodb/dingoadm/internal/playbook"
 	tui "github.com/dingodb/dingoadm/internal/tui/common"
+	"github.com/dingodb/dingoadm/internal/utils"
 	cliutil "github.com/dingodb/dingoadm/internal/utils"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -46,6 +47,18 @@ var (
 		playbook.CREATE_CONTAINER,
 		playbook.SYNC_CONFIG,
 		playbook.START_SERVICE,
+	}
+
+	UPGRADE_STORE_MDSV2_STEPS = []int{
+		playbook.PULL_IMAGE,
+		playbook.STOP_SERVICE,
+		playbook.CLEAN_SERVICE,
+		playbook.CREATE_CONTAINER,
+		playbook.SYNC_CONFIG,
+		playbook.START_COORDINATOR,
+		playbook.START_STORE,
+		playbook.CHECK_STORE_HEALTH,
+		playbook.START_MDS_V2,
 	}
 )
 
@@ -94,8 +107,13 @@ func genUpgradePlaybook(dingoadm *cli.DingoAdm,
 	if len(dcs) == 0 {
 		return nil, errno.ERR_NO_SERVICES_MATCHED
 	}
-
 	steps := UPGRADE_PLAYBOOK_STEPS
+	roles := dingoadm.GetRoles(dcs)
+	if utils.Contains(roles, topology.ROLE_MDS_V2) {
+		// upgrade mds v2
+		steps = UPGRADE_STORE_MDSV2_STEPS
+	}
+
 	if options.useLocalImage {
 		// remove PULL_IMAGE step
 		for i, item := range steps {
@@ -107,9 +125,17 @@ func genUpgradePlaybook(dingoadm *cli.DingoAdm,
 	}
 	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
+
+		// fliter deploy config according filte rule
+		stepDcs := dcs
+		if len(DEPLOY_FILTER_ROLE[step]) > 0 {
+			role := DEPLOY_FILTER_ROLE[step]
+			stepDcs = dingoadm.FilterDeployConfigByRole(stepDcs, role)
+		}
+
 		pb.AddStep(&playbook.PlaybookStep{
 			Type:    step,
-			Configs: dcs,
+			Configs: stepDcs,
 			Options: map[string]interface{}{
 				comm.KEY_CLEAN_ITEMS:      []string{comm.CLEAN_ITEM_CONTAINER},
 				comm.KEY_CLEAN_BY_RECYCLE: true,

@@ -34,8 +34,8 @@ import (
 	"github.com/dingodb/dingoadm/internal/task/task"
 )
 
-func NewPullImageTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
-	hc, err := curveadm.GetHost(dc.GetHost())
+func NewPullImageTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
+	hc, err := dingoadm.GetHost(dc.GetHost())
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func NewPullImageTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.
 	// add step to task
 	t.AddStep(&step.PullImage{
 		Image:       dc.GetContainerImage(),
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 
 	return t, nil

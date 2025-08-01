@@ -170,6 +170,22 @@
             //"preLaunchTask": "enable-gcc-toolset"
         },
         {
+            "name": "dingoadm upgrade -f",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {
+                "CGO_ENABLED": "1",
+                "PATH": "/opt/rh/gcc-toolset-13/root/usr/bin:${env:PATH}"
+            },
+            "args": [
+                "upgrade",
+                "-f",
+            ],
+            "showLog": true,
+        },
+        {
             "name": "dingoadm mount",
             "type": "go",
             "request": "launch",
@@ -220,19 +236,7 @@
             "args": [
                 "config",
                 "commit",
-                "/home/dongw/.dingoadm/topology-test.yaml"
-            ],
-            "showLog": true
-        },
-        {
-            "name": "dingoadm status",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
-            "env": {},
-            "args": [
-                "status",
+                "/home/dongwei/deploy/dingofs/topology-mdsv2-v3.yaml"
             ],
             "showLog": true
         },
@@ -262,7 +266,7 @@
             },
             "args": [
                 "playbook",
-                "/home/dongwei/code/any.sh"
+                "/home/dongwei/code/any.sh",
                 "-l",
                 "host1,host2",
             ],
@@ -280,7 +284,7 @@
             },
             "args": [
                 "cluster",
-                "add"
+                "add",
                 "store-cluster",
                 "-f",
                 "/home/dongwei/deploy/topology-store.yaml"
@@ -299,7 +303,7 @@
             },
             "args": [
                 "cluster",
-                "checkout"
+                "checkout",
                 "store-cluster",
             ],
             "showLog": true,
@@ -316,7 +320,7 @@
             },
             "args": [
                 "cluster",
-                "add"
+                "add",
                 "mdsv2-standalone",
                 "-f",
                 "/home/dongwei/deploy/topology-mdsv2-standalone.yaml"

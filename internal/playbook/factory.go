@@ -173,13 +173,19 @@ func (p *Playbook) createTasks(step *PlaybookStep) (*tasks.Tasks, error) {
 		// only need to execute task once per host
 		switch step.Type {
 		case CHECK_SSH_CONNECT,
-			GET_HOST_DATE,
-			PULL_IMAGE:
+			GET_HOST_DATE:
 			host := config.GetDC(i).GetHost()
 			if once[host] {
 				continue
 			}
 			once[host] = true
+		case PULL_IMAGE:
+			host := config.GetDC(i).GetHost()
+			image := config.GetDC(i).GetContainerImage()
+			if once[host+"_"+image] {
+				continue
+			}
+			once[host+"_"+image] = true
 		}
 
 		switch step.Type {
