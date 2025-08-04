@@ -117,6 +117,18 @@ func genCleanPlaybook(dingoadm *cli.DingoAdm,
 		return nil, errno.ERR_NO_SERVICES_MATCHED
 	}
 
+	roles := dingoadm.GetRoles(dcs)
+	if !utils.Contains(roles, topology.ROLE_COORDINATOR) &&
+		!utils.Contains(roles, topology.ROLE_STORE) {
+		// remove raft item if no coordinator or store
+		for i, item := range options.only {
+			if item == comm.CLEAN_ITEM_RAFT {
+				options.only = append(options.only[:i], options.only[i+1:]...)
+				break
+			}
+		}
+	}
+
 	steps := CLEAN_PLAYBOOK_STEPS
 	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
