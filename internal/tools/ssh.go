@@ -194,8 +194,8 @@ func ExecCmdInRemoteContainer(curveadm *cli.DingoAdm, host, containerId, cmd str
 	return ssh(curveadm, options)
 }
 
-func Scp(curveadm *cli.DingoAdm, host, source, target string) error {
-	options, err := prepareOptions(curveadm, host, false,
+func Scp(dingoadm *cli.DingoAdm, host, source, target string) error {
+	options, err := prepareOptions(dingoadm, host, false,
 		map[string]interface{}{
 			"source": source,
 			"target": target,
@@ -203,7 +203,7 @@ func Scp(curveadm *cli.DingoAdm, host, source, target string) error {
 	if err != nil {
 		return err
 	}
-	return scp(curveadm, options)
+	return scp(dingoadm, options)
 }
 
 func ExecuteRemoteCommand(curveadm *cli.DingoAdm, host, command string) (string, error) {

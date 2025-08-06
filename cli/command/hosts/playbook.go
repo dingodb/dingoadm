@@ -57,7 +57,7 @@ type playbookOptions struct {
 	labels   []string
 }
 
-func checkPlaybookOptions(curveadm *cli.DingoAdm, options playbookOptions) error {
+func checkPlaybookOptions(dingoadm *cli.DingoAdm, options playbookOptions) error {
 	// TODO: added error code
 	if !utils.PathExist(options.filepath) {
 		return fmt.Errorf("%s: no such file", options.filepath)
@@ -65,7 +65,7 @@ func checkPlaybookOptions(curveadm *cli.DingoAdm, options playbookOptions) error
 	return nil
 }
 
-func NewPlaybookCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewPlaybookCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options playbookOptions
 
 	cmd := &cobra.Command{
@@ -73,13 +73,23 @@ func NewPlaybookCommand(curveadm *cli.DingoAdm) *cobra.Command {
 		Short: "Execute playbook",
 		Args:  cliutil.RequiresMinArgs(1),
 		PreRunE: func(cmd *cobra.Command, args []string) error {
+			// check args num bigger than 1
+			if len(args) == 1 {
+				// generate any.sh script to /tmp/any.sh
+				anyScript := path.Join("/tmp", "any.sh")
+				if !utils.PathExist(anyScript) {
+					if err := utils.WriteFile(anyScript, "#!/usr/bin/env bash\n\n\"$@\"\n", 0644); err != nil {
+						return fmt.Errorf("write any.sh failed: %w", err)
+					}
+				}
+				args = append([]string{anyScript}, args...) // prepend any.sh to args
+			}
 			options.filepath = args[0]
 			options.args = args[1:]
-			return checkPlaybookOptions(curveadm, options)
+			return checkPlaybookOptions(dingoadm, options)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			options.filepath = args[0]
-			return runPlaybook(curveadm, options)
+			return runPlaybook(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -90,11 +100,11 @@ func NewPlaybookCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	return cmd
 }
 
-func execute(curveadm *cli.DingoAdm, options playbookOptions, idx int, hc *hosts.HostConfig) {
+func execute(dingoadm *cli.DingoAdm, options playbookOptions, idx int, hc *hosts.HostConfig) {
 	defer func() { wg.Done() }()
 	name := hc.GetHost()
 	target := path.Join("/tmp", utils.RandString(8))
-	err := tools.Scp(curveadm, name, options.filepath, target)
+	err := tools.Scp(dingoadm, name, options.filepath, target)
 	if err != nil {
 		retC <- result{host: name, err: err}
 		return
@@ -102,7 +112,7 @@ func execute(curveadm *cli.DingoAdm, options playbookOptions, idx int, hc *hosts
 
 	defer func() {
 		command := fmt.Sprintf("rm -rf %s", target)
-		tools.ExecuteRemoteCommand(curveadm, name, command)
+		tools.ExecuteRemoteCommand(dingoadm, name, command)
 	}()
 
 	command := strings.Join([]string{
@@ -111,33 +121,33 @@ func execute(curveadm *cli.DingoAdm, options playbookOptions, idx int, hc *hosts
 		target,
 		strings.Join(options.args, " "),
 	}, " ")
-	out, err := tools.ExecuteRemoteCommand(curveadm, name, command)
+	out, err := tools.ExecuteRemoteCommand(dingoadm, name, command)
 	retC <- result{index: idx, host: name, out: out, err: err}
 }
 
-func output(curveadm *cli.DingoAdm, ret *result) {
-	curveadm.WriteOutln("")
+func output(dingoadm *cli.DingoAdm, ret *result) {
+	dingoadm.WriteOutln("")
 	out, err := ret.out, ret.err
-	curveadm.WriteOutln("%s [%s]", color.YellowString(ret.host),
+	dingoadm.WriteOutln("%s [%s]", color.YellowString(ret.host),
 		utils.Choose(err == nil, color.GreenString("SUCCESS"), color.RedString("FAIL")))
-	curveadm.WriteOutln("---")
+	dingoadm.WriteOutln("---")
 	if err != nil {
-		curveadm.Out().Write([]byte(out))
-		curveadm.WriteOutln(err.Error())
+		dingoadm.Out().Write([]byte(out))
+		dingoadm.WriteOutln(err.Error())
 	} else if len(out) > 0 {
-		curveadm.Out().Write([]byte(out))
+		dingoadm.Out().Write([]byte(out))
 	}
 }
 
-func receiver(curveadm *cli.DingoAdm, total int) {
-	curveadm.WriteOutln("TOTAL: %d hosts", total)
+func receiver(dingoadm *cli.DingoAdm, total int) {
+	dingoadm.WriteOutln("TOTAL: %d hosts", total)
 	current := 0
 	rets := map[int]result{}
 	for ret := range retC {
 		rets[ret.index] = ret
 		for {
 			if v, ok := rets[current]; ok {
-				output(curveadm, &v)
+				output(dingoadm, &v)
 				current++
 			} else {
 				break
@@ -146,10 +156,10 @@ func receiver(curveadm *cli.DingoAdm, total int) {
 	}
 }
 
-func runPlaybook(curveadm *cli.DingoAdm, options playbookOptions) error {
+func runPlaybook(dingoadm *cli.DingoAdm, options playbookOptions) error {
 	var hcs []*hosts.HostConfig
 	var err error
-	hosts := curveadm.Hosts()
+	hosts := dingoadm.Hosts()
 	if len(hosts) > 0 {
 		hcs, err = filter(hosts, options.labels) // filter hosts
 		if err != nil {
@@ -159,9 +169,9 @@ func runPlaybook(curveadm *cli.DingoAdm, options playbookOptions) error {
 
 	retC = make(chan result)
 	wg.Add(len(hcs))
-	go receiver(curveadm, len(hcs))
+	go receiver(dingoadm, len(hcs))
 	for i, hc := range hcs {
-		go execute(curveadm, options, i, hc)
+		go execute(dingoadm, options, i, hc)
 	}
 	wg.Wait()
 	return nil
