@@ -167,19 +167,11 @@ func (dingoadm *DingoAdm) init() error {
 	var cluster storage.Cluster
 	// check current active cluster config in env or not
 
-	if activatedClusterName, exists := os.LookupEnv(comm.KEY_ENV_ACTIVATE_CLUSTER); exists && len(activatedClusterName) > 0 {
+	if activatedClusterName := getActivatedClusterFromEnv(); activatedClusterName != "" {
 		cluster, err = s.GetClusterByName(activatedClusterName)
 		if err != nil {
 			log.Error("Get cluster by name failed",
 				log.Field("Error", err))
-			return errno.ERR_GET_CLUSTER_BY_NAME_FAILED.E(err)
-		}
-	} else if activatedClusterName, exists = os.LookupEnv(strings.ToLower(comm.KEY_ENV_ACTIVATE_CLUSTER)); exists && len(activatedClusterName) > 0 {
-		cluster, err = s.GetClusterByName(activatedClusterName)
-		if err != nil {
-			log.Error("Get cluster by name failed",
-				log.Field("Error", err))
-			return errno.ERR_GET_CLUSTER_BY_NAME_FAILED.E(err)
 		}
 	} else {
 		cluster, err = s.GetCurrentCluster()
@@ -217,6 +209,20 @@ func (dingoadm *DingoAdm) init() error {
 	dingoadm.monitor = monitor
 
 	return nil
+}
+
+func getActivatedClusterFromEnv() string {
+	// Check original case first
+	if activatedClusterName, exists := os.LookupEnv(comm.KEY_ENV_ACTIVATE_CLUSTER); exists && len(activatedClusterName) > 0 {
+		return activatedClusterName
+	}
+
+	// Check lowercase version as fallback
+	if activatedClusterName, exists := os.LookupEnv(strings.ToLower(comm.KEY_ENV_ACTIVATE_CLUSTER)); exists && len(activatedClusterName) > 0 {
+		return activatedClusterName
+	}
+
+	return ""
 }
 
 func (dingoadm *DingoAdm) detectVersion() {
