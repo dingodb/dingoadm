@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# usage: 
+# curl -sSL https://raw.githubusercontent.com/dingodb/dingoadm/main/scripts/install_dingoadm.sh | bash -s -- [--source=internal|github|local] [local_binary_path_if_source_is_local]
+# bash install_dingoadm.sh --source=internal|github|local [local_binary_path_if_source_is_local]
+
+
 ############################  GLOBAL VARIABLES
 g_color_yellow=$(printf '\033[33m')
 g_color_red=$(printf '\033[31m')
@@ -13,6 +18,7 @@ g_github_url="https://github.com/dingodb/dingoadm/releases/download/latest/dingo
 g_upgrade="${DINGOADM_UPGRADE}"
 g_version="${DINGOADM_VERSION:=$g_latest_version}"
 g_download_url="${g_internal_url}/dingoadm.tar.gz"
+g_local_binary=""
 
 ############################  BASIC FUNCTIONS
 msg() {
@@ -69,6 +75,7 @@ timeout = 10
 
 [database]
 url = "${g_db_path}"
+#url = "rqlite://ip:port"
 __EOF__
     fi
 }
@@ -102,6 +109,10 @@ install_binary() {
             cp "${tempfile}" "${g_bin_dir}/"
             ret=$?
         fi
+    elif [ "$source" == "local" ]; then
+        echo "Using local binary..."
+        cp "$g_local_binary" "${g_bin_dir}/dingoadm"
+        ret=$?
     else
         echo "Invalid source specified. Please choose 'internal' or 'github'."
         exit 1
@@ -160,10 +171,21 @@ upgrade() {
 
 main() {
     local source="github"  # Default source
+    # print all arguments
     for arg in "$@"; do
         case $arg in
             --source=*)
             source="${arg#*=}"
+            if [ $source == "local" ]; then
+                if [ -z "$2" ]; then
+                    die "Please provide the local binary path when using --source=local\n"
+                fi
+                echo "Using local binary: $2"
+                g_local_binary="$2"
+                if [ ! -f "$g_local_binary" ]; then
+                    die "Local binary file does not exist: $g_local_binary\n"
+                fi
+            fi
             shift
             ;;
             *)
