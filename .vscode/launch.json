@@ -254,6 +254,22 @@
             ],
             "showLog": true
         },
+                {
+            "name": "dingoadm playbook ",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {
+                "CGO_ENABLED": "1",
+                "PATH": "/opt/rh/gcc-toolset-13/root/usr/bin:${env:PATH}"
+            },
+            "args": [
+                "playbook",
+                "free -h"
+            ],
+            "showLog": true,
+        },
         {
             "name": "dingoadm playbook -l host1,host2",
             "type": "go",
