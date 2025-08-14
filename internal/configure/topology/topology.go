@@ -88,7 +88,7 @@ var (
 		ROLE_MDS_V2,
 		ROLE_COORDINATOR,
 		ROLE_STORE,
-		ROLE_TMP,
+		ROLE_MDSV2_CLI,
 	}
 	DINGOSTORE_ROLES = []string{
 		ROLE_COORDINATOR,
@@ -177,7 +177,7 @@ func ParseTopology(data string, ctx *Context) ([]*DeployConfig, error) {
 			services = topology.CoordinatorServices
 		case ROLE_STORE:
 			services = topology.StoreServices
-		case ROLE_TMP:
+		case ROLE_MDSV2_CLI:
 			// create tables role, only used to create meta tables
 			// just keep one deploy config
 			tmpDeploy := topology.MdsV2Services.Deploy[0]

@@ -63,7 +63,7 @@ const (
 	// common
 	PULL_IMAGE
 	CREATE_CONTAINER
-	CREATE_TMP_CONTAINER
+	CREATE_MDSV2_CLI_CONTAINER
 	SYNC_CONFIG
 	START_SERVICE
 	START_ETCD
@@ -227,8 +227,8 @@ func (p *Playbook) createTasks(step *PlaybookStep) (*tasks.Tasks, error) {
 			t, err = comm.NewPullImageTask(dingoadm, config.GetDC(i))
 		case CREATE_CONTAINER:
 			t, err = comm.NewCreateContainerTask(dingoadm, config.GetDC(i))
-		case CREATE_TMP_CONTAINER:
-			t, err = comm.NewCreateTmpContainerTask(dingoadm, config.GetDC(i))
+		case CREATE_MDSV2_CLI_CONTAINER:
+			t, err = comm.NewCreateMdsv2CliContainerTask(dingoadm, config.GetDC(i))
 		case SYNC_CONFIG:
 			t, err = comm.NewSyncConfigTask(dingoadm, config.GetDC(i))
 		case START_SERVICE,

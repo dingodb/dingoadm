@@ -202,7 +202,7 @@ func GetEnvironments(dc *topology.DeployConfig) []string {
 
 		switch dc.GetRole() {
 		case topology.ROLE_MDS_V2,
-			topology.ROLE_TMP:
+			topology.ROLE_MDSV2_CLI:
 			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_FLAGS_ROLE, dc.GetRole()))
 			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGO_SERVER_LISTEN_HOST, dc.GetDingoServerListenHost()))
 			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGO_SERVER_HOST, dc.GetHostname()))
@@ -331,7 +331,7 @@ func TrimContainerId(containerId *string) step.LambdaType {
 }
 
 func NewCreateContainerTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
-	if dc.GetRole() == topology.ROLE_TMP {
+	if dc.GetRole() == topology.ROLE_MDSV2_CLI {
 		return nil, nil
 	}
 	hc, err := dingoadm.GetHost(dc.GetHost())
@@ -402,7 +402,7 @@ func NewCreateContainerTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (
 	return t, nil
 }
 
-func NewCreateTmpContainerTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
+func NewCreateMdsv2CliContainerTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
 	hc, err := dingoadm.GetHost(dc.GetHost())
 	if err != nil {
 		return nil, err

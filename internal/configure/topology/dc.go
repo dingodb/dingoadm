@@ -50,8 +50,8 @@ const (
 	ROLE_METASERVER    = "metaserver"
 
 	// dingofs mdsv2
-	ROLE_MDS_V2 = "mdsv2"
-	ROLE_TMP    = "tmp" // tmp role: e.g. create meta tables
+	ROLE_MDS_V2    = "mdsv2"
+	ROLE_MDSV2_CLI = "mdsv2-client" // tmp role: e.g. create meta tables
 
 	// dingo-store
 	ROLE_COORDINATOR = "coordinator"

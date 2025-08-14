@@ -99,7 +99,7 @@ func newCrontab(uuid string, dc *topology.DeployConfig, reportScriptPath string)
 }
 
 func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
-	if dc.GetRole() == topology.ROLE_TMP {
+	if dc.GetRole() == topology.ROLE_MDSV2_CLI {
 		skipTmp := dingoadm.MemStorage().Get(comm.KEY_SKIP_TMP)
 		if skipTmp != nil && skipTmp.(bool) {
 			return nil, nil
@@ -193,7 +193,7 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 			})
 		}
 
-		if dc.GetRole() == topology.ROLE_TMP {
+		if dc.GetRole() == topology.ROLE_MDSV2_CLI {
 			// sync create_mdsv2_tables.sh
 			createTablesScript := scripts.CREATE_MDSV2_TABLES
 			createTablesScriptPath := fmt.Sprintf("%s/create_mdsv2_tables.sh", layout.MdsV2CliBinDir) // /dingofs/mdsv2-client/sbin

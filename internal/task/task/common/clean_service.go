@@ -151,7 +151,7 @@ func NewCleanServiceTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*ta
 		return nil, err
 	}
 
-	if dc.GetRole() == topology.ROLE_TMP {
+	if dc.GetRole() == topology.ROLE_MDSV2_CLI {
 		skipTmp := dingoadm.MemStorage().Get(comm.KEY_SKIP_TMP)
 		if skipTmp != nil && skipTmp.(bool) {
 			return nil, nil
