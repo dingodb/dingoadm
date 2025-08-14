@@ -196,7 +196,7 @@ func genStatusPlaybook(dingoadm *cli.DingoAdm,
 
 	// skip ROLE_TMP dc
 	for i := 0; i < len(dcs); i++ {
-		if dcs[i].GetRole() == topology.ROLE_TMP {
+		if dcs[i].GetRole() == topology.ROLE_MDSV2_CLI {
 			dcs = append(dcs[:i], dcs[i+1:]...)
 			i-- // adjust index after removal
 		}
