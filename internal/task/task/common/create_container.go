@@ -313,6 +313,11 @@ func getRestartPolicy(dc *topology.DeployConfig) string {
 		return POLICY_ALWAYS_RESTART
 	case topology.ROLE_MDS:
 		return POLICY_ALWAYS_RESTART
+	case topology.ROLE_COORDINATOR, topology.ROLE_STORE, topology.ROLE_MDS_V2:
+		if restartPolicy := dc.GetServiceConfig()["restart_policy"]; restartPolicy != "" {
+			return restartPolicy
+		}
+		return POLICY_ALWAYS_RESTART
 	}
 	return POLICY_NEVER_RESTART
 }
@@ -375,7 +380,7 @@ func NewCreateContainerTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (
 		Init:       true,
 		Name:       hostname,
 		Privileged: true,
-		Restart:    POLICY_ALWAYS_RESTART, //getRestartPolicy(dc),
+		Restart:    getRestartPolicy(dc), // POLICY_ALWAYS_RESTART
 		//--ulimit core=-1: Sets the core dump file size limit to -1, meaning there’s no restriction on the core dump size.
 		//--ulimit nofile=65535:65535: Sets both the soft and hard limits for the number of open files to 65535.
 		Ulimits:     getUlimits(dc),
