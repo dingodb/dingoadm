@@ -63,6 +63,7 @@ const (
 	DEFAULT_ENABLE_EXTERNAL_SERVER          = false
 	DEFAULT_CHUNKSERVER_COPYSETS            = 100 // copysets per chunkserver
 	DEFAULT_METASERVER_COPYSETS             = 100 // copysets per metaserver
+	DEFAULT_DINGODB_EXECUTOR_SERVER_PORT    = 3307
 )
 
 type (
@@ -105,6 +106,8 @@ var (
 					return path.Join(LAYOUT_DINGOFS_ROOT_DIR, "dist", dc.GetRole())
 				} else if dc.GetRole() == ROLE_COORDINATOR || dc.GetRole() == ROLE_STORE {
 					return LAYOUT_DINGOSTORE_ROOT_DIR
+				} else if dc.GetRole() == ROLE_DINGODB_EXECUTOR {
+					return LAYOUT_DINGDB_EXECUTOR
 				}
 				return path.Join(LAYOUT_DINGOFS_ROOT_DIR, dc.GetRole())
 			} else if dc.GetKind() == KIND_DINGOSTORE {
@@ -221,6 +224,8 @@ var (
 				return DEFAULT_COORDINATOR_SERVER_PORT
 			case ROLE_STORE:
 				return DEFAULT_STORE_SERVER_PORT
+			case ROLE_DINGODB_EXECUTOR:
+				return DEFAULT_DINGODB_EXECUTOR_SERVER_PORT
 			}
 			return nil
 		},

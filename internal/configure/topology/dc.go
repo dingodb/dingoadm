@@ -56,6 +56,9 @@ const (
 	// dingo-store
 	ROLE_COORDINATOR = "coordinator"
 	ROLE_STORE       = "store"
+
+	// dingodb executor
+	ROLE_DINGODB_EXECUTOR = "executor"
 )
 
 type (

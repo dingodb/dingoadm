@@ -138,7 +138,7 @@ const (
 	TOOLS_V2_CONFIG_DELIMITER = ": "
 
 	// mdsv2
-	KEY_SKIP_TMP = "SKIP_TMP"
+	KEY_SKIP_MDSV2_CLI = "SKIP_MDSV2_CLI"
 )
 
 // others

@@ -130,9 +130,12 @@ func (s *step2InitStatus) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func (s *Step2GetListenPorts) extractPort(line string) string {
+func (s *Step2GetListenPorts) extractPort(line string, network_type string) string {
 	// e.g: tcp LISTEN 0 128 10.246.159.123:2379 *:* users:(("etcd",pid=7,fd=5))
 	regex, err := regexp.Compile("^.*:([0-9]+).*users.*$")
+	if network_type == "netstat" {
+		regex, err = regexp.Compile(`:::([0-9]+).*\/java\s*$`)
+	}
 	if err == nil {
 		mu := regex.FindStringSubmatch(line)
 		if len(mu) > 0 {
@@ -146,6 +149,8 @@ func (s *Step2GetListenPorts) Execute(ctx *context.Context) error {
 	if !strings.HasPrefix(*s.Status, "Up") {
 		return nil
 	}
+
+	network_type := "ss"
 
 	// execute "ss" command in container
 	cli := ctx.Module().Shell().SocketStatistics("")
@@ -161,14 +166,23 @@ func (s *Step2GetListenPorts) Execute(ctx *context.Context) error {
 	cmd := ctx.Module().DockerCli().ContainerExec(s.ContainerId, command)
 	out, err := cmd.Execute(s.ExecOptions)
 	if err != nil {
-		return nil
+		// use netstat to check running service port
+		network_type = "netstat"
+		cli = ctx.Module().Shell().Netstat("")
+		cli.AddOption("-tulnp")
+		command, _ = cli.String()
+		cmd = ctx.Module().DockerCli().ContainerExec(s.ContainerId, command)
+		out, err = cmd.Execute(s.ExecOptions)
+		if err != nil {
+			return nil
+		}
 	}
 
 	// handle output
 	ports := []string{}
 	lines := strings.Split(out, "\n")
 	for _, line := range lines {
-		port := s.extractPort(line)
+		port := s.extractPort(line, network_type)
 		if len(port) > 0 {
 			ports = append(ports, port)
 		}

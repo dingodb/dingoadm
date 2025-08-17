@@ -64,6 +64,9 @@ func NewMutate(dc *topology.DeployConfig, delimiter string, forceRender bool) st
 			if strings.HasPrefix(key, "-") {
 				muteKey = fmt.Sprintf("gflags.%s", strings.TrimPrefix(key, "-"))
 			}
+		} else if dc.GetRole() == topology.ROLE_DINGODB_EXECUTOR {
+			fmt.Printf("origin key: %s, origin value: %s\n", muteKey, value)
+			fmt.Printf("mutate value: %v\n", serviceConfig[strings.ToLower(muteKey)])
 		}
 
 		// replace config
@@ -100,7 +103,7 @@ func newCrontab(uuid string, dc *topology.DeployConfig, reportScriptPath string)
 
 func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
 	if dc.GetRole() == topology.ROLE_MDSV2_CLI {
-		skipTmp := dingoadm.MemStorage().Get(comm.KEY_SKIP_TMP)
+		skipTmp := dingoadm.MemStorage().Get(comm.KEY_SKIP_MDSV2_CLI)
 		if skipTmp != nil && skipTmp.(bool) {
 			return nil, nil
 		}
@@ -129,7 +132,7 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 	role := dc.GetRole()
 
 	delimiter := CONFIG_DELIMITER_ASSIGN
-	if role == topology.ROLE_ETCD {
+	if role == topology.ROLE_ETCD || role == topology.ROLE_DINGODB_EXECUTOR {
 		delimiter = CONFIG_DELIMITER_COLON
 	}
 
@@ -143,15 +146,6 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 	t.AddStep(&step.Lambda{
 		Lambda: CheckContainerExist(dc.GetHost(), dc.GetRole(), containerId, &out),
 	})
-	//t.AddStep(&step.SyncFile{ // sync tools config
-	//	ContainerSrcId:    &containerId,
-	//	ContainerSrcPath:  layout.ToolsConfSrcPath,
-	//	ContainerDestId:   &containerId,
-	//	ContainerDestPath: layout.ToolsConfSystemPath,
-	//	KVFieldSplit:      DEFAULT_CONFIG_DELIMITER,
-	//	Mutate:            NewMutate(dc, DEFAULT_CONFIG_DELIMITER, false),
-	//	ExecOptions:       dingoadm.ExecOptions(),
-	//})
 
 	if dc.GetKind() == topology.KIND_DINGOFS {
 		for _, conf := range layout.ServiceConfFiles {
@@ -177,6 +171,20 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 			})
 
 			return t, nil
+		} else if dc.GetRole() == topology.ROLE_MDSV2_CLI {
+			// sync create_mdsv2_tables.sh
+			createTablesScript := scripts.CREATE_MDSV2_TABLES
+			createTablesScriptPath := fmt.Sprintf("%s/create_mdsv2_tables.sh", layout.MdsV2CliBinDir) // /dingofs/mdsv2-client/sbin
+			// createTablesScriptPath := fmt.Sprintf("%s/create_mdsv2_tables.sh", STORE_BUILD_BIN_DIR) // /opt/dingo-store/build/bin
+			t.AddStep(&step.InstallFile{ // install create_mdsv2_tables.sh script
+				ContainerId:       &containerId,
+				ContainerDestPath: createTablesScriptPath,
+				Content:           &createTablesScript,
+				ExecOptions:       dingoadm.ExecOptions(),
+			})
+
+		} else if dc.GetRole() == topology.ROLE_DINGODB_EXECUTOR {
+			// sync dingodb executor.yaml
 		} else {
 			containerToolsSrcPath := layout.ToolsV2ConfSrcPath
 			if dc.GetRole() == topology.ROLE_MDS_V2 {
@@ -191,35 +199,8 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 				Mutate:            NewMutate(dc, CONFIG_DELIMITER_COLON, false),
 				ExecOptions:       dingoadm.ExecOptions(),
 			})
-		}
 
-		if dc.GetRole() == topology.ROLE_MDSV2_CLI {
-			// sync create_mdsv2_tables.sh
-			createTablesScript := scripts.CREATE_MDSV2_TABLES
-			createTablesScriptPath := fmt.Sprintf("%s/create_mdsv2_tables.sh", layout.MdsV2CliBinDir) // /dingofs/mdsv2-client/sbin
-			// createTablesScriptPath := fmt.Sprintf("%s/create_mdsv2_tables.sh", STORE_BUILD_BIN_DIR) // /opt/dingo-store/build/bin
-			t.AddStep(&step.InstallFile{ // install create_mdsv2_tables.sh script
-				ContainerId:       &containerId,
-				ContainerDestPath: createTablesScriptPath,
-				Content:           &createTablesScript,
-				ExecOptions:       dingoadm.ExecOptions(),
-			})
-
-			// mdsv2ServiceId := dingoadm.GetServiceId(fmt.Sprintf("%s_%s_%d_%d", topology.ROLE_MDS_V2, dc.GetHost(), dc.GetHostSequence(), dc.GetInstancesSequence()))
-			// mdsv2ContainerId, err := dingoadm.GetContainerId(mdsv2ServiceId)
-			// if err != nil {
-			// 	return nil, err
-			// }
-			// t.AddStep(&step.SyncFileDirectly{ // sync dingo-mdsv2-client file
-			// 	ContainerSrcId:    &mdsv2ContainerId,
-			// 	ContainerSrcPath:  layout.MdsV2CliBinaryPath,
-			// 	ContainerDestId:   &containerId,
-			// 	ContainerDestPath: fmt.Sprintf("%s/dingo-mdsv2-client", STORE_BUILD_BIN_DIR), // /opt/dingo-store/build/bin/dingo-mdsv2-client
-			// 	IsDir:             false,
-			// 	ExecOptions:       dingoadm.ExecOptions(),
-			// })
-
-		} else {
+			// install report script and crontab file
 			reportScript := scripts.REPORT
 			reportScriptPath := fmt.Sprintf("%s/report.sh", layout.ToolsV2BinDir) // v1: ToolsBinDir, v2: ToolsV2BinDir
 			crontab := newCrontab(dingoadm.ClusterUUId(), dc, reportScriptPath)

@@ -64,6 +64,11 @@ const (
 	ENV_DINGOFS_V2_FLAGS_SERVER_NUM  = "FLAGS_server_num"
 	ENV_DINGOFS_V2_COORDINATOR_ADDR  = "COORDINATOR_ADDR"
 	ENV_DINGOFS_V2_INSTANCE_START_ID = "MDSV2_INSTANCE_START_ID"
+
+	// dingodb executor
+	ENV_DINGODB_EXECUTOR_ROLE         = "DINGO_ROLE"
+	ENV_DINGODB_EXECUTOR_HOSTNAME     = "DINGO_HOSTNAME"
+	ENV_DINGODB_EXECUTOR_COORDINATORS = "DINGO_COORDINATORS"
 )
 
 type Step2GetService struct {
@@ -171,7 +176,7 @@ func getArguments(dc *topology.DeployConfig) string {
 func getContainerCMD(dc *topology.DeployConfig) string {
 	switch dc.GetKind() {
 	case topology.KIND_DINGOFS:
-		if dc.GetRole() == topology.ROLE_MDS_V2 {
+		if dc.GetRole() == topology.ROLE_MDS_V2 || dc.GetRole() == topology.ROLE_DINGODB_EXECUTOR {
 			return ""
 		} else if dc.GetRole() == topology.ROLE_COORDINATOR || dc.GetRole() == topology.ROLE_STORE {
 			// coordinator and store use cleanstart
@@ -189,16 +194,6 @@ func getContainerCMD(dc *topology.DeployConfig) string {
 func GetEnvironments(dc *topology.DeployConfig) []string {
 	envs := []string{}
 	if dc.GetKind() == topology.KIND_DINGOFS {
-
-		preloads := []string{"/usr/local/lib/libjemalloc.so"}
-		if dc.GetEnableRDMA() {
-			preloads = append(preloads, "/usr/local/lib/libsmc-preload.so")
-		}
-
-		//envs = []string{
-		//	fmt.Sprintf("'LD_PRELOAD=%s'", strings.Join(preloads, " ")),
-		//}
-		envs = append(envs, fmt.Sprintf("LD_PRELOAD=%s", strings.Join(preloads, " ")))
 
 		switch dc.GetRole() {
 		case topology.ROLE_MDS_V2,
@@ -218,8 +213,21 @@ func GetEnvironments(dc *topology.DeployConfig) []string {
 		case topology.ROLE_COORDINATOR,
 			topology.ROLE_STORE:
 			envs = configDingoStoreENV(envs, dc)
+		case topology.ROLE_DINGODB_EXECUTOR:
+			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGODB_EXECUTOR_ROLE, dc.GetRole()))
+			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGODB_EXECUTOR_HOSTNAME, dc.GetHostname()))
+			coordinator_addr := dc.GetDingoFsV2CoordinatorAddr()
+			if len(coordinator_addr) == 1 {
+				coordinator_addr, _ = dc.GetVariables().Get("coordinator_addr")
+			}
+			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGODB_EXECUTOR_COORDINATORS, coordinator_addr))
 		default:
 			// just keep the old envs
+			preloads := []string{"/usr/local/lib/libjemalloc.so"}
+			if dc.GetEnableRDMA() {
+				preloads = append(preloads, "/usr/local/lib/libsmc-preload.so")
+			}
+			envs = append(envs, fmt.Sprintf("LD_PRELOAD=%s", strings.Join(preloads, " ")))
 		}
 
 		env := dc.GetEnv()
@@ -366,6 +374,7 @@ func NewCreateContainerTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (
 		dc.GetRole() == topology.ROLE_STORE {
 		createDir = append(createDir, dc.GetDingoRaftDir())
 	}
+	// TODO createDir for dingodb executor /opt/dingo/localStore
 
 	t.AddStep(&step.CreateDirectory{
 		Paths:       createDir,
