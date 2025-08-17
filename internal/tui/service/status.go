@@ -76,11 +76,11 @@ var (
 		ROLE_COORDINATOR:      0,
 		ROLE_MDS:              1,
 		ROLE_STORE:            1,
-		ROLE_DINGODB_EXECUTOR: 2,
 		ROLE_CHUNKSERVER:      2,
 		ROLE_METASERVER:       2,
 		ROLE_SNAPSHOTCLONE:    3,
 		ROLE_MDS_V2:           3,
+		ROLE_DINGODB_EXECUTOR: 4,
 	}
 	MONITOT_ROLE_SCORE = map[string]int{
 		configure.ROLE_NODE_EXPORTER: 0,

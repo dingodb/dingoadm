@@ -64,9 +64,11 @@ func NewMutate(dc *topology.DeployConfig, delimiter string, forceRender bool) st
 			if strings.HasPrefix(key, "-") {
 				muteKey = fmt.Sprintf("gflags.%s", strings.TrimPrefix(key, "-"))
 			}
-		} else if dc.GetRole() == topology.ROLE_DINGODB_EXECUTOR {
-			fmt.Printf("origin key: %s, origin value: %s\n", muteKey, value)
-			fmt.Printf("mutate value: %v\n", serviceConfig[strings.ToLower(muteKey)])
+		} else if dc.GetRole() == topology.ROLE_MDS_V2 {
+			// key is like --xxx , trim '--'
+			if strings.HasPrefix(key, "--") {
+				muteKey = strings.TrimPrefix(key, "--")
+			}
 		}
 
 		// replace config
@@ -153,7 +155,7 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 				ContainerSrcId:    &containerId,
 				ContainerSrcPath:  conf.SourcePath,
 				ContainerDestId:   &containerId,
-				ContainerDestPath: conf.Path,
+				ContainerDestPath: conf.TargetPath,
 				KVFieldSplit:      delimiter,
 				Mutate:            NewMutate(dc, delimiter, conf.Name == "nginx.conf"),
 				ExecOptions:       dingoadm.ExecOptions(),

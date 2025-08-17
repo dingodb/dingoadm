@@ -141,7 +141,7 @@ func NewInitPlaygroundTask(dingoadm *cli.DingoAdm, cfg *configure.PlaygroundConf
 				ContainerSrcId:    &containerId,
 				ContainerSrcPath:  conf.SourcePath,
 				ContainerDestId:   &containerId,
-				ContainerDestPath: conf.Path,
+				ContainerDestPath: conf.TargetPath,
 				KVFieldSplit:      delimiter,
 				Mutate:            newMutate(dc, delimiter),
 				ExecOptions:       execOptions(dingoadm),
@@ -173,15 +173,15 @@ func NewInitPlaygroundTask(dingoadm *cli.DingoAdm, cfg *configure.PlaygroundConf
 		ExecOptions:       execOptions(dingoadm),
 	})
 	for _, conf := range []topology.ConfFile{
-		{SourcePath: "/curvebs/conf/client.conf", Path: "/curvebs/nebd/conf/client.conf"},
-		{SourcePath: "/curvebs/conf/nebd-server.conf", Path: "/etc/nebd/nebd-server.conf"},
-		{SourcePath: "/curvebs/conf/nebd-client.conf", Path: "/etc/nebd/nebd-client.conf"},
+		{SourcePath: "/curvebs/conf/client.conf", TargetPath: "/curvebs/nebd/conf/client.conf"},
+		{SourcePath: "/curvebs/conf/nebd-server.conf", TargetPath: "/etc/nebd/nebd-server.conf"},
+		{SourcePath: "/curvebs/conf/nebd-client.conf", TargetPath: "/etc/nebd/nebd-client.conf"},
 	} {
 		t.AddStep(&step.SyncFile{ // sync service config
 			ContainerSrcId:    &containerId,
 			ContainerSrcPath:  conf.SourcePath,
 			ContainerDestId:   &containerId,
-			ContainerDestPath: conf.Path,
+			ContainerDestPath: conf.TargetPath,
 			KVFieldSplit:      DEFAULT_CONFIG_DELIMITER,
 			Mutate:            newMutate(cfg.GetClientConfig(), DEFAULT_CONFIG_DELIMITER),
 			ExecOptions:       execOptions(dingoadm),

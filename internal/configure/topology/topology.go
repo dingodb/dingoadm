@@ -184,6 +184,11 @@ func ParseTopology(data string, ctx *Context) ([]*DeployConfig, error) {
 			services = topology.StoreServices
 		case ROLE_DINGODB_EXECUTOR:
 			services = topology.ExecutorServices
+		//	// just need to create one executor service which is used to trigger gc in dingo-store
+		//	services = Service{
+		//		Config: newIfNil(topology.ExecutorServices.Config),
+		//		Deploy: []Deploy{topology.ExecutorServices.Deploy[0]},
+		//	}
 		case ROLE_MDSV2_CLI:
 			// create tables role, only used to create meta tables
 			// just keep one deploy config
