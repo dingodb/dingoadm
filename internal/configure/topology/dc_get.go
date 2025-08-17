@@ -41,6 +41,7 @@ const (
 	LAYOUT_DINGOSTORE_ROOT_DIR               = "/opt/dingo-store"
 	LAYOUT_DINGOSTORE_BIN_DIR                = "/opt/dingo-store/build/bin"
 	LAYOUT_DINGOSTORE_DIST_DIR               = "/opt/dingo-store/dist"
+	LAYOUT_DINGDB_EXECUTOR                   = "/opt/dingo"
 	LAYOUT_CURVEFS_ROOT_DIR                  = "/curvefs"
 	LAYOUT_CURVEBS_ROOT_DIR                  = "/curvebs"
 	LAYOUT_PLAYGROUND_ROOT_DIR               = "playground"
@@ -81,13 +82,14 @@ var (
 	DefaultCurveFSDeployConfig = &DeployConfig{kind: KIND_DINGOFS}
 
 	ServiceConfigs = map[string][]string{
-		ROLE_ETCD:          []string{"etcd.conf"},
-		ROLE_MDS:           []string{"mds.conf"},
-		ROLE_CHUNKSERVER:   []string{"chunkserver.conf", "cs_client.conf", "s3.conf"},
-		ROLE_SNAPSHOTCLONE: []string{"snapshotclone.conf", "snap_client.conf", "s3.conf", "nginx.conf"},
-		ROLE_METASERVER:    []string{"metaserver.conf"},
-		ROLE_COORDINATOR:   []string{"coordinator-gflags.conf "},
-		ROLE_STORE:         []string{"store-gflags.conf"},
+		ROLE_ETCD:             []string{"etcd.conf"},
+		ROLE_MDS:              []string{"mds.conf"},
+		ROLE_CHUNKSERVER:      []string{"chunkserver.conf", "cs_client.conf", "s3.conf"},
+		ROLE_SNAPSHOTCLONE:    []string{"snapshotclone.conf", "snap_client.conf", "s3.conf", "nginx.conf"},
+		ROLE_METASERVER:       []string{"metaserver.conf"},
+		ROLE_COORDINATOR:      []string{"coordinator-gflags.conf "},
+		ROLE_STORE:            []string{"store-gflags.conf"},
+		ROLE_DINGODB_EXECUTOR: []string{"executor.yaml"},
 	}
 )
 
@@ -351,7 +353,7 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 	serviceConfFiles := []ConfFile{}
 	for _, item := range ServiceConfigs[role] {
 		sourcePath := fmt.Sprintf("%s/%s", confSrcDir, item)
-		if role == ROLE_COORDINATOR || role == ROLE_STORE {
+		if role == ROLE_COORDINATOR || role == ROLE_STORE || role == ROLE_DINGODB_EXECUTOR {
 			// dingo-store coordinator/store gflags config
 			sourcePath = fmt.Sprintf("%s/%s", serviceConfDir, item)
 		}

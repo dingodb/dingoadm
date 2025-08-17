@@ -12,7 +12,8 @@
             "program": "${workspaceFolder}/cmd/dingoadm/main.go",
             "env": {
                 "CGO_ENABLED": "1",
-                "PATH": "/opt/rh/gcc-toolset-13/root/usr/bin:${env:PATH}"
+                "PATH": "/opt/rh/gcc-toolset-13/root/usr/bin:${env:PATH}",
+                "dingo_cluster": "mdsv2"
             },
             "args": [
                 "deploy",

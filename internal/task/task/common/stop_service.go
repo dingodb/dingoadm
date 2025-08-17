@@ -65,7 +65,7 @@ func NewStopServiceTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*tas
 	}
 	host, role := dc.GetHost(), dc.GetRole()
 	if role == topology.ROLE_MDSV2_CLI {
-		skipTmp := dingoadm.MemStorage().Get(comm.KEY_SKIP_TMP)
+		skipTmp := dingoadm.MemStorage().Get(comm.KEY_SKIP_MDSV2_CLI)
 		if skipTmp != nil && skipTmp.(bool) {
 			return nil, nil
 		}

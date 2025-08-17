@@ -63,6 +63,8 @@ type (
 		// dingo-store
 		CoordinatorServices Service `mapstructure:"coordinator_services"`
 		StoreServices       Service `mapstructure:"store_services"`
+		// dingodb
+		ExecutorServices Service `mapstructure:"executor_services"`
 	}
 )
 
@@ -144,6 +146,9 @@ func ParseTopology(data string, ctx *Context) ([]*DeployConfig, error) {
 		if topology.MdsV2Services.Deploy != nil {
 			if topology.CoordinatorServices.Deploy != nil && topology.StoreServices.Deploy != nil {
 				roles = append(roles, DINGOFS_MDSV2_FOLLOW_ROLES...)
+				if topology.ExecutorServices.Deploy != nil {
+					roles = append(roles, ROLE_DINGODB_EXECUTOR)
+				}
 			} else {
 				roles = append(roles, DINGOFS_MDSV2_ONLY_ROLES...)
 			}
@@ -177,6 +182,8 @@ func ParseTopology(data string, ctx *Context) ([]*DeployConfig, error) {
 			services = topology.CoordinatorServices
 		case ROLE_STORE:
 			services = topology.StoreServices
+		case ROLE_DINGODB_EXECUTOR:
+			services = topology.ExecutorServices
 		case ROLE_MDSV2_CLI:
 			// create tables role, only used to create meta tables
 			// just keep one deploy config

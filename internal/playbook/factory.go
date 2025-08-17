@@ -75,7 +75,8 @@ const (
 	START_MDS_V2
 	START_COORDINATOR
 	START_STORE
-	START_TMP_CONTAINER
+	START_MDSV2_CLI_CONTAINER
+	START_DINGDB_EXECUTOR_CONTAINER
 	STOP_SERVICE
 	RESTART_SERVICE
 	CREATE_PHYSICAL_POOL
@@ -240,7 +241,8 @@ func (p *Playbook) createTasks(step *PlaybookStep) (*tasks.Tasks, error) {
 			START_MDS_V2,
 			START_COORDINATOR,
 			START_STORE,
-			START_TMP_CONTAINER:
+			START_MDSV2_CLI_CONTAINER,
+			START_DINGDB_EXECUTOR_CONTAINER:
 			t, err = comm.NewStartServiceTask(dingoadm, config.GetDC(i))
 		case ENABLE_ETCD_AUTH:
 			t, err = comm.NewEnableEtcdAuthTask(dingoadm, config.GetDC(i))

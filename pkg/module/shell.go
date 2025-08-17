@@ -56,9 +56,10 @@ const (
 	TEMPLATE_BLKID    = "blkid {{.options}} {{.device}}"
 
 	// network
-	TEMPLATE_SS   = "ss {{.options}} '{{.filter}}'"
-	TEMPLATE_PING = "ping {{.options}} {{.destination}}"
-	TEMPLATE_CURL = "curl {{.options}} {{.url}}"
+	TEMPLATE_SS      = "ss {{.options}} '{{.filter}}'"
+	TEMPLATE_PING    = "ping {{.options}} {{.destination}}"
+	TEMPLATE_CURL    = "curl {{.options}} {{.url}}"
+	TEMPLATE_NETSTAT = "netstat {{.options}} '{{.filter}}'"
 
 	// kernel
 	TEMPLATE_WHOAMI   = "whoami"
@@ -232,6 +233,12 @@ func (s *Shell) BlkId(device string) *Shell {
 // network
 func (s *Shell) SocketStatistics(filter string) *Shell {
 	s.tmpl = template.Must(template.New("ss").Parse(TEMPLATE_SS))
+	s.data["filter"] = filter
+	return s
+}
+
+func (s *Shell) Netstat(filter string) *Shell {
+	s.tmpl = template.Must(template.New("netstat").Parse(TEMPLATE_NETSTAT))
 	s.data["filter"] = filter
 	return s
 }
