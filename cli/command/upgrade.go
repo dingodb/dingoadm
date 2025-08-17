@@ -58,6 +58,7 @@ var (
 		playbook.START_COORDINATOR,
 		playbook.START_STORE,
 		playbook.CHECK_STORE_HEALTH,
+		playbook.START_DINGDB_EXECUTOR,
 		playbook.START_MDS_V2,
 	}
 )
@@ -131,6 +132,11 @@ func genUpgradePlaybook(dingoadm *cli.DingoAdm,
 		if len(DEPLOY_FILTER_ROLE[step]) > 0 {
 			role := DEPLOY_FILTER_ROLE[step]
 			stepDcs = dingoadm.FilterDeployConfigByRole(stepDcs, role)
+		}
+
+		if DEPLOY_LIMIT_SERVICE[step] > 0 {
+			n := DEPLOY_LIMIT_SERVICE[step]
+			stepDcs = stepDcs[:n]
 		}
 
 		pb.AddStep(&playbook.PlaybookStep{

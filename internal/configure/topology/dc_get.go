@@ -89,6 +89,7 @@ var (
 		ROLE_METASERVER:       []string{"metaserver.conf"},
 		ROLE_COORDINATOR:      []string{"coordinator-gflags.conf "},
 		ROLE_STORE:            []string{"store-gflags.conf"},
+		ROLE_MDS_V2:           []string{"dingo-mdsv2.template.conf"},
 		ROLE_DINGODB_EXECUTOR: []string{"executor.yaml"},
 	}
 )
@@ -274,7 +275,7 @@ func (dc *DeployConfig) GetDingoFsV2CoordinatorAddr() string {
 type (
 	ConfFile struct {
 		Name       string
-		Path       string
+		TargetPath string
 		SourcePath string
 	}
 
@@ -353,13 +354,17 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 	serviceConfFiles := []ConfFile{}
 	for _, item := range ServiceConfigs[role] {
 		sourcePath := fmt.Sprintf("%s/%s", confSrcDir, item)
+		targetPath := fmt.Sprintf("%s/%s", serviceConfDir, item)
 		if role == ROLE_COORDINATOR || role == ROLE_STORE || role == ROLE_DINGODB_EXECUTOR {
 			// dingo-store coordinator/store gflags config
 			sourcePath = fmt.Sprintf("%s/%s", serviceConfDir, item)
+		} else if role == ROLE_MDS_V2 {
+			sourcePath = fmt.Sprintf("%s/%s", confSrcDirV2, item)
+			targetPath = sourcePath
 		}
 		serviceConfFiles = append(serviceConfFiles, ConfFile{
 			Name:       item,
-			Path:       fmt.Sprintf("%s/%s", serviceConfDir, item),
+			TargetPath: targetPath,
 			SourcePath: sourcePath,
 		})
 	}
@@ -391,7 +396,7 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 		serviceLogDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_STORE_LOG_DIR
 		serviceDataDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_STORE_DATA_DIR
 		dingoStoreRaftDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_STORE_RAFT_DIR
-	} else if role == ROLE_MDS_V2 {
+	} else if role == ROLE_MDS_V2 || role == ROLE_DINGODB_EXECUTOR {
 		serviceLogDir = serviceRootDir + "/log" // /dingofs/mdsv2/log
 	}
 
