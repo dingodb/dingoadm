@@ -395,7 +395,8 @@ func (dingoadm *DingoAdm) GetContainerId(serviceId string) (string, error) {
 	if err != nil {
 		return "", errno.ERR_GET_SERVICE_CONTAINER_ID_FAILED
 	} else if len(containerId) == 0 {
-		return "", errno.ERR_SERVICE_CONTAINER_ID_NOT_FOUND
+		// return "", errno.ERR_SERVICE_CONTAINER_ID_NOT_FOUND
+		return comm.CLEANED_CONTAINER_ID, nil
 	}
 	return containerId, nil
 }

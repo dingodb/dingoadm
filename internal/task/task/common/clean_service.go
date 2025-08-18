@@ -141,6 +141,11 @@ func getCleanFiles(clean map[string]bool, dc *topology.DeployConfig, recycle boo
 func NewCleanServiceTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
 	serviceId := dingoadm.GetServiceId(dc.GetId())
 	containerId, err := dingoadm.GetContainerId(serviceId)
+	if containerId == comm.CLEANED_CONTAINER_ID {
+		// container has removed, no need to clean
+		dingoadm.Storage().SetContainId(serviceId, comm.CLEANED_CONTAINER_ID)
+		return nil, nil
+	}
 	if dingoadm.IsSkip(dc) {
 		return nil, nil
 	} else if err != nil {
