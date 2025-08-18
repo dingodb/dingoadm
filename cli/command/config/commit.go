@@ -27,6 +27,7 @@ package config
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/dingodb/dingoadm/cli/cli"
 	comm "github.com/dingodb/dingoadm/internal/common"
@@ -95,11 +96,13 @@ func checkDiff(dingoadm *cli.DingoAdm, newData string) error {
 		dc := diff.DeployConfig
 		switch diff.DiffType {
 		case topology.DIFF_DELETE:
-			return errno.ERR_DELETE_SERVICE_WHILE_COMMIT_TOPOLOGY_IS_DENIED.
-				F("delete service: %s.host[%s]", dc.GetRole(), dc.GetHost())
+			//return errno.ERR_DELETE_SERVICE_WHILE_COMMIT_TOPOLOGY_IS_DENIED.
+			//	F("delete service: %s.host[%s]", dc.GetRole(), dc.GetHost())
+			fmt.Printf("Warning: delete service: %s.host[%s]\n", dc.GetRole(), dc.GetHost())
 		case topology.DIFF_ADD:
-			return errno.ERR_ADD_SERVICE_WHILE_COMMIT_TOPOLOGY_IS_DENIED.
-				F("added service: %s.host[%s]", dc.GetRole(), dc.GetHost())
+			//return errno.ERR_ADD_SERVICE_WHILE_COMMIT_TOPOLOGY_IS_DENIED.
+			//	F("added service: %s.host[%s]", dc.GetRole(), dc.GetHost())
+			fmt.Printf("Warning: added service: %s.host[%s]\n", dc.GetRole(), dc.GetHost())
 		}
 	}
 	return nil
