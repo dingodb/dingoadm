@@ -146,6 +146,7 @@ func genUpgradePlaybook(dingoadm *cli.DingoAdm,
 				comm.KEY_CLEAN_ITEMS:      []string{comm.CLEAN_ITEM_CONTAINER},
 				comm.KEY_CLEAN_BY_RECYCLE: true,
 				comm.KEY_SKIP_MDSV2_CLI:   true,
+				comm.KEY_UPGRADE_FLAG:     true,
 			},
 		})
 	}
