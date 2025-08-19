@@ -58,8 +58,8 @@ var (
 		playbook.START_COORDINATOR,
 		playbook.START_STORE,
 		playbook.CHECK_STORE_HEALTH,
-		playbook.START_DINGDB_EXECUTOR,
 		playbook.START_MDS_V2,
+		playbook.START_DINGDB_EXECUTOR,
 	}
 )
 
