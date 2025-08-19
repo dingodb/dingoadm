@@ -176,18 +176,23 @@ func getArguments(dc *topology.DeployConfig) string {
 }
 
 func getContainerCMD(dc *topology.DeployConfig) string {
+	//upgrade_flag := dingoadm.MemStorage().Get(comm.KEY_UPGRADE_FLAG).(bool)
+	cmd := "deploystart" // cleanstart
+	//if upgrade_flag {
+	//	cmd = "deploystart"
+	//}
 	switch dc.GetKind() {
 	case topology.KIND_DINGOFS:
 		if dc.GetRole() == topology.ROLE_MDS_V2 || dc.GetRole() == topology.ROLE_DINGODB_EXECUTOR {
 			return ""
 		} else if dc.GetRole() == topology.ROLE_COORDINATOR || dc.GetRole() == topology.ROLE_STORE {
 			// coordinator and store use cleanstart
-			return "cleanstart"
+			return cmd
 		} else {
 			return fmt.Sprintf("--role %s --args='%s'", dc.GetRole(), getArguments(dc))
 		}
 	case topology.KIND_DINGOSTORE:
-		return "cleanstart"
+		return cmd
 	default:
 		return fmt.Sprintf("--role %s --args='%s'", dc.GetRole(), getArguments(dc))
 	}
@@ -200,30 +205,12 @@ func GetEnvironments(dc *topology.DeployConfig) []string {
 		switch dc.GetRole() {
 		case topology.ROLE_MDS_V2,
 			topology.ROLE_MDSV2_CLI:
-			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_FLAGS_ROLE, dc.GetRole()))
-			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_FLAGS_CLEAN_LOG, "0")) // do not clean log
-			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGO_SERVER_LISTEN_HOST, dc.GetDingoServerListenHost()))
-			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGO_SERVER_HOST, dc.GetHostname()))
-			envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGO_SERVER_START_PORT, dc.GetDingoServerPort()))
-			coordinator_addr := dc.GetDingoFsV2CoordinatorAddr()
-			if len(coordinator_addr) == 1 {
-				coordinator_addr, _ = dc.GetVariables().Get("coordinator_addr")
-			}
-			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_COORDINATOR_ADDR, coordinator_addr))
-			envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOFS_V2_INSTANCE_START_ID, dc.GetDingoInstanceId()))
-			//envs = append(envs, "LOG_LEVEL=DEBUG")
-			//envs = append(envs, "VERBOSE=1")
+			envs = configMdsv2ENV(envs, dc)
 		case topology.ROLE_COORDINATOR,
 			topology.ROLE_STORE:
 			envs = configDingoStoreENV(envs, dc)
 		case topology.ROLE_DINGODB_EXECUTOR:
-			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGODB_EXECUTOR_ROLE, dc.GetRole()))
-			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGODB_EXECUTOR_HOSTNAME, dc.GetHostname()))
-			coordinator_addr := dc.GetDingoFsV2CoordinatorAddr()
-			if len(coordinator_addr) == 1 {
-				coordinator_addr, _ = dc.GetVariables().Get("coordinator_addr")
-			}
-			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGODB_EXECUTOR_COORDINATORS, coordinator_addr))
+			envs = configExecutorENV(envs, dc)
 		default:
 			// just keep the old envs
 			preloads := []string{"/usr/local/lib/libjemalloc.so"}
@@ -248,8 +235,35 @@ func GetEnvironments(dc *topology.DeployConfig) []string {
 	return envs
 }
 
+func configExecutorENV(envs []string, dc *topology.DeployConfig) []string {
+	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGODB_EXECUTOR_ROLE, dc.GetRole()))
+	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGODB_EXECUTOR_HOSTNAME, dc.GetHostname()))
+	coordinator_addr := dc.GetDingoFsV2CoordinatorAddr()
+	if len(coordinator_addr) == 1 {
+		coordinator_addr, _ = dc.GetVariables().Get("coordinator_addr")
+	}
+	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGODB_EXECUTOR_COORDINATORS, coordinator_addr))
+	return envs
+}
+
+func configMdsv2ENV(envs []string, dc *topology.DeployConfig) []string {
+	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_FLAGS_ROLE, dc.GetRole()))
+	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_FLAGS_CLEAN_LOG, "0")) // do not clean log
+	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGO_SERVER_LISTEN_HOST, dc.GetDingoServerListenHost()))
+	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGO_SERVER_HOST, dc.GetHostname()))
+	envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGO_SERVER_START_PORT, dc.GetDingoServerPort()))
+	coordinator_addr := dc.GetDingoFsV2CoordinatorAddr()
+	if len(coordinator_addr) == 1 {
+		coordinator_addr, _ = dc.GetVariables().Get("coordinator_addr")
+	}
+	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_COORDINATOR_ADDR, coordinator_addr))
+	envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOFS_V2_INSTANCE_START_ID, dc.GetDingoInstanceId()))
+	return envs
+}
+
 func configDingoStoreENV(envs []string, dc *topology.DeployConfig) []string {
 	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTROE_FLAGS_ROLE, dc.GetRole()))
+	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTROE_FLAGS_CLEAN_LOG, "1")) // not clean log
 	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_SERVER_LISTEN_HOST, dc.GetDingoStoreServerListenHost()))
 	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_RAFT_LISTEN_HOST, dc.GetDingoStoreRaftListenHost()))
 	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGO_SERVER_HOST, dc.GetHostname()))

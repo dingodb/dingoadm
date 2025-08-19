@@ -139,6 +139,9 @@ const (
 
 	// mdsv2
 	KEY_SKIP_MDSV2_CLI = "SKIP_MDSV2_CLI"
+
+	// upgrade
+	KEY_UPGRADE_FLAG = "UPGRADE_FLAG"
 )
 
 // others
