@@ -52,6 +52,7 @@ const (
 	ENV_DINGOSTORE_COOR_RAFT_PEERS               = "COOR_RAFT_PEERS"
 	ENV_DINGOSTORE_COOR_SRV_PEERS                = "COOR_SRV_PEERS"
 	ENV_DINGOSTROE_FLAGS_ROLE                    = "FLAGS_role"
+	ENV_DINGOSTROE_FLAGS_CLEAN_LOG               = "FLAGS_clean_log"
 	ENV_DINGOSTORE_COORDINATOR_SERVER_START_PORT = "COORDINATOR_SERVER_START_PORT"
 	ENV_DINGOSTORE_COORDINATOR_RAFT_START_PORT   = "COORDINATOR_RAFT_START_PORT"
 	ENV_DINGO_SERVER_START_PORT                  = "SERVER_START_PORT"
@@ -61,6 +62,7 @@ const (
 
 	// dingofs mdsv2
 	ENV_DINGOFS_V2_FLAGS_ROLE        = "FLAGS_role"
+	ENV_DINGOFS_V2_FLAGS_CLEAN_LOG   = "FLAGS_clean_log"
 	ENV_DINGOFS_V2_FLAGS_SERVER_NUM  = "FLAGS_server_num"
 	ENV_DINGOFS_V2_COORDINATOR_ADDR  = "COORDINATOR_ADDR"
 	ENV_DINGOFS_V2_INSTANCE_START_ID = "MDSV2_INSTANCE_START_ID"
@@ -199,6 +201,7 @@ func GetEnvironments(dc *topology.DeployConfig) []string {
 		case topology.ROLE_MDS_V2,
 			topology.ROLE_MDSV2_CLI:
 			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_FLAGS_ROLE, dc.GetRole()))
+			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_FLAGS_CLEAN_LOG, "0")) // do not clean log
 			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGO_SERVER_LISTEN_HOST, dc.GetDingoServerListenHost()))
 			envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGO_SERVER_HOST, dc.GetHostname()))
 			envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGO_SERVER_START_PORT, dc.GetDingoServerPort()))
