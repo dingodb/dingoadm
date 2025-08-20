@@ -139,7 +139,7 @@ func (s *step2CheckDataDirectoryDuplicate) Execute(ctx *context.Context) error {
 	used := map[string]bool{}
 	for _, dc := range s.dcs {
 		dataDir := dc.GetDataDir()
-		if len(dataDir) == 0 {
+		if len(dataDir) == 0 || dataDir == comm.SERVICE_DIR_ABSENT {
 			continue
 		}
 
