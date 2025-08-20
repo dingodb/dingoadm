@@ -74,6 +74,7 @@ const (
 	SERVICE_STATUS_CLEANED = "Cleaned"
 	SERVICE_STATUS_LOSED   = "Losed"
 	SERVICE_STATUS_UNKNOWN = "Unknown"
+	SERVICE_DIR_ABSENT     = "-"
 
 	// clean
 	KEY_CLEAN_ITEMS      = "CLEAN_ITEMS"

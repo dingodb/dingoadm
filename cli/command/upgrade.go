@@ -132,6 +132,9 @@ func genUpgradePlaybook(dingoadm *cli.DingoAdm,
 		if len(DEPLOY_FILTER_ROLE[step]) > 0 {
 			role := DEPLOY_FILTER_ROLE[step]
 			stepDcs = dingoadm.FilterDeployConfigByRole(stepDcs, role)
+			if len(stepDcs) == 0 {
+				continue // no deploy config matched
+			}
 		}
 
 		if DEPLOY_LIMIT_SERVICE[step] > 0 {
@@ -167,25 +170,19 @@ func upgradeAtOnce(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options
 	// 1) display upgrade title
 	displayTitle(dingoadm, dcs, options)
 
-	// 2) confirm by user
-	// if pass := tui.ConfirmYes(tui.DEFAULT_CONFIRM_PROMPT); !pass {
-	// 	dingoadm.WriteOut(tui.PromptCancelOpetation("upgrade service"))
-	// 	return errno.ERR_CANCEL_OPERATION
-	// }
-
-	// 3) generate upgrade playbook
+	// 2) generate upgrade playbook
 	pb, err := genUpgradePlaybook(dingoadm, dcs, options)
 	if err != nil {
 		return err
 	}
 
-	// 4) run playbook
+	// 3) run playbook
 	err = pb.Run()
 	if err != nil {
 		return err
 	}
 
-	// 5) print success prompt
+	// 4) print success prompt
 	dingoadm.WriteOutln("")
 	dingoadm.WriteOutln(color.GreenString("Upgrade %d services success :)", len(dcs)))
 	return nil
