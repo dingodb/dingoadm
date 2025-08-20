@@ -82,7 +82,7 @@ var (
 		"-o allow_other",
 		"-o fsname=%s", // fsname
 		"-o fstype=%s", // v1: s3, mdsv2: vfs
-		"-o user=dingofs",
+		// "-o user=dingofs",
 		"-o conf=%s", // config path
 		"%s",         // mount path
 	}
@@ -353,8 +353,8 @@ func NewMountFSTask(dingoadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.T
 	prefix := configure.GetFSClientPrefix()
 	containerMountPath := configure.GetFSClientMountPath(mountPoint)
 	containerName := mountPoint2ContainerName(mountPoint)
-	createfsScript := scripts.CREATE_FS
-	createfsScriptPath := "/client.sh"
+	mountfsScriptSource := scripts.MOUNT_FS
+	mountfsScriptTargetPath := "/client.sh"
 
 	t.AddStep(&step.EngineInfo{
 		Success:     &success,
@@ -447,8 +447,8 @@ func NewMountFSTask(dingoadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.T
 	})
 	t.AddStep(&step.InstallFile{ // install client.sh shell
 		ContainerId:       &containerId,
-		ContainerDestPath: createfsScriptPath,
-		Content:           &createfsScript,
+		ContainerDestPath: mountfsScriptTargetPath,
+		Content:           &mountfsScriptSource,
 		ExecOptions:       dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.StartContainer{

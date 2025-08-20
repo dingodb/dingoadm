@@ -124,6 +124,9 @@ func (s *step2CheckDirectoryPath) Execute(ctx *context.Context) error {
 	dc := s.dc
 	dirs := getServiceDirectorys(dc)
 	for _, dir := range dirs {
+		if dir.Path == comm.SERVICE_DIR_ABSENT {
+			continue
+		}
 		if !strings.HasPrefix(dir.Path, "/") {
 			return errno.ERR_DIRECTORY_REQUIRE_ABSOLUTE_PATH.
 				F("%s.host[%s].%s: %s", dc.GetRole(), dc.GetHost(), dir.Type, dir.Path)

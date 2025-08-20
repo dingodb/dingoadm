@@ -18,6 +18,29 @@ g_tool_config="/etc/dingo/dingo.yaml"
 g_fuse_args=""
 new_dingo="false"
 
+# quota
+capacity=""
+inodes=""
+args=()
+
+# Parse command parameters
+for arg in "$@"; do
+    case $arg in
+        --capacity=*)
+            capacity="${arg#*=}"
+            ;;
+        --inodes=*)
+            inodes="${arg#*=}"
+            ;;
+        --new-dingo)
+            new_dingo="true"
+            ;;
+        *)
+            args+=("$arg")
+            ;;
+    esac
+done
+
 function cleanMountpoint(){
 
     # Check if mountpoint path is broken (Transport endpoint is not connected)
@@ -42,7 +65,7 @@ function cleanMountpoint(){
         echo "avoid mountpoint conflict, begin umount mountpoint on $(hostname)..."
         metric_port=$(echo "$mnt_info" | awk -F '[:]' '{print $2}')
         echo "mountpoint ${g_mnt} metric_port is ${metric_port}"
-        ${g_dingofs_tool} umount fs --fsname ${g_fsname} --mountpoint $(hostname):${metric_port}:${g_mnt} --mdsaddr=${mdsaddr}
+        ${g_dingofs_tool} umount fs ${g_fsname} --mountpoint $(hostname):${metric_port}:${g_mnt} --mdsaddr=${mdsaddr}
     
         # check above command is successful or not
         if [ $? -ne 0 ]; then
@@ -53,6 +76,26 @@ function cleanMountpoint(){
 
     # check if mountpoint path is transport endpoint is not connected, execute umount 
     
+}
+
+function checkfs() {
+    g_fsname=$g_fsname$1
+
+    # check fs command: dingo config get --fsname <fsname>
+    echo "\ncheck fs command: $g_dingofs_tool config get $g_fsname"
+    $g_dingofs_tool config get "$g_fsname"
+    
+    if [ $? -ne 0 ]; then
+        echo "FS:[$1] does not exist, now create fs:[$1]."
+        createfs "$1" "$2"
+        if [ $? -ne 0 ]; then
+            echo "Create fs:[$1] failed, exiting..."
+            return 1
+        else
+            echo "Create fs:[$1] successfully."
+            return 0
+        fi
+    fi
 }
 
 function createfs() {
@@ -66,15 +109,15 @@ function createfs() {
         # create fs command: dingo create fs --fsname <fsname> --fstype s3 xxx
         g_fstype=$g_fstype$2
     fi
-    echo "create fs command: $g_dingofs_tool $g_dingofs_tool_operator $g_fsname $g_fstype"
+    echo "\ncreate fs command: $g_dingofs_tool $g_dingofs_tool_operator $g_fsname $g_fstype"
     $g_dingofs_tool $g_dingofs_tool_operator "$g_fsname" "$g_fstype"
 }
 
-function configfs() {
-    # config fs quota: dingo config fs --fsname <fsname>  --capacity <capacity> --inodes <inodes>
-    echo "$g_dingofs_tool $g_dingofs_tool_config $g_fsname $g_quota_capacity$1 $g_quota_inodes$2"
-    $g_dingofs_tool $g_dingofs_tool_config "$g_fsname" "$g_quota_capacity$1" "$g_quota_inodes$2" 
-}
+#function configfs() {
+#    # config fs quota: dingo config fs --fsname <fsname>  --capacity <capacity> --inodes <inodes>
+#    echo "$g_dingofs_tool $g_dingofs_tool_config $g_fsname $g_quota_capacity$1 $g_quota_inodes$2"
+#    $g_dingofs_tool $g_dingofs_tool_config "$g_fsname" "$g_quota_capacity$1" "$g_quota_inodes$2" 
+#}
 
 function get_options() {
     local long_opts="role:,args:,help"
@@ -105,28 +148,7 @@ function get_options() {
     done
 }
 
-# Parse command parameters
-capacity=""
-inodes=""
-args=()
-for arg in "$@"; do
-    case $arg in
-        --capacity=*)
-            capacity="${arg#*=}"
-            ;;
-        --inodes=*)
-            inodes="${arg#*=}"
-            ;;
-        --new-dingo)
-            new_dingo="true"
-            ;;
-        *)
-            args+=("$arg")
-            ;;
-    esac
-done
-
-echo "create fs args: ${args[@]}"
+echo "mount fs args: ${args[@]}"
 # fetch args last element as mountpoint
 g_mnt=$(echo "${args[@]}" | awk '{print $NF}')
 echo "mountpoint is ${g_mnt}"
@@ -136,26 +158,38 @@ if [[ ! -d "${g_mnt}" ]]; then
 fi
 
 cleanMountpoint
-// TODO check fs is exist or not
-createfs "${args[@]}"
-
+# check fs is exist or not
+checkfs "${args[@]}"
 ret=$?
+
 if [ $ret -eq 0 ]; then
-    if [ -n "$capacity" ] || [ -n "$inodes" ]; then
-        echo "config fs quota: capacity=$capacity, inodes=$inodes"
-        configfs "$capacity" "$inodes"
+    if [[ -n "$capacity" && "$capacity" -ne 0 ]]; then
+        echo "\nConfig fs quota: capacity=$capacity"
+        $g_dingofs_tool $g_dingofs_tool_config "$g_fsname" "$g_quota_capacity$capacity"
+    fi
+    if [ $? -ne 0 ]; then
+        echo "Config fs quota failed, exiting..."
+        exit 1
+    fi
+    if [[ -n "$inodes" && "$inodes" -ne 0 ]]; then
+        echo "Config fs quota: inode=$inodes"
+        $g_dingofs_tool $g_dingofs_tool_config "$g_fsname" "$g_quota_inodes$inodes"
+    fi
+    if [ $? -ne 0 ]; then
+        echo "Config fs quota failed, exiting..."
+        exit 1
     fi
     if [ "$new_dingo" == "true" ]; then
         get_options "${args[@]}"
-        echo "Bootstrap dingo-fuse service, command: $g_client_binary ${g_fuse_args}"
+        echo "\nBootstrap dingo-fuse service, command: $g_client_binary ${g_fuse_args}"
         exec $g_client_binary ${g_fuse_args}
     else
-        echo "old dingo, using entrypoint script: $g_entrypoint"
+        echo "\nold dingo, using entrypoint script: $g_entrypoint"
         $g_entrypoint "${args[@]}"
     fi
     ret=$?
     exit $ret
 else
-    echo "CREATEFS FAILED"
+    echo "Check FS FAILED"
     exit 1
 fi
