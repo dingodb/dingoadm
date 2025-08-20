@@ -113,6 +113,7 @@ var (
 		{name: "service_external_port", role: []string{ROLE_METASERVER}},
 		{name: "log_dir"},
 		{name: "data_dir"},
+		{name: "raft_dir", role: []string{ROLE_COORDINATOR, ROLE_STORE}},
 		{name: "random_uuid"},
 	}
 
@@ -148,10 +149,11 @@ func skip(dc *DeployConfig, v Var) bool {
 	return false
 }
 
+// addVariables render container variable value
 func addVariables(dcs []*DeployConfig, idx int, vars []Var) error {
 	dc := dcs[idx]
 	for _, v := range vars {
-		if skip(dc, v) == true {
+		if skip(dc, v) {
 			continue
 		}
 
@@ -300,6 +302,8 @@ func getValue(name string, dcs []*DeployConfig, idx int) string {
 		return dc.GetProjectLayout().ServiceLogDir
 	case "data_dir":
 		return dc.GetProjectLayout().ServiceDataDir
+	case "raft_dir":
+		return dc.GetProjectLayout().DingoStoreRaftDir
 	case "random_uuid":
 		return uuid.NewString()
 	case "cluster_etcd_http_addr":

@@ -35,7 +35,7 @@ import (
 )
 
 const (
-	// service project layout
+	// service project layout in container
 	LAYOUT_DINGO_ROOT_DIR                    = "/dingo"
 	LAYOUT_DINGOFS_ROOT_DIR                  = "/dingofs"
 	LAYOUT_DINGOSTORE_ROOT_DIR               = "/opt/dingo-store"
@@ -159,11 +159,16 @@ func (dc *DeployConfig) GetServiceConfig() map[string]string { return dc.service
 func (dc *DeployConfig) GetVariables() *variable.Variables   { return dc.variables }
 
 // (2): config item
-func (dc *DeployConfig) GetPrefix() string           { return dc.getString(CONFIG_PREFIX) }
-func (dc *DeployConfig) GetReportUsage() bool        { return dc.getBool(CONFIG_REPORT_USAGE) }
-func (dc *DeployConfig) GetContainerImage() string   { return dc.getString(CONFIG_CONTAINER_IMAGE) }
-func (dc *DeployConfig) GetLogDir() string           { return dc.getString(CONFIG_LOG_DIR) }
-func (dc *DeployConfig) GetDataDir() string          { return dc.getString(CONFIG_DATA_DIR) }
+func (dc *DeployConfig) GetPrefix() string         { return dc.getString(CONFIG_PREFIX) }
+func (dc *DeployConfig) GetReportUsage() bool      { return dc.getBool(CONFIG_REPORT_USAGE) }
+func (dc *DeployConfig) GetContainerImage() string { return dc.getString(CONFIG_CONTAINER_IMAGE) }
+func (dc *DeployConfig) GetLogDir() string         { return dc.getString(CONFIG_LOG_DIR) }
+func (dc *DeployConfig) GetDataDir() string {
+	if dc.GetRole() == ROLE_MDS_V2 || dc.GetRole() == ROLE_DINGODB_EXECUTOR {
+		return "-"
+	}
+	return dc.getString(CONFIG_DATA_DIR)
+}
 func (dc *DeployConfig) GetSeqOffset() int           { return dc.getInt(CONFIG_SEQ_OFFSET) }
 func (dc *DeployConfig) GetSourceCoreDir() string    { return dc.getString(CONFIG_SOURCE_CORE_DIR) }
 func (dc *DeployConfig) GetTargetCoreDir() string    { return dc.getString(CONFIG_TARGET_CORE_DIR) }
@@ -203,8 +208,13 @@ func (dc *DeployConfig) GetListenExternalPort() int {
 	return dc.GetListenPort()
 }
 
+// GetDingoRaftDir returns the raft directory on the host for the Dingo Store service.
 func (dc *DeployConfig) GetDingoRaftDir() string {
-	return dc.getString(CONFIG_DINGO_STORE_RAFT_DIR)
+	if dc.GetRole() == ROLE_COORDINATOR || dc.GetRole() == ROLE_STORE {
+		return dc.getString(CONFIG_DINGO_STORE_RAFT_DIR)
+	} else {
+		return "-"
+	}
 }
 
 func (dc *DeployConfig) GetDingoStoreServerListenHost() string {
@@ -279,6 +289,7 @@ type (
 		SourcePath string
 	}
 
+	// Layout defines the service project container path layout
 	Layout struct {
 		// project: curvebs/curvefs
 		ProjectRootDir string // /curvebs
@@ -340,6 +351,7 @@ type (
 	}
 )
 
+// GetProjectLayout return service project container path layout
 func (dc *DeployConfig) GetProjectLayout() Layout {
 	kind := dc.GetKind()
 	role := dc.GetRole()

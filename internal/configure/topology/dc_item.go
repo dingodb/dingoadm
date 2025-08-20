@@ -88,6 +88,8 @@ type (
 //	(2) filter out the configuration item for service config OR
 //	(3) set the default value for configuration item
 var (
+
+	// itemset is config service var on host
 	itemset = &itemSet{
 		items:    []*item{},
 		key2item: map[string]*item{},

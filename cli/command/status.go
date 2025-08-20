@@ -150,10 +150,11 @@ func displayStatus(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options
 	}
 	excludeCols := []string{}
 	roles := dingoadm.GetRoles(dcs)
-	if utils.Contains(roles, topology.ROLE_MDS_V2) {
-		excludeCols = []string{"Data Dir"}
-	}
-	output, width := tui.FormatStatus(dcs[0].GetKind(), statuses, options.verbose, options.showInstances, excludeCols)
+	isMdsv2 := utils.Contains(roles, topology.ROLE_MDS_V2)
+	//if isMdsv2 {
+	//	excludeCols = []string{"Data Dir"}
+	//}
+	output, width := tui.FormatStatus(dcs[0].GetKind(), statuses, options.verbose, options.showInstances, excludeCols, isMdsv2)
 	dingoadm.WriteOutln("")
 
 	switch dcs[0].GetKind() {

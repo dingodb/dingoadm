@@ -295,9 +295,9 @@ func getUlimits(dc *topology.DeployConfig) []string {
 
 func getMountVolumes(dc *topology.DeployConfig) []step.Volume {
 	volumes := []step.Volume{}
-	layout := dc.GetProjectLayout()
-	logDir := dc.GetLogDir()
-	dataDir := dc.GetDataDir()
+	layout := dc.GetProjectLayout() // service container path layout
+	logDir := dc.GetLogDir()        // service host log path
+	dataDir := dc.GetDataDir()      // service host data path
 	sourceCoreDir := dc.GetSourceCoreDir()
 	targetCoreDir := dc.GetTargetCoreDir()
 
@@ -308,7 +308,7 @@ func getMountVolumes(dc *topology.DeployConfig) []step.Volume {
 		})
 	}
 
-	if len(dataDir) > 0 {
+	if len(dataDir) > 0 && dataDir != comm.SERVICE_DIR_ABSENT {
 		volumes = append(volumes, step.Volume{
 			HostPath:      dataDir,
 			ContainerPath: layout.ServiceDataDir,

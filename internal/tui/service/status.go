@@ -221,7 +221,7 @@ func mergeStatues(statuses []task.ServiceStatus) []task.ServiceStatus {
 	return ss
 }
 
-func FormatStatus(kind string, statuses []task.ServiceStatus, verbose, expand bool, excludeCols []string) (string, int) {
+func FormatStatus(kind string, statuses []task.ServiceStatus, verbose, expand bool, excludeCols []string, isMdsv2 bool) (string, int) {
 	lines := [][]interface{}{}
 
 	// title
@@ -251,7 +251,7 @@ func FormatStatus(kind string, statuses []task.ServiceStatus, verbose, expand bo
 		})
 	}
 
-	if kind == topology.KIND_DINGOSTORE {
+	if kind == topology.KIND_DINGOSTORE || isMdsv2 {
 		title = append(title, "Raft Dir")
 	}
 
@@ -265,7 +265,7 @@ func FormatStatus(kind string, statuses []task.ServiceStatus, verbose, expand bo
 		statuses = mergeStatues(statuses)
 	}
 	for _, status := range statuses {
-		if kind == topology.KIND_DINGOSTORE {
+		if kind == topology.KIND_DINGOSTORE || isMdsv2 {
 			lines = append(lines, []interface{}{
 				status.Id,
 				status.Role,
@@ -277,18 +277,6 @@ func FormatStatus(kind string, statuses []task.ServiceStatus, verbose, expand bo
 				status.LogDir,
 				status.DataDir,
 				status.RaftDir,
-			})
-		} else {
-			lines = append(lines, []interface{}{
-				status.Id,
-				status.Role,
-				status.Host,
-				status.Instances,
-				status.ContainerId,
-				tui.DecorateMessage{Message: status.Status, Decorate: statusDecorate},
-				utils.Choose(len(status.Ports) == 0, "-", status.Ports),
-				status.LogDir,
-				status.DataDir,
 			})
 		}
 	}
