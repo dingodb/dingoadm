@@ -265,20 +265,7 @@ func FormatStatus(kind string, statuses []task.ServiceStatus, verbose, expand bo
 		statuses = mergeStatues(statuses)
 	}
 	for _, status := range statuses {
-		if kind == topology.KIND_DINGOSTORE || isMdsv2 {
-			lines = append(lines, []interface{}{
-				status.Id,
-				status.Role,
-				status.Host,
-				status.Instances,
-				status.ContainerId,
-				tui.DecorateMessage{Message: status.Status, Decorate: statusDecorate},
-				utils.Choose(len(status.Ports) == 0, "-", status.Ports),
-				status.LogDir,
-				status.DataDir,
-				status.RaftDir,
-			})
-		}
+		lines = append(lines, buildStatusLine(status, kind == topology.KIND_DINGOSTORE || isMdsv2))
 	}
 
 	// cut column
@@ -299,6 +286,24 @@ func FormatStatus(kind string, statuses []task.ServiceStatus, verbose, expand bo
 	outlines := strings.Split(output, "\n")
 	width := len(outlines[len(outlines)-2])
 	return output, width
+}
+
+func buildStatusLine(status task.ServiceStatus, showRaftDir bool) []interface{} {
+	line := []interface{}{
+		status.Id,
+		status.Role,
+		status.Host,
+		status.Instances,
+		status.ContainerId,
+		tui.DecorateMessage{Message: status.Status, Decorate: statusDecorate},
+		utils.Choose(len(status.Ports) == 0, "-", status.Ports),
+		status.LogDir,
+		status.DataDir,
+	}
+	if showRaftDir {
+		line = append(line, status.RaftDir)
+	}
+	return line
 }
 
 func sortMonitorStatues(statuses []monitor.MonitorStatus) {
