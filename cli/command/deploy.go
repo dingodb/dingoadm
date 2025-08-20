@@ -310,6 +310,10 @@ func genDeployPlaybook(dingoadm *cli.DingoAdm,
 			} else {
 				// mds v2 with coordinator/store
 				steps = DINGOFS_MDSV2_FOLLOW_DEPLOY_STEPS
+				if !utils.Contains(roles, topology.ROLE_DINGODB_EXECUTOR) {
+					// remove executor reference step which is the last step
+					steps = steps[:len(steps)-1]
+				}
 			}
 		} else if !utils.Contains(roles, topology.ROLE_METASERVER) {
 			steps = DINGOFS_MDS_DEPLOY_STEPS
