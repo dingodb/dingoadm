@@ -60,8 +60,8 @@ var (
 
 	// DingoFS
 
-	//go:embed shell/create_fs_v2.sh
-	CREATE_FS string
+	//go:embed shell/mount_fs.sh
+	MOUNT_FS string
 
 	//go:embed shell/start_gateway.sh
 	START_GATEWAY string
