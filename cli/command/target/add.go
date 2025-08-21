@@ -124,7 +124,7 @@ func genAddPlaybook(curveadm *cli.DingoAdm,
 
 func runAdd(curveadm *cli.DingoAdm, options addOptions) error {
 	// 1) parse client configure
-	cc, err := configure.ParseClientConfig(options.filename)
+	cc, err := configure.ParseClientConfig(options.filename, "")
 	if err != nil {
 		return err
 	} else if cc.GetKind() != topology.KIND_CURVEBS {

@@ -10,7 +10,7 @@ import (
 
 var (
 	KEY_KIND  = strings.ToLower(configure.KEY_KIND)
-	KEY_ADDRS = strings.ToLower(configure.KEY_CURVEFS_LISTEN_MDS_ADDRS)
+	KEY_ADDRS = strings.ToLower(configure.KEY_DINGOFS_LISTEN_MDS_ADDRS)
 	KEY_ENV   = strings.ToLower(configure.KEY_ENVIRONMENT)
 )
 

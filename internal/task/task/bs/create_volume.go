@@ -99,9 +99,9 @@ func setClientAuxInfo(curveadm *cli.DingoAdm, options MapOptions) step.LambdaTyp
 	}
 }
 
-func NewCreateVolumeTask(curveadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.Task, error) {
-	options := curveadm.MemStorage().Get(comm.KEY_MAP_OPTIONS).(MapOptions)
-	hc, err := curveadm.GetHost(options.Host)
+func NewCreateVolumeTask(dingoadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.Task, error) {
+	options := dingoadm.MemStorage().Get(comm.KEY_MAP_OPTIONS).(MapOptions)
+	hc, err := dingoadm.GetHost(options.Host)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func NewCreateVolumeTask(curveadm *cli.DingoAdm, cc *configure.ClientConfig) (*t
 	var out string
 	containerName := volume2ContainerName(options.User, options.Volume)
 	containerId := containerName
-	toolsConf := fmt.Sprintf(FORMAT_TOOLS_CONF, cc.GetClusterMDSAddr())
+	toolsConf := fmt.Sprintf(FORMAT_TOOLS_CONF, cc.GetClusterMDSAddr(dingoadm.MemStorage().Get(comm.KEY_FSTYPE).(string)))
 	script := scripts.CREATE_VOLUME
 	scriptPath := "/curvebs/nebd/sbin/create.sh"
 	command := fmt.Sprintf("/bin/bash %s %s %s %d %s", scriptPath, options.User, options.Volume, options.Size, options.Poolset)
@@ -125,7 +125,7 @@ func NewCreateVolumeTask(curveadm *cli.DingoAdm, cc *configure.ClientConfig) (*t
 		Format:      "'{{.Status}}'",
 		Filter:      fmt.Sprintf("name=%s", containerName),
 		Out:         &out,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.Lambda{
 		Lambda: checkVolumeStatus(&out),
@@ -134,25 +134,25 @@ func NewCreateVolumeTask(curveadm *cli.DingoAdm, cc *configure.ClientConfig) (*t
 		Content:           &toolsConf,
 		ContainerId:       &containerName,
 		ContainerDestPath: "/etc/dingo/tools.conf",
-		ExecOptions:       curveadm.ExecOptions(),
+		ExecOptions:       dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.InstallFile{ // install create_volume.sh
 		Content:           &script,
 		ContainerId:       &containerId,
 		ContainerDestPath: scriptPath,
-		ExecOptions:       curveadm.ExecOptions(),
+		ExecOptions:       dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.ContainerExec{
 		ContainerId: &containerId,
 		Command:     command,
 		Out:         &out,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.Lambda{
 		Lambda: checkCreateStatus(&out),
 	})
 	t.AddStep(&step.Lambda{
-		Lambda: setClientAuxInfo(curveadm, options),
+		Lambda: setClientAuxInfo(dingoadm, options),
 	})
 
 	return t, nil

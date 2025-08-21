@@ -202,7 +202,7 @@
             "showLog": true,
         },
         {
-            "name": "dingoadm mount",
+            "name": "dingoadm mount mdsv2 vfs_v2",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -218,10 +218,15 @@
                 //"--mountpoint=/home/dongw/dingofs/cli/cli1"
                 //--- mount senario ---
                 "mount",
-                "dwfs",
-                "/home/dongw/dingofs/cli/cli1",
-                "--host=dingo7232",
-                "-c=/home/dongw/test/client_minio_quota.yaml"
+                "mdsv2-s3-fs",
+                "/dingofs/mdsv2-s3",
+                "--host",
+                "dingo-dongwei-2",
+                "-c",
+                "/home/dongwei/client/mdsv2/dingoadm-client-s3-mdsv2.yaml",
+                "--new-dingo",
+                "--fstype=vfs_v2",
+                "--local"
             ],
             "showLog": true
         },

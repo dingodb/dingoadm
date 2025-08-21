@@ -81,10 +81,9 @@ var (
 		"-o default_permissions",
 		"-o allow_other",
 		"-o fsname=%s", // fsname
-		"-o fstype=%s", // v1: s3, mdsv2: vfs
-		// "-o user=dingofs",
-		"-o conf=%s", // config path
-		"%s",         // mount path
+		"-o fstype=%s", // v1: s3, main: vfs, mdsv2: vfs_v2
+		"-o conf=%s",   // config path
+		"%s",           // mount path
 	}
 )
 
@@ -232,11 +231,15 @@ func newToolsMutate(cc *configure.ClientConfig, delimiter string) step.Mutate {
 	}
 }
 
-func newToolsV2Mutate(cc *configure.ClientConfig, delimiter string) step.Mutate {
+func newToolsV2Mutate(cc *configure.ClientConfig, delimiter string, fstype string) step.Mutate {
 	clientConfig := cc.GetServiceConfig()
+	mdsAddrKey := "mdsOpt.rpcRetryOpt.addrs"
+	if fstype == configure.FS_TYPE_VKS_V2 {
+		mdsAddrKey = "mds.addr"
+	}
 	// mapping client config to dingo config
 	tools2client := map[string]string{
-		"mdsAddr":         "mdsOpt.rpcRetryOpt.addrs",
+		"mdsAddr":         mdsAddrKey,
 		"ak":              "s3.ak",
 		"sk":              "s3.sk",
 		"endpoint":        "s3.endpoint",
@@ -334,6 +337,7 @@ func checkStartContainerStatus(success *bool, out *string) step.LambdaType {
 func NewMountFSTask(dingoadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.Task, error) {
 	options := dingoadm.MemStorage().Get(comm.KEY_MOUNT_OPTIONS).(MountOptions)
 	useNewDingo := dingoadm.MemStorage().Get(comm.KEY_USE_NEW_DINGO).(bool)
+	fstype := dingoadm.MemStorage().Get(comm.KEY_FSTYPE).(string)
 	hc, err := dingoadm.GetHost(options.Host)
 	if err != nil {
 		return nil, err
@@ -420,7 +424,7 @@ func NewMountFSTask(dingoadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.T
 
 	t.AddStep(&step.SyncFile{ // sync service config
 		ContainerSrcId:    &containerId,
-		ContainerSrcPath:  fmt.Sprintf("%s/conf/client.conf", root),
+		ContainerSrcPath:  fetchFuseConfigPath(fstype, root),
 		ContainerDestId:   &containerId,
 		ContainerDestPath: fmt.Sprintf("%s/conf/client.conf", prefix),
 		KVFieldSplit:      comm.CLIENT_CONFIG_DELIMITER,
@@ -438,11 +442,11 @@ func NewMountFSTask(dingoadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.T
 	//})
 	t.AddStep(&step.TrySyncFile{ // sync tools-v2 config
 		ContainerSrcId:    &containerId,
-		ContainerSrcPath:  fmt.Sprintf("%s/conf/dingo.yaml", root),
+		ContainerSrcPath:  fetchDingoConfigPath(useNewDingo, root),
 		ContainerDestId:   &containerId,
 		ContainerDestPath: topology.GetDingoFSProjectLayout().ToolsV2ConfSystemPath,
 		KVFieldSplit:      comm.TOOLS_V2_CONFIG_DELIMITER,
-		Mutate:            newToolsV2Mutate(cc, comm.TOOLS_V2_CONFIG_DELIMITER),
+		Mutate:            newToolsV2Mutate(cc, comm.TOOLS_V2_CONFIG_DELIMITER, fstype),
 		ExecOptions:       dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.InstallFile{ // install client.sh shell
@@ -464,6 +468,22 @@ func NewMountFSTask(dingoadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.T
 
 	return t, nil
 
+}
+
+func fetchFuseConfigPath(fsType string, rootPath string) string {
+	fuse_config := fmt.Sprintf("%s/conf/client.conf", rootPath)
+	if fsType == configure.FS_TYPE_VKS_V2 {
+		fuse_config = fmt.Sprintf("%s/confv2/client.conf", rootPath)
+	}
+	return fuse_config
+}
+
+func fetchDingoConfigPath(useNewDingo bool, rootPath string) string {
+	dingo_config := fmt.Sprintf("%s/conf/dingo.yaml", rootPath)
+	if useNewDingo {
+		dingo_config = fmt.Sprintf("%s/confv2/dingo.yaml", rootPath)
+	}
+	return dingo_config
 }
 
 func parseMountPaths(input string) map[string]string {
