@@ -96,9 +96,9 @@ func genInstallPlaybook(curveadm *cli.DingoAdm,
 	return pb, nil
 }
 
-func runInstall(curveadm *cli.DingoAdm, options installOptions) error {
+func runInstall(dingoadm *cli.DingoAdm, options installOptions) error {
 	// 1) parse client configure
-	cc, err := configure.ParseClientConfig(options.filename)
+	cc, err := configure.ParseClientConfig(options.filename, "")
 	if err != nil {
 		return err
 	} else if cc.GetKind() != topology.KIND_CURVEBS {
@@ -109,7 +109,7 @@ func runInstall(curveadm *cli.DingoAdm, options installOptions) error {
 	// TODO(P0): get local ip failed
 	// TODO(P0): log dir
 	// 2) generate map playbook
-	pb, err := genInstallPlaybook(curveadm, []*configure.ClientConfig{cc}, options)
+	pb, err := genInstallPlaybook(dingoadm, []*configure.ClientConfig{cc}, options)
 	if err != nil {
 		return err
 	}
@@ -121,7 +121,7 @@ func runInstall(curveadm *cli.DingoAdm, options installOptions) error {
 	}
 
 	// 4) print success prompt
-	curveadm.WriteOutln("")
-	curveadm.WriteOutln(color.GreenString("Install polarfs to %s success ^_^"), options.host)
+	dingoadm.WriteOutln("")
+	dingoadm.WriteOutln(color.GreenString("Install polarfs to %s success ^_^"), options.host)
 	return nil
 }

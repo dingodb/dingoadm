@@ -94,6 +94,7 @@ const (
 	KEY_MOUNT_OPTIONS         = "MOUNT_OPTIONS"
 	KEY_USE_LOCAL_IMAGE       = "USE_LOCAL_IMAGE"
 	KEY_USE_NEW_DINGO         = "USE_NEW_DINGO"
+	KEY_FSTYPE                = "FSTYPE"
 	CLIENT_STATUS_LOSED       = "Losed"
 	CLIENT_STATUS_UNKNOWN     = "Unknown"
 	KERNERL_MODULE_NBD        = "nbd"

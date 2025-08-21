@@ -196,9 +196,9 @@ func genMapPlaybook(curveadm *cli.DingoAdm,
 }
 
 // TODO(P1): unmap by id
-func runMap(curveadm *cli.DingoAdm, options mapOptions) error {
+func runMap(dingoadm *cli.DingoAdm, options mapOptions) error {
 	// 1) parse client configure
-	cc, err := configure.ParseClientConfig(options.filename)
+	cc, err := configure.ParseClientConfig(options.filename, "")
 	if err != nil {
 		return err
 	} else if cc.GetKind() != topology.KIND_CURVEBS {
@@ -207,7 +207,7 @@ func runMap(curveadm *cli.DingoAdm, options mapOptions) error {
 	}
 
 	// 2) generate map playbook
-	pb, err := genMapPlaybook(curveadm, []*configure.ClientConfig{cc}, options)
+	pb, err := genMapPlaybook(dingoadm, []*configure.ClientConfig{cc}, options)
 	if err != nil {
 		return err
 	}
@@ -219,8 +219,8 @@ func runMap(curveadm *cli.DingoAdm, options mapOptions) error {
 	}
 
 	// 4) print success prompt
-	curveadm.WriteOutln("")
-	curveadm.WriteOutln(color.GreenString("Map %s to %s nbd device success ^_^"),
+	dingoadm.WriteOutln("")
+	dingoadm.WriteOutln(color.GreenString("Map %s to %s nbd device success ^_^"),
 		options.image, options.host)
 	return nil
 }

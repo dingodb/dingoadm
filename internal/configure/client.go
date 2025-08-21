@@ -38,16 +38,17 @@ import (
 )
 
 const (
-	KEY_KIND                     = "kind"
-	KEY_CONTAINER_IMAGE          = "container_image"
-	KEY_LOG_DIR                  = "log_dir"
-	KEY_DATA_DIR                 = "data_dir"
-	KEY_CORE_DIR                 = "core_dir"
-	KEY_CACHE_DIR                = "mount_dirs"
-	KEY_CURVEBS_LISTEN_MDS_ADDRS = "mds.listen.addr"
-	KEY_CURVEFS_LISTEN_MDS_ADDRS = "mdsOpt.rpcRetryOpt.addrs"
-	KEY_CONTAINER_PID            = "container_pid"
-	KEY_ENVIRONMENT              = "env"
+	KEY_KIND                       = "kind"
+	KEY_CONTAINER_IMAGE            = "container_image"
+	KEY_LOG_DIR                    = "log_dir"
+	KEY_DATA_DIR                   = "data_dir"
+	KEY_CORE_DIR                   = "core_dir"
+	KEY_CACHE_DIR                  = "mount_dirs"
+	KEY_CURVEBS_LISTEN_MDS_ADDRS   = "mds.listen.addr"
+	KEY_DINGOFS_LISTEN_MDS_ADDRS   = "mdsOpt.rpcRetryOpt.addrs"
+	KEY_DINGOFS_LISTEN_MDSV2_ADDRS = "mds.addr"
+	KEY_CONTAINER_PID              = "container_pid"
+	KEY_ENVIRONMENT                = "env"
 
 	KEY_CLIENT_S3_ACCESS_KEY  = "s3.ak"
 	KEY_CLIENT_S3_SECRET_KEY  = "s3.sk"
@@ -58,11 +59,13 @@ const (
 	KEY_QUOTA_INODES   = "quota.inodes"
 
 	DEFAULT_CORE_LOCATE_DIR = "/core"
+
+	FS_TYPE_VKS_V2 = "vfs_v2"
 )
 
 const (
 	DEFAULT_CURVEBS_CLIENT_CONTAINER_IMAGE = "opencurvedocker/curvebs:v1.2"
-	DEFAULT_CURVEFS_CLIENT_CONTAINER_IMAGE = "dingodatabase/dingofs:latest"
+	DEFAULT_DINGOFS_CLIENT_CONTAINER_IMAGE = "dingodatabase/dingofs:latest"
 )
 
 var (
@@ -93,7 +96,7 @@ type (
 	}
 )
 
-func NewClientConfig(config map[string]interface{}) (*ClientConfig, error) {
+func NewClientConfig(config map[string]interface{}, mountFSType string) (*ClientConfig, error) {
 	serviceConfig := map[string]string{}
 	for k, v := range config {
 		value, ok := utils.All2Str(v)
@@ -122,13 +125,13 @@ func NewClientConfig(config map[string]interface{}) (*ClientConfig, error) {
 
 	kind := cc.GetKind()
 	field := utils.Choose(kind == topology.KIND_CURVEBS,
-		KEY_CURVEBS_LISTEN_MDS_ADDRS, KEY_CURVEFS_LISTEN_MDS_ADDRS)
+		KEY_CURVEBS_LISTEN_MDS_ADDRS, KEY_DINGOFS_LISTEN_MDS_ADDRS)
 	if cc.GetKind() != topology.KIND_CURVEBS && kind != topology.KIND_CURVEFS && kind != topology.KIND_DINGOFS {
 		return nil, errno.ERR_UNSUPPORT_CLIENT_CONFIGURE_KIND.
 			F("kind: %s", kind)
-	} else if len(cc.GetClusterMDSAddr()) == 0 {
+	} else if len(cc.GetClusterMDSAddr(mountFSType)) == 0 {
 		return nil, errno.ERR_INVALID_CLUSTER_LISTEN_MDS_ADDRESS.
-			F("%s: %s", field, cc.GetClusterMDSAddr())
+			F("%s: %s", field, cc.GetClusterMDSAddr(mountFSType))
 	}
 	return cc, nil
 }
@@ -146,10 +149,10 @@ func ParseClientCfg(data string) (*ClientConfig, error) {
 		return nil, errno.ERR_PARSE_CLIENT_CONFIGURE_FAILED.E(err)
 	}
 	build.DEBUG(build.DEBUG_CLIENT_CONFIGURE, config)
-	return NewClientConfig(config)
+	return NewClientConfig(config, "")
 }
 
-func ParseClientConfig(filename string) (*ClientConfig, error) {
+func ParseClientConfig(filename string, mountFSType string) (*ClientConfig, error) {
 	// 1. read file content
 	data, err := utils.ReadFile(filename)
 	if err != nil {
@@ -173,7 +176,7 @@ func ParseClientConfig(filename string) (*ClientConfig, error) {
 	}
 
 	// 4. new config
-	cfg, err := NewClientConfig(m)
+	cfg, err := NewClientConfig(m, mountFSType)
 	if err != nil {
 		return nil, err
 	}
@@ -228,16 +231,19 @@ func (cc *ClientConfig) GetContainerImage() string {
 	if len(containerImage) == 0 {
 		containerImage = utils.Choose(cc.GetKind() == topology.KIND_CURVEBS,
 			DEFAULT_CURVEBS_CLIENT_CONTAINER_IMAGE,
-			DEFAULT_CURVEFS_CLIENT_CONTAINER_IMAGE)
+			DEFAULT_DINGOFS_CLIENT_CONTAINER_IMAGE)
 	}
 	return containerImage
 }
 
-func (cc *ClientConfig) GetClusterMDSAddr() string {
+func (cc *ClientConfig) GetClusterMDSAddr(mountFSType string) string {
 	if cc.GetKind() == topology.KIND_CURVEBS {
 		return cc.getString(KEY_CURVEBS_LISTEN_MDS_ADDRS)
 	}
-	return cc.getString(KEY_CURVEFS_LISTEN_MDS_ADDRS)
+	if mountFSType == FS_TYPE_VKS_V2 {
+		return cc.getString(KEY_DINGOFS_LISTEN_MDSV2_ADDRS)
+	}
+	return cc.getString(KEY_DINGOFS_LISTEN_MDS_ADDRS)
 }
 
 // wrapper interface: curvefs client related
@@ -254,6 +260,9 @@ func GetFSClientPrefix() string {
 }
 
 func GetFSClientConfPath() string {
+	//if useNewDingo {
+	//	return fmt.Sprintf("%s/client/confv2/client.conf", LAYOUT_DINGOFS_ROOT_DIR)
+	//}
 	return fmt.Sprintf("%s/client/conf/client.conf", LAYOUT_DINGOFS_ROOT_DIR)
 }
 

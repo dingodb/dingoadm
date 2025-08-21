@@ -1,3 +1,4 @@
+
 #!/usr/bin/env bash
 
 # Usage: create_fs USER VOLUME SIZE
@@ -6,7 +7,8 @@ g_dingofs_tool="dingo"
 g_dingofs_tool_operator="create fs"
 g_dingofs_tool_config="config fs"
 g_fsname="--fsname="
-g_fstype="--fstype="
+dingo_fstype="--fstype=" # dingo tool 
+fuse_fstype="" # dingo-fuse 
 g_storagetype="--storagetype="
 g_quota_capacity="--capacity="
 g_quota_inodes="--inodes="
@@ -41,20 +43,44 @@ for arg in "$@"; do
     esac
 done
 
+echo "mount fs args: ${args[@]}"
+fuse_fstype="$2"
+echo "fuse_fstype is ${fuse_fstype}"
+# fetch args last element as mountpoint
+g_mnt=$(echo "${args[@]}" | awk '{print $NF}')
+echo "mountpoint is ${g_mnt}"
+if [[ ! -d "${g_mnt}" ]]; then
+    echo "Mountpoint ${g_mnt} does not exist, creating it..."
+    mkdir -p "${g_mnt}"
+fi
+
 function cleanMountpoint(){
 
     # Check if mountpoint path is broken (Transport endpoint is not connected)
-    if mountpoint -q "${g_mnt}"; then
-        echo "Mountpoint ${g_mnt} is mounted properly. begin umount it "
-        umount -l "${g_mnt}"
-    elif grep -q 'Transport endpoint is not connected' < <(ls "${g_mnt}" 2>&1); then
+    mountpoint -q "${g_mnt}"
+    # check if mountpoint is mount point which code is 0
+    # 0: path is a mountpoint
+    # 1: path is not a mountpoint but exists
+    # 32: path does not exist
+    if [ $? -eq 0 ]; then
+        echo "mountpoint -q ${g_mnt} return 0"
+        #echo "Mountpoint ${g_mnt} is have mounted. begin umount it "
+        #umount -l "${g_mnt}"
+    fi
+    
+    if grep -q 'Transport endpoint is not connected' < <(ls "${g_mnt}" 2>&1); then
         echo "Mountpoint ${g_mnt} is in 'Transport endpoint is not connected' state. Forcing umount..."
         fusermount -u "${g_mnt}" || umount -l "${g_mnt}"
     fi
 
-    # Get the MDS address from the client.conf file
     mdsaddr=$(grep 'mdsOpt.rpcRetryOpt.addrs' "${g_client_config}" | awk -F '=' '{print $2}')
-        
+    
+    # Get the MDS address from the client.conf file
+    if [ "${fuse_fstype}" == "vfs_v2" ]; then
+        mdsaddr=$(grep -Po '^(?:\s*)mds\.addr\s*=\s*\K.*' ${g_client_config})
+        echo "mdsaddr is ${mdsaddr}"
+    fi
+
     # Get the metric port from the mountpoint list
     mnt_info=$(${g_dingofs_tool} list mountpoint --mdsaddr=${mdsaddr} | grep ${g_mnt} | grep $(hostname))
 
@@ -82,9 +108,9 @@ function checkfs() {
     g_fsname=$g_fsname$1
 
     # check fs command: dingo config get --fsname <fsname>
-    echo "\ncheck fs command: $g_dingofs_tool config get $g_fsname"
+    echo -e "\ncheck fs command: $g_dingofs_tool config get $g_fsname"
     $g_dingofs_tool config get "$g_fsname"
-    
+
     if [ $? -ne 0 ]; then
         echo "FS:[$1] does not exist, now create fs:[$1]."
         createfs "$1" "$2"
@@ -104,20 +130,14 @@ function createfs() {
     if [ "$new_dingo" == "true" ]; then
         # create fs command: dingo create fs --fsname <fsname> --storagetype <storagetype> xxx
         storagetype=$(grep 'storagetype:' "${g_tool_config}" | awk '{print $2}')
-        g_fstype=$g_storagetype$storagetype
+        dingo_fstype=$g_storagetype$storagetype
     else
         # create fs command: dingo create fs --fsname <fsname> --fstype s3 xxx
-        g_fstype=$g_fstype$2
+        dingo_fstype=$dingo_fstype$2
     fi
-    echo "\ncreate fs command: $g_dingofs_tool $g_dingofs_tool_operator $g_fsname $g_fstype"
-    $g_dingofs_tool $g_dingofs_tool_operator "$g_fsname" "$g_fstype"
+    echo -e "\ncreate fs command: $g_dingofs_tool $g_dingofs_tool_operator $g_fsname $dingo_fstype"
+    $g_dingofs_tool $g_dingofs_tool_operator "$g_fsname" "$dingo_fstype"
 }
-
-#function configfs() {
-#    # config fs quota: dingo config fs --fsname <fsname>  --capacity <capacity> --inodes <inodes>
-#    echo "$g_dingofs_tool $g_dingofs_tool_config $g_fsname $g_quota_capacity$1 $g_quota_inodes$2"
-#    $g_dingofs_tool $g_dingofs_tool_config "$g_fsname" "$g_quota_capacity$1" "$g_quota_inodes$2" 
-#}
 
 function get_options() {
     local long_opts="role:,args:,help"
@@ -148,15 +168,6 @@ function get_options() {
     done
 }
 
-echo "mount fs args: ${args[@]}"
-# fetch args last element as mountpoint
-g_mnt=$(echo "${args[@]}" | awk '{print $NF}')
-echo "mountpoint is ${g_mnt}"
-if [[ ! -d "${g_mnt}" ]]; then
-    echo "Mountpoint ${g_mnt} does not exist, creating it..."
-    mkdir -p "${g_mnt}"
-fi
-
 cleanMountpoint
 # check fs is exist or not
 checkfs "${args[@]}"
@@ -164,7 +175,7 @@ ret=$?
 
 if [ $ret -eq 0 ]; then
     if [[ -n "$capacity" && "$capacity" -ne 0 ]]; then
-        echo "\nConfig fs quota: capacity=$capacity"
+        echo -e "\nConfig fs quota: capacity=$capacity"
         $g_dingofs_tool $g_dingofs_tool_config "$g_fsname" "$g_quota_capacity$capacity"
     fi
     if [ $? -ne 0 ]; then
@@ -181,10 +192,10 @@ if [ $ret -eq 0 ]; then
     fi
     if [ "$new_dingo" == "true" ]; then
         get_options "${args[@]}"
-        echo "\nBootstrap dingo-fuse service, command: $g_client_binary ${g_fuse_args}"
+        echo -e "\nBootstrap dingo-fuse service, command: $g_client_binary ${g_fuse_args}"
         exec $g_client_binary ${g_fuse_args}
     else
-        echo "\nold dingo, using entrypoint script: $g_entrypoint"
+        echo -e "\nUse dingo v4.0, using entrypoint script: $g_entrypoint"
         $g_entrypoint "${args[@]}"
     fi
     ret=$?
@@ -193,3 +204,4 @@ else
     echo "Check FS FAILED"
     exit 1
 fi
+

@@ -101,9 +101,9 @@ func genInstallPlaybook(curveadm *cli.DingoAdm,
 	return pb, nil
 }
 
-func runInstall(curveadm *cli.DingoAdm, options installOptions) error {
+func runInstall(dingoadm *cli.DingoAdm, options installOptions) error {
 	// 1) parse client configure
-	cc, err := configure.ParseClientConfig(options.filename)
+	cc, err := configure.ParseClientConfig(options.filename, "")
 	if err != nil {
 		return err
 	} else if options.kind != cc.GetKind() {
@@ -116,7 +116,7 @@ func runInstall(curveadm *cli.DingoAdm, options installOptions) error {
 	}
 
 	// 2) generate map playbook
-	pb, err := genInstallPlaybook(curveadm, []*configure.ClientConfig{cc}, options)
+	pb, err := genInstallPlaybook(dingoadm, []*configure.ClientConfig{cc}, options)
 	if err != nil {
 		return err
 	}
@@ -128,8 +128,8 @@ func runInstall(curveadm *cli.DingoAdm, options installOptions) error {
 	}
 
 	// 4) print success prompt
-	curveadm.WriteOutln("")
-	curveadm.WriteOutln(color.GreenString("Install %s to %s success ^_^"),
+	dingoadm.WriteOutln("")
+	dingoadm.WriteOutln(color.GreenString("Install %s to %s success ^_^"),
 		options.kind, options.host)
 	return nil
 }

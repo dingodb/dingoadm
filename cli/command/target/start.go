@@ -88,7 +88,7 @@ func genStartPlaybook(curveadm *cli.DingoAdm,
 
 func runStart(curveadm *cli.DingoAdm, options startOptions) error {
 	// 1) parse client configure
-	cc, err := configure.ParseClientConfig(options.filename)
+	cc, err := configure.ParseClientConfig(options.filename, "")
 	if err != nil {
 		return err
 	} else if cc.GetKind() != topology.KIND_CURVEBS {

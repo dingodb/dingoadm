@@ -130,6 +130,7 @@ func genMountPlaybook(dingoadm *cli.DingoAdm,
 				comm.KEY_CHECK_KERNEL_MODULE_NAME: comm.KERNERL_MODULE_FUSE,
 				comm.KEY_USE_LOCAL_IMAGE:          options.useLocalImage,
 				comm.KEY_USE_NEW_DINGO:            options.newDingo,
+				comm.KEY_FSTYPE:                   options.mountFSType,
 			},
 			ExecOptions: playbook.ExecOptions{
 				SilentSubBar: step == playbook.CHECK_CLIENT_S3,
@@ -141,7 +142,7 @@ func genMountPlaybook(dingoadm *cli.DingoAdm,
 
 func runMount(dingoadm *cli.DingoAdm, options mountOptions) error {
 	// 1) parse client configure
-	cc, err := configure.ParseClientConfig(options.filename)
+	cc, err := configure.ParseClientConfig(options.filename, options.mountFSType)
 	if err != nil {
 		return err
 	} else if cc.GetKind() != topology.KIND_CURVEFS && cc.GetKind() != topology.KIND_DINGOFS {

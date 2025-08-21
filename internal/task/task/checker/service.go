@@ -170,7 +170,7 @@ func NewCheckMdsAddressTask(dingoadm *cli.DingoAdm, cc *configure.ClientConfig) 
 		return nil, err
 	}
 
-	address := cc.GetClusterMDSAddr()
+	address := cc.GetClusterMDSAddr(dingoadm.MemStorage().Get(comm.KEY_FSTYPE).(string))
 	subname := fmt.Sprintf("host=%s address=%s", host, address)
 	t := task.NewTask("Check MDS Address", subname, hc.GetSSHConfig())
 
