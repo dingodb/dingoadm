@@ -16,7 +16,7 @@ var (
 
 func run(t *testing.T, config map[string]interface{}, envs []string) {
 	assert := assert.New(t)
-	cc, err := configure.NewClientConfig(config)
+	cc, err := configure.NewClientConfig(config, "")
 	assert.Nil(err)
 	assert.Equal(envs, getEnvironments(cc))
 }

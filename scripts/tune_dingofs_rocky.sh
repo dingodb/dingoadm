@@ -7,6 +7,12 @@ set -e
 #    sudo timedatectl set-timezone Asia/Shanghai
 #fi
 
+# check user_allow_other in  /etc/fuse.conf, add config if absent
+if ! grep -q "^user_allow_other" /etc/fuse.conf; then
+    echo "Adding user_allow_other to /etc/fuse.conf..."
+    echo "user_allow_other" | sudo tee -a /etc/fuse.conf > /dev/null
+fi
+
 echo "Checking if 'tuned' package is installed..."
 if ! rpm -q tuned &>/dev/null; then
     echo "'tuned' is not installed. Installing now..."
@@ -49,6 +55,7 @@ min_perf_pct=100
 kernel.sched_min_granularity_ns = 10000000
 kernel.sched_wakeup_granularity_ns = 15000000
 kernel.numa_balancing = 1
+kernel.io_uring_disabled = 0
 vm.dirty_ratio = 40
 vm.dirty_background_ratio = 10
 vm.swappiness=10
