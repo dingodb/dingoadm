@@ -61,13 +61,13 @@ func NewMutate(dc *topology.DeployConfig, delimiter string, forceRender bool) st
 		muteKey := strings.TrimSpace(key)
 		if dc.GetRole() == topology.ROLE_COORDINATOR || dc.GetRole() == topology.ROLE_STORE {
 			// key is like -xxx , replace  '-' to 'gflags.'
-			if strings.HasPrefix(key, "-") {
-				muteKey = fmt.Sprintf("gflags.%s", strings.TrimPrefix(key, "-"))
+			if strings.HasPrefix(key, comm.STORE_GFLAGS_PREFIX) {
+				muteKey = fmt.Sprintf("gflags.%s", strings.TrimPrefix(key, comm.STORE_GFLAGS_PREFIX))
 			}
 		} else if dc.GetRole() == topology.ROLE_MDS_V2 {
 			// key is like --xxx , trim '--'
-			if strings.HasPrefix(key, "--") {
-				muteKey = strings.TrimPrefix(key, "--")
+			if strings.HasPrefix(key, comm.MDSV2_CONFIG_PREFIX) {
+				muteKey = strings.TrimPrefix(key, comm.MDSV2_CONFIG_PREFIX)
 			}
 		}
 
@@ -151,13 +151,14 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 
 	if dc.GetKind() == topology.KIND_DINGOFS {
 		for _, conf := range layout.ServiceConfFiles {
-			t.AddStep(&step.SyncFile{ // sync service config
+			t.AddStep(&step.SyncFile{ // sync service config, e.g. dingo-mdsv2.template.conf
 				ContainerSrcId:    &containerId,
 				ContainerSrcPath:  conf.SourcePath,
 				ContainerDestId:   &containerId,
 				ContainerDestPath: conf.TargetPath,
 				KVFieldSplit:      delimiter,
 				Mutate:            NewMutate(dc, delimiter, conf.Name == "nginx.conf"),
+				SerivceConfig:     dc.GetServiceConfig(),
 				ExecOptions:       dingoadm.ExecOptions(),
 			})
 		}

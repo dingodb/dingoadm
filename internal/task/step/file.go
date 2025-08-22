@@ -66,11 +66,14 @@ type (
 
 	Mutate func(string, string, string) (string, error)
 
+	DynamicAppend func(string, string) (string, error)
+
 	Filter struct {
-		KVFieldSplit string
-		Mutate       Mutate
-		Input        *string
-		Output       *string
+		KVFieldSplit  string
+		Mutate        Mutate
+		SerivceConfig map[string]string
+		Input         *string
+		Output        *string
 	}
 
 	SyncFile struct {
@@ -80,6 +83,7 @@ type (
 		ContainerDestPath string
 		KVFieldSplit      string
 		Mutate            func(string, string, string) (string, error)
+		SerivceConfig     map[string]string
 		module.ExecOptions
 	}
 
@@ -232,6 +236,14 @@ func (s *Filter) kvSplit(line string, key, value *string) error {
 func (s *Filter) Execute(ctx *context.Context) error {
 	var key, value string
 	output := []string{}
+
+	topologySerivceConfigKeys := []string{}
+	for k := range s.SerivceConfig {
+		topologySerivceConfigKeys = append(topologySerivceConfigKeys, k)
+	}
+
+	originServiceConfigKeys := []string{}
+
 	scanner := bufio.NewScanner(strings.NewReader(string(*s.Input)))
 	for scanner.Scan() {
 		in := scanner.Text()
@@ -242,11 +254,34 @@ func (s *Filter) Execute(ctx *context.Context) error {
 			}
 		}
 
+		originServiceConfigKeys = append(originServiceConfigKeys, key)
+
 		out, err := s.Mutate(in, key, value)
 		if err != nil {
 			return err
 		}
 		output = append(output, out)
+	}
+
+	// extract the key from topologySerivceConfigKeys that are not in originServiceConfigKeys
+	extraServiceConfigKeys := utils.Filter(topologySerivceConfigKeys, func(k string) bool {
+		if !strings.HasPrefix(k, "mds_") {
+			return false
+		}
+		mdsv2_key := fmt.Sprintf("%s%s", comm.MDSV2_CONFIG_PREFIX, k)
+		return !utils.Contains(originServiceConfigKeys, mdsv2_key)
+	})
+
+	if len(extraServiceConfigKeys) > 0 {
+		output = append(output, "# dynamic config from topology")
+		for _, k := range extraServiceConfigKeys {
+			v := s.SerivceConfig[k]
+			if len(v) > 0 {
+				// dingo-mdsv2.template.conf
+				out := fmt.Sprintf("%s%s%s%s", comm.MDSV2_CONFIG_PREFIX, k, s.KVFieldSplit, v)
+				output = append(output, out)
+			}
+		}
 	}
 
 	*s.Output = strings.Join(output, "\n")
@@ -263,10 +298,11 @@ func (s *SyncFile) Execute(ctx *context.Context) error {
 		ExecOptions:      s.ExecOptions,
 	})
 	steps = append(steps, &Filter{
-		KVFieldSplit: s.KVFieldSplit,
-		Mutate:       s.Mutate,
-		Input:        &input,
-		Output:       &output,
+		KVFieldSplit:  s.KVFieldSplit,
+		Mutate:        s.Mutate,
+		SerivceConfig: s.SerivceConfig,
+		Input:         &input,
+		Output:        &output,
 	})
 	steps = append(steps, &InstallFile{
 		ContainerId:       s.ContainerDestId,

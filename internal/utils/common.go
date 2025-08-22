@@ -319,9 +319,19 @@ func EncryptFile(srcfile, dstfile, secret string) error {
 
 func Contains(list []string, str string) bool {
 	for _, v := range list {
-		if v == str {
+		if strings.TrimSpace(v) == strings.TrimSpace(str) {
 			return true
 		}
 	}
 	return false
+}
+
+func Filter(list []string, filterFunc func(string) bool) []string {
+	var result []string
+	for _, item := range list {
+		if filterFunc(item) {
+			result = append(result, item)
+		}
+	}
+	return result
 }

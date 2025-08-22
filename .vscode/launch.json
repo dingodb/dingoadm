@@ -186,7 +186,7 @@
             "showLog": true,
         },
         {
-            "name": "dingoadm upgrade -f",
+            "name": "dingoadm upgrade -f --local",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -198,6 +198,7 @@
             "args": [
                 "upgrade",
                 "-f",
+                "--local"
             ],
             "showLog": true,
         },
