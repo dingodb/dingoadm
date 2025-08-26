@@ -125,6 +125,13 @@ func PromptRemoveCluster(clusterName string) string {
 	return prompt.Build()
 }
 
+func PromptRenameCluster(clusterOldName string, clusterNewName string) string {
+	prompt := NewPrompt(color.YellowString(PROMPT_WARNING) + DEFAULT_CONFIRM_PROMPT)
+	prompt.data["warning"] = fmt.Sprintf("WARNING: cluster '%s' will be renamed to '%s'",
+		clusterOldName, clusterNewName)
+	return prompt.Build()
+}
+
 func PromptFormat() string {
 	return color.YellowString(PROMPT_FORMAT)
 }

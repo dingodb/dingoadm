@@ -153,6 +153,9 @@ var (
 
 	// set cluster pool
 	SetClusterPool = `UPDATE clusters SET topology = ?, pool = ? WHERE id = ?`
+
+	// rename cluster name
+	RenameClusterName = `UPDATE clusters SET name = ? WHERE name = ?`
 )
 
 // service

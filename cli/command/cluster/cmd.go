@@ -31,22 +31,23 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewClusterCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewClusterCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "cluster",
 		Short: "Manage clusters",
 		Args:  cliutil.NoArgs,
-		RunE:  cliutil.ShowHelp(curveadm.Err()),
+		RunE:  cliutil.ShowHelp(dingoadm.Err()),
 	}
 
 	cmd.AddCommand(
-		NewAddCommand(curveadm),
-		NewCheckoutCommand(curveadm),
-		NewListCommand(curveadm),
-		NewRemoveCommand(curveadm),
+		NewAddCommand(dingoadm),
+		NewCheckoutCommand(dingoadm),
+		NewListCommand(dingoadm),
+		NewRemoveCommand(dingoadm),
 		// TODO(P1): enable export
 		//NewExportCommand(curveadm),
-		NewImportCommand(curveadm),
+		NewImportCommand(dingoadm),
+		NewRenameCommand(dingoadm),
 	)
 	return cmd
 }

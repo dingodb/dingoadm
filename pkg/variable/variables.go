@@ -153,6 +153,6 @@ func (vars *Variables) Rendering(s string) (string, error) {
 
 func (vars *Variables) Debug() {
 	for _, v := range vars.m {
-		log.Info("Variable", log.Field(v.Name, v.Value))
+		log.Debug("Variable", log.Field(v.Name, v.Value))
 	}
 }
