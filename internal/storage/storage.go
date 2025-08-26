@@ -169,6 +169,17 @@ func (s *Storage) DeleteCluster(name string) error {
 	return s.write(DeleteCluster, name)
 }
 
+// RenameClusterName update cluster name, and return error if new name exists
+func (s *Storage) RenameClusterName(oldName, newName string) error {
+	clusters, err := s.GetClusters(newName)
+	if err != nil {
+		return err
+	} else if len(clusters) > 0 {
+		return fmt.Errorf("cluster name already exists: %s", newName)
+	}
+	return s.write(RenameClusterName, newName, oldName)
+}
+
 func (s *Storage) getClusters(query string, args ...interface{}) ([]Cluster, error) {
 	result, err := s.db.Query(query, args...)
 	if err != nil {

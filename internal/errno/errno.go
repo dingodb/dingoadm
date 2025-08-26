@@ -215,6 +215,7 @@ var (
 	ERR_DELETE_CLUSTER_FAILED          = EC(111005, "execute SQL failed which delete cluster")
 	ERR_UPDATE_CLUSTER_TOPOLOGY_FAILED = EC(111006, "execute SQL failed which update cluster topology")
 	ERR_UPDATE_CLUSTER_POOL_FAILED     = EC(111007, "execute SQL failed which update cluster pool")
+	ERR_RENAME_CLUSTER_FAILED          = EC(111008, "execute SQL failed which rename cluster")
 	// 112: database/SQL (execute SQL statement: containers table)
 	ERR_INSERT_SERVICE_CONTAINER_ID_FAILED   = EC(112000, "execute SQL failed which insert service container id")
 	ERR_SET_SERVICE_CONTAINER_ID_FAILED      = EC(112001, "execute SQL failed which set service container id")
