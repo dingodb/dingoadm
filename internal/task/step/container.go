@@ -269,6 +269,8 @@ func (s *RemoveContainer) Execute(ctx *context.Context) error {
 	return PostHandle(s.Success, s.Out, out, err, errno.ERR_REMOVE_CONTAINER_FAILED.FD("(%s rm CONTAINER)", s.ExecWithEngine))
 }
 
+// ListContainers list containers by `docker ps [OPTIONS]`
+// e.g. docker ps --filter "id=<container_id>" --quiet --all
 func (s *ListContainers) Execute(ctx *context.Context) error {
 	cli := ctx.Module().DockerCli().ListContainers()
 	if len(s.Format) > 0 {

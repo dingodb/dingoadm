@@ -72,6 +72,8 @@ to watch the formatting progress.
 `
 	PROMPT_CANCEL_OPERATION = `[x] {{.operation}} canceled`
 
+	PROMPT_FORCE_OPERATION = `[!] {{.operation}} will be forced`
+
 	DEFAULT_CONFIRM_PROMPT = "Do you want to continue?"
 )
 
@@ -224,6 +226,12 @@ func PromptErrorCode(code int, description, clue, logpath string) string {
 	}
 	//prompt.data["wechat"] = "opencurve_bot"
 
+	return prompt.Build()
+}
+
+func PromptForceOpetation(operation string) string {
+	prompt := NewPrompt(color.YellowString(PROMPT_FORCE_OPERATION))
+	prompt.data["operation"] = operation
 	return prompt.Build()
 }
 
