@@ -295,7 +295,7 @@ func (s *List) Execute(ctx *context.Context) error {
 
 func (s *CreateDirectory) Execute(ctx *context.Context) error {
 	for _, path := range s.Paths {
-		if len(path) == 0 {
+		if len(path) == 0 || path == "-" {
 			continue
 		}
 
