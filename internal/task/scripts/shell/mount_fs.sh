@@ -125,7 +125,6 @@ function checkfs() {
 }
 
 function createfs() {
-    g_fsname=$g_fsname$1
 
     if [ "$new_dingo" == "true" ]; then
         # create fs command: dingo create fs --fsname <fsname> --storagetype <storagetype> xxx
