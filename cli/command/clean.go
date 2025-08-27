@@ -130,6 +130,12 @@ func genCleanPlaybook(dingoadm *cli.DingoAdm,
 	}
 
 	steps := CLEAN_PLAYBOOK_STEPS
+	// check if options's only item include container
+	if utils.Contains(options.only, comm.CLEAN_ITEM_CONTAINER) {
+		// add stop service step before clean service step
+		steps = append([]int{playbook.STOP_SERVICE}, steps...)
+	}
+
 	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
 		pb.AddStep(&playbook.PlaybookStep{
@@ -160,7 +166,7 @@ func runClean(dingoadm *cli.DingoAdm, options cleanOptions) error {
 	// 3) confirm by user
 	// 3) force stop
 	if options.force {
-		dingoadm.WriteOut(tui.PromptCancelOpetation("clean service"))
+		dingoadm.WriteOutln(tui.PromptForceOpetation("clean service"))
 		return pb.Run()
 	}
 

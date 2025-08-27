@@ -43,6 +43,7 @@ import (
 	tui "github.com/dingodb/dingoadm/internal/tui/common"
 	"github.com/dingodb/dingoadm/internal/utils"
 	"github.com/dingodb/dingoadm/pkg/module"
+	"github.com/fatih/color"
 )
 
 const (
@@ -144,6 +145,7 @@ func NewCleanServiceTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*ta
 	if containerId == comm.CLEANED_CONTAINER_ID {
 		// container has removed, no need to clean
 		dingoadm.Storage().SetContainId(serviceId, comm.CLEANED_CONTAINER_ID)
+		dingoadm.WriteOutln("%s clean service: host=%s role=%s ", color.YellowString("[SKIP]"), dc.GetHost(), dc.GetRole())
 		return nil, nil
 	}
 	if dingoadm.IsSkip(dc) {
@@ -193,7 +195,7 @@ func NewCleanServiceTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*ta
 		Files:       files,
 		ExecOptions: dingoadm.ExecOptions(),
 	})
-	if clean[comm.CLEAN_ITEM_CONTAINER] == true {
+	if clean[comm.CLEAN_ITEM_CONTAINER] {
 
 		// var status string
 		// t.AddStep(&step.InspectContainer{
