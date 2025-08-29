@@ -150,6 +150,7 @@ func Upgrade2Latest(currentCommit string) error {
 	}
 
 	if len(version) == 0 {
+		checkBar.Abort(true)
 		p.Wait()
 		fmt.Println("The current version is up-to-date")
 		return nil
