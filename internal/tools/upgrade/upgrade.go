@@ -113,7 +113,8 @@ func GetLatestCommitId(currentCommit string) (string, error) {
 	if resp.StatusCode() != 200 {
 		return "", fmt.Errorf("failed to get latest commit, status code: %d", resp.StatusCode())
 	}
-	latestCommitId := string(resp.Body())
+	// trim newline character
+	latestCommitId := strings.TrimSuffix(string(resp.Body()), "\n")
 	if len(latestCommitId) == 0 {
 		return "", fmt.Errorf("failed to get latest commit, response is empty")
 	}
