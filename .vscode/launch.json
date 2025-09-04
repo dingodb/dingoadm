@@ -274,7 +274,7 @@
             "args": [
                 "config",
                 "commit",
-                "/home/dongwei/deploy/dingofs/topology-mdsv2-v3.yaml"
+                "/home/dongwei/deploy/dingofs/topology-mdsv2-v5-replica.yaml"
             ],
             "showLog": true
         },
