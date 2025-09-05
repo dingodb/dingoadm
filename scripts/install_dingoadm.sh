@@ -103,6 +103,10 @@ install_binary() {
     elif [ "$source" == "github" ]; then
         echo "Downloading from GitHub..."
         local tempfile="/tmp/dingoadm"
+        # check /tmp/dingoadm exists, if exists, remove it
+        if [ -f "${tempfile}" ]; then
+            rm -f "${tempfile}"
+        fi
         # Add your GitHub download logic here
         wget $g_github_url -O "${tempfile}" # github
         if [ $? -eq 0 ]; then
