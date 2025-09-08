@@ -83,13 +83,6 @@ __EOF__
 install_binary() {
     local ret=1
     
-    # curl "${g_download_url}" -skLo "${tempfile}" # internal
-    # wget $g_github_url -O "${tempfile}" # github
-    # if [ $? -eq 0 ]; then
-    #     tar -zxvf "${tempfile}" -C "${g_bin_dir}" 1>/dev/null
-    #     ret=$?
-    # fi
-
     local source=$1
     if [ "$source" == "internal" ]; then
         echo "Downloading from internal source..."
@@ -105,7 +98,8 @@ install_binary() {
         local tempfile="/tmp/dingoadm"
         # check /tmp/dingoadm exists, if exists, remove it
         if [ -f "${tempfile}" ]; then
-            rm -f "${tempfile}"
+            echo "remove existing tempfile ${tempfile}"
+            sudo rm -f "${tempfile}"
         fi
         # Add your GitHub download logic here
         wget $g_github_url -O "${tempfile}" # github
