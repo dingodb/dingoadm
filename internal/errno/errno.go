@@ -451,6 +451,8 @@ var (
 	ERR_CHUNKSERVER_REQUIRES_3_HOSTS      = EC(503007, "chunkserver requires at least 3 hosts to distrubute zones")
 	ERR_SNAPSHOTCLONE_REQUIRES_3_HOSTS    = EC(503008, "snapshotclone requires at least 3 hosts for deploy")
 	ERR_METASERVER_REQUIRES_3_HOSTS       = EC(503009, "metaserver requires at least 3 hosts to distrubute zones")
+	ERR_COORDINATOR_REQUIRES_3_SERVICES   = EC(503010, "coordinator requires at least 3 services")
+	ERR_STORE_REQUIRES_3_SERVICES         = EC(503011, "store requires at least 3 services")
 
 	// 510: checker (ssh)
 	ERR_SSH_CONNECT_FAILED = EC(510000, "SSH connect failed")

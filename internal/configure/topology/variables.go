@@ -130,10 +130,11 @@ var (
 		{name: "cluster_snapshotclone_dummy_port", kind: []string{KIND_CURVEBS}},
 		{name: "cluster_snapshotclone_nginx_upstream", kind: []string{KIND_CURVEBS}},
 		{name: "cluster_metaserver_addr", kind: []string{KIND_CURVEFS, KIND_DINGOFS}},
-		{name: "cluster_coor_srv_peers", kind: []string{KIND_DINGOSTORE, KIND_DINGOFS}},
-		{name: "cluster_coor_raft_peers", kind: []string{KIND_DINGOSTORE, KIND_DINGOFS}},
+		{name: "cluster_coor_srv_peers", kind: []string{KIND_DINGOSTORE, KIND_DINGOFS, KIND_DINGODB}},
+		{name: "cluster_coor_raft_peers", kind: []string{KIND_DINGOSTORE, KIND_DINGOFS, KIND_DINGODB}},
 		{name: "cluster_mdsv2_addr", kind: []string{KIND_DINGOFS}},
-		{name: "coordinator_addr", kind: []string{KIND_DINGOFS}},
+		{name: "coordinator_addr", kind: []string{KIND_DINGOFS, KIND_DINGOSTORE, KIND_DINGODB}},
+		{name: "diskann_server_start_port", kind: []string{KIND_DINGODB}},
 	}
 )
 
@@ -252,6 +253,16 @@ func joinNginxUpstreamServer(dcs []*DeployConfig) string {
 	return strings.Join(servers, " ")
 }
 
+func locateDiskannPort(dcs []*DeployConfig) int {
+	for _, dc := range dcs {
+		if dc.GetRole() != ROLE_DINGODB_DISKANN {
+			continue
+		}
+		return dc.GetDingoServerPort()
+	}
+	return 0
+}
+
 func getValue(name string, dcs []*DeployConfig, idx int) string {
 	dc := dcs[idx]
 	switch name {
@@ -335,6 +346,8 @@ func getValue(name string, dcs []*DeployConfig, idx int) string {
 		return joinPeer(dcs, ROLE_COORDINATOR, SELECT_LISTEN_COOR_RAFT_PORT)
 	case "cluster_mdsv2_addr":
 		return joinPeer(dcs, ROLE_MDS_V2, SELECT_SERVER_PORT)
+	case "diskann_server_start_port":
+		return strconv.Itoa(locateDiskannPort(dcs))
 	}
 	return ""
 }

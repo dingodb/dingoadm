@@ -50,6 +50,9 @@ const (
 	ROLE_SNAPSHOTCLONE    = topology.ROLE_SNAPSHOTCLONE
 	ROLE_COORDINATOR      = topology.ROLE_COORDINATOR
 	ROLE_STORE            = topology.ROLE_STORE
+	ROLE_DINGODB_DOCUMENT = topology.ROLE_DINGODB_DOCUMENT
+	ROLE_DINGODB_INDEX    = topology.ROLE_DINGODB_INDEX
+	ROLE_DINGODB_DISKANN  = topology.ROLE_DINGODB_DISKANN
 	ROLE_MDS_V2           = topology.ROLE_MDS_V2
 	ROLE_DINGODB_EXECUTOR = topology.ROLE_DINGODB_EXECUTOR
 
@@ -76,11 +79,14 @@ var (
 		ROLE_COORDINATOR:      0,
 		ROLE_MDS:              1,
 		ROLE_STORE:            1,
+		ROLE_DINGODB_DOCUMENT: 2,
 		ROLE_CHUNKSERVER:      2,
 		ROLE_METASERVER:       2,
 		ROLE_SNAPSHOTCLONE:    3,
 		ROLE_MDS_V2:           3,
-		ROLE_DINGODB_EXECUTOR: 4,
+		ROLE_DINGODB_INDEX:    3,
+		ROLE_DINGODB_DISKANN:  4,
+		ROLE_DINGODB_EXECUTOR: 5,
 	}
 	MONITOT_ROLE_SCORE = map[string]int{
 		configure.ROLE_NODE_EXPORTER: 0,
@@ -251,8 +257,11 @@ func FormatStatus(kind string, statuses []task.ServiceStatus, verbose, expand bo
 		})
 	}
 
-	if kind == topology.KIND_DINGOSTORE || isMdsv2 {
+	if kind == topology.KIND_DINGOSTORE || isMdsv2 || kind == topology.KIND_DINGODB {
 		title = append(title, "Raft Dir")
+	}
+	if kind == topology.KIND_DINGODB {
+		title = append(title, "Doc Dir", "Vector Dir")
 	}
 
 	first, second := tui.FormatTitle(title)
@@ -265,7 +274,9 @@ func FormatStatus(kind string, statuses []task.ServiceStatus, verbose, expand bo
 		statuses = mergeStatues(statuses)
 	}
 	for _, status := range statuses {
-		lines = append(lines, buildStatusLine(status, kind == topology.KIND_DINGOSTORE || isMdsv2))
+		showRaftDir := kind == topology.KIND_DINGOSTORE || isMdsv2 || kind == topology.KIND_DINGODB
+		showIndexDir := kind == topology.KIND_DINGODB
+		lines = append(lines, buildStatusLine(status, showRaftDir, showIndexDir))
 	}
 
 	// cut column
@@ -280,6 +291,12 @@ func FormatStatus(kind string, statuses []task.ServiceStatus, verbose, expand bo
 		if utils.Contains(title, "Raft Dir") {
 			tui.CutColumn(lines, locate["Raft Dir"]) // Raft Dir
 		}
+		if utils.Contains(title, "Doc Dir") {
+			tui.CutColumn(lines, locate["Doc Dir"]) // Doc Dir
+		}
+		if utils.Contains(title, "Vector Dir") {
+			tui.CutColumn(lines, locate["Vector Dir"]) // Vector Dir
+		}
 	}
 
 	output := tui.FixedFormat(lines, 2)
@@ -288,7 +305,44 @@ func FormatStatus(kind string, statuses []task.ServiceStatus, verbose, expand bo
 	return output, width
 }
 
-func buildStatusLine(status task.ServiceStatus, showRaftDir bool) []interface{} {
+func FormatDirStatus(kind string, statuses []task.ServiceStatus, expand bool, onlyDirs []string) (string, int) {
+	lines := [][]interface{}{}
+
+	// title
+	title := []string{
+		"Id",
+		"Role",
+		"Host",
+		"Instances",
+		"Container Id",
+		"Status",
+		"Ports",
+	}
+
+	if onlyDirs != nil || len(onlyDirs) != 0 {
+		title = append(title, onlyDirs...)
+	}
+
+	first, second := tui.FormatTitle(title)
+	lines = append(lines, first)
+	lines = append(lines, second)
+
+	// status
+	sortStatues(statuses)
+	if !expand {
+		statuses = mergeStatues(statuses)
+	}
+	for _, status := range statuses {
+		lines = append(lines, buildStatusLineOnlyDir(status, onlyDirs))
+	}
+
+	output := tui.FixedFormat(lines, 2)
+	outlines := strings.Split(output, "\n")
+	width := len(outlines[len(outlines)-2])
+	return output, width
+}
+
+func buildStatusLine(status task.ServiceStatus, showRaftDir bool, showIndexDir bool) []interface{} {
 	line := []interface{}{
 		status.Id,
 		status.Role,
@@ -303,6 +357,42 @@ func buildStatusLine(status task.ServiceStatus, showRaftDir bool) []interface{} 
 	if showRaftDir {
 		line = append(line, status.RaftDir)
 	}
+	if showIndexDir {
+		line = append(line, status.DocDir, status.VectorDir)
+	}
+	return line
+}
+
+func buildStatusLineOnlyDir(status task.ServiceStatus, onlyDirs []string) []interface{} {
+	line := []interface{}{
+		status.Id,
+		status.Role,
+		status.Host,
+		status.Instances,
+		status.ContainerId,
+		tui.DecorateMessage{Message: status.Status, Decorate: statusDecorate},
+		utils.Choose(len(status.Ports) == 0, "-", status.Ports),
+	}
+	if onlyDirs == nil || len(onlyDirs) == 0 {
+		return line
+	}
+
+	if utils.Contains(onlyDirs, "Log Dir") {
+		line = append(line, status.LogDir)
+	}
+	if utils.Contains(onlyDirs, "Data Dir") {
+		line = append(line, status.DataDir)
+	}
+	if utils.Contains(onlyDirs, "Raft Dir") {
+		line = append(line, status.RaftDir)
+	}
+	if utils.Contains(onlyDirs, "Doc Dir") {
+		line = append(line, status.DocDir)
+	}
+	if utils.Contains(onlyDirs, "Vector Dir") {
+		line = append(line, status.VectorDir)
+	}
+
 	return line
 }
 

@@ -83,6 +83,8 @@ const (
 	CLEAN_ITEM_DATA      = "data"
 	CLEAN_ITEM_CONTAINER = "container"
 	CLEAN_ITEM_RAFT      = "raft"
+	CLEAN_ITEM_DOC       = "doc"
+	CLEAN_ITEM_VECTOR    = "vector"
 	CLEANED_CONTAINER_ID = "-"
 
 	// client

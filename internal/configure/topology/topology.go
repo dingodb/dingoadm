@@ -63,6 +63,9 @@ type (
 		// dingo-store
 		CoordinatorServices Service `mapstructure:"coordinator_services"`
 		StoreServices       Service `mapstructure:"store_services"`
+		DocumentServices    Service `mapstructure:"document_services"`
+		IndexServices       Service `mapstructure:"index_services"`
+		DiskannServices     Service `mapstructure:"diskann_services"`
 		// dingodb
 		ExecutorServices Service `mapstructure:"executor_services"`
 	}
@@ -95,6 +98,17 @@ var (
 	DINGOSTORE_ROLES = []string{
 		ROLE_COORDINATOR,
 		ROLE_STORE,
+	}
+
+	DINGODB_ROLES = []string{
+		ROLE_COORDINATOR,
+		ROLE_STORE,
+		ROLE_DINGODB_DOCUMENT,
+		ROLE_DINGODB_INDEX,
+		ROLE_DINGODB_DISKANN,
+		ROLE_DINGODB_EXECUTOR,
+		ROLE_DINGODB_PROXY,
+		ROLE_DINGODB_WEB,
 	}
 )
 
@@ -157,6 +171,8 @@ func ParseTopology(data string, ctx *Context) ([]*DeployConfig, error) {
 		}
 	case KIND_DINGOSTORE:
 		roles = append(roles, DINGOSTORE_ROLES...)
+	case KIND_DINGODB:
+		roles = append(roles, DINGODB_ROLES...)
 	default:
 		return nil, errno.ERR_UNSUPPORT_CLUSTER_KIND
 	}
@@ -182,6 +198,12 @@ func ParseTopology(data string, ctx *Context) ([]*DeployConfig, error) {
 			services = topology.CoordinatorServices
 		case ROLE_STORE:
 			services = topology.StoreServices
+		case ROLE_DINGODB_DOCUMENT:
+			services = topology.DocumentServices
+		case ROLE_DINGODB_INDEX:
+			services = topology.IndexServices
+		case ROLE_DINGODB_DISKANN:
+			services = topology.DiskannServices
 		case ROLE_DINGODB_EXECUTOR:
 			services = topology.ExecutorServices
 		case ROLE_MDSV2_CLI:

@@ -74,6 +74,7 @@ vm.dirty_ratio = 40
 vm.dirty_background_ratio = 10
 vm.swappiness=10
 vm.nr_hugepages=1024
+vm.max_map_count=655360
 net.ipv4.tcp_window_scaling = 1
 net.ipv4.tcp_timestamps = 1
 EOF

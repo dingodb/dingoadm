@@ -335,3 +335,12 @@ func Filter(list []string, filterFunc func(string) bool) []string {
 	}
 	return result
 }
+
+func Existed(list []string, strs []string) bool {
+	for _, str := range strs {
+		if Contains(list, str) {
+			return true
+		}
+	}
+	return false
+}

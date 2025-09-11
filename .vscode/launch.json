@@ -120,7 +120,7 @@
             "showLog": true,
         },
         {
-            "name": "dingoadm cluster add",
+            "name": "dingoadm cluster add dingodb",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -132,8 +132,8 @@
             "args": [
                 "cluster",
                 "add",
-                "v2-cluster",
-                "-f=/home/dongwei/deploy/topology-dingofs-v2.yaml",
+                "dingodb",
+                "-f=/home/dongwei/deploy/dingodb/topology-dingodb-v1.yaml",
             ],
             "showLog": true,
         },

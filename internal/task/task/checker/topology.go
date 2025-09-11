@@ -204,8 +204,8 @@ func (s *step2CheckServices) skip(role string) bool {
 		return true
 	}
 
-	// KIND_DINGOSTORE
-	if kind == topology.KIND_DINGOSTORE {
+	// KIND_DINGOSTORE, KIND_DINGODB
+	if kind == topology.KIND_DINGOSTORE || kind == topology.KIND_DINGODB {
 		if role == ROLE_COORDINATOR || role == ROLE_STORE {
 			return false
 		}
@@ -226,6 +226,8 @@ func (s *step2CheckServices) Execute(ctx *context.Context) error {
 		{ROLE_CHUNKSERVER, errno.ERR_CHUNKSERVER_REQUIRES_3_SERVICES},
 		{ROLE_SNAPSHOTCLONE, errno.ERR_SNAPSHOTCLONE_REQUIRES_3_SERVICES}, // 0 OR >= 3
 		{ROLE_METASERVER, errno.ERR_METASERVER_REQUIRES_3_SERVICES},
+		{ROLE_COORDINATOR, errno.ERR_COORDINATOR_REQUIRES_3_SERVICES},
+		{ROLE_STORE, errno.ERR_STORE_REQUIRES_3_SERVICES},
 	}
 	weak := s.dingoadm.MemStorage().Get(comm.KEY_CHECK_WITH_WEAK).(bool) // for topology commit
 	for _, item := range items {

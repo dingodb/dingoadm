@@ -41,7 +41,7 @@ const (
 	LAYOUT_DINGOSTORE_ROOT_DIR               = "/opt/dingo-store"
 	LAYOUT_DINGOSTORE_BIN_DIR                = "/opt/dingo-store/build/bin"
 	LAYOUT_DINGOSTORE_DIST_DIR               = "/opt/dingo-store/dist"
-	LAYOUT_DINGDB_EXECUTOR                   = "/opt/dingo"
+	LAYOUT_DINGDB_DINGO_ROOT_DIR             = "/opt/dingo"
 	LAYOUT_CURVEFS_ROOT_DIR                  = "/curvefs"
 	LAYOUT_CURVEBS_ROOT_DIR                  = "/curvebs"
 	LAYOUT_PLAYGROUND_ROOT_DIR               = "playground"
@@ -60,13 +60,29 @@ const (
 	LAYOUT_CURVEBS_TOOLS_CONFIG_SYSTEM_PATH  = "/etc/dingo/tools.conf"
 	LAYOUT_CURVEFS_TOOLS_CONFIG_SYSTEM_PATH  = "/etc/dingofs/tools.conf" // v1 tools config path
 	LAYOUT_CURVE_TOOLS_V2_CONFIG_SYSTEM_PATH = "/etc/dingo/dingo.yaml"
-	LAYOUT_DINGO_COOR_RAFT_DIR               = "/coordinator1/data/raft" //TODO: need to be changed
-	LAYOUT_DINGO_COOR_DATA_DIR               = "/coordinator1/data/db"   //TODO: need to be changed
-	LAYOUT_DINGO_COOR_LOG_DIR                = "/coordinator1/log"       //TODO: need to be changed
-	LAYOUT_DINGO_STORE_RAFT_DIR              = "/store1/data/raft"       //TODO: need to be changed
-	LAYOUT_DINGO_STORE_DATA_DIR              = "/store1/data/db"         //TODO: need to be changed
-	LAYOUT_DINGO_STORE_LOG_DIR               = "/store1/log"             //TODO: need to be changed
-	LAYOUT_CORE_SYSTEM_DIR                   = "/core"
+	// dingo-store coordinator
+	LAYOUT_DINGO_COOR_RAFT_DIR = "/coordinator1/data/raft" //TODO: need to be changed
+	LAYOUT_DINGO_COOR_DATA_DIR = "/coordinator1/data/db"   //TODO: need to be changed
+	LAYOUT_DINGO_COOR_LOG_DIR  = "/coordinator1/log"       //TODO: need to be changed
+	// dingo-store store
+	LAYOUT_DINGO_STORE_RAFT_DIR = "/store1/data/raft"
+	LAYOUT_DINGO_STORE_DATA_DIR = "/store1/data/db"
+	LAYOUT_DINGO_STORE_LOG_DIR  = "/store1/log"
+	// dingo-store document
+	LAYOUT_DINGO_DOCUMENT_DATA_DIR = "/document1/data/db"
+	LAYOUT_DINGO_DOCUMENT_LOG_DIR  = "/document1/log"
+	LAYOUT_DINGO_DOCUMENT_RAFT_DIR = "/document1/data/raft"
+	LAYOUT_DINGO_DOCUMENT_DOC_DIR  = "/document1/data/document_index"
+	// dingo-store diskann
+	LAYOUT_DINGO_DISKANN_DATA_DIR = "/diskann1/data/diskann"
+	LAYOUT_DINGO_DISKANN_LOG_DIR  = "/diskann1/log"
+	// dingo-store index
+	LAYOUT_DINGO_INDEX_DATA_DIR   = "/index1/data/db"
+	LAYOUT_DINGO_INDEX_LOG_DIR    = "/index1/log"
+	LAYOUT_DINGO_INDEX_VECTOR_DIR = "/index1/data/vector_index_snapshot"
+	LAYOUT_DINGO_INDEX_RAFT_DIR   = "/index1/data/raft"
+
+	LAYOUT_CORE_SYSTEM_DIR = "/core"
 
 	BINARY_CURVEBS_TOOL     = "curvebs-tool"
 	BINARY_CURVEBS_FORMAT   = "curve_format"
@@ -210,8 +226,27 @@ func (dc *DeployConfig) GetListenExternalPort() int {
 
 // GetDingoRaftDir returns the raft directory on the host for the Dingo Store service.
 func (dc *DeployConfig) GetDingoRaftDir() string {
-	if dc.GetRole() == ROLE_COORDINATOR || dc.GetRole() == ROLE_STORE {
+	if dc.GetRole() == ROLE_COORDINATOR ||
+		dc.GetRole() == ROLE_STORE ||
+		dc.GetRole() == ROLE_DINGODB_DOCUMENT ||
+		dc.GetRole() == ROLE_DINGODB_INDEX {
 		return dc.getString(CONFIG_DINGO_STORE_RAFT_DIR)
+	} else {
+		return "-"
+	}
+}
+
+func (dc *DeployConfig) GetDingoStoreDocDir() string {
+	if dc.GetRole() == ROLE_DINGODB_DOCUMENT {
+		return dc.getString(CONFIG_DINGO_STORE_DOCUMENT_DIR)
+	} else {
+		return "-"
+	}
+}
+
+func (dc *DeployConfig) GetDingoStoreVectorDir() string {
+	if dc.GetRole() == ROLE_DINGODB_INDEX {
+		return dc.getString(CONFIG_DINGO_STORE_VECTOR_DIR)
 	} else {
 		return "-"
 	}
@@ -241,8 +276,8 @@ func (dc *DeployConfig) GetDingoInstanceId() int {
 	return dc.getInt(CONFIG_INSTANCE_START_ID)
 }
 
-func (dc *DeployConfig) GetDingoFsV2CoordinatorAddr() string {
-	return dc.getString(CONFIG_DINGOFS_V2_COORDINATOR_ADDR)
+func (dc *DeployConfig) GetDingoStoreCoordinatorAddr() string {
+	return dc.getString(CONFIG_DINGOSTORE_COORDINATOR_ADDR)
 }
 
 //func (dc *DeployConfig) GetDingoServerNum() int {
@@ -346,6 +381,11 @@ type (
 		DingoStoreRaftDir   string // /opt/dingo-store/xxx/data/raft
 		DingoStoreScriptDir string // /opt/dingo-store/scripts
 
+		// dingo-store document
+		DingoStoreDocumentDir string // /opt/dingo-store/xxx/data/document_index
+		// dingo-store vector
+		DingoStoreVectorDir string // /opt/dingo-store/xxx/data/vector_index_snapshot
+
 		// core
 		CoreSystemDir string
 	}
@@ -367,7 +407,14 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 	for _, item := range ServiceConfigs[role] {
 		sourcePath := fmt.Sprintf("%s/%s", confSrcDir, item)
 		targetPath := fmt.Sprintf("%s/%s", serviceConfDir, item)
-		if role == ROLE_COORDINATOR || role == ROLE_STORE || role == ROLE_DINGODB_EXECUTOR {
+		if role == ROLE_COORDINATOR ||
+			role == ROLE_STORE ||
+			role == ROLE_DINGODB_DOCUMENT ||
+			role == ROLE_DINGODB_DISKANN ||
+			role == ROLE_DINGODB_INDEX ||
+			role == ROLE_DINGODB_PROXY ||
+			role == ROLE_DINGODB_WEB ||
+			role == ROLE_DINGODB_EXECUTOR {
 			// dingo-store coordinator/store gflags config
 			sourcePath = fmt.Sprintf("%s/%s", serviceConfDir, item)
 		} else if role == ROLE_MDS_V2 {
@@ -400,16 +447,35 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 	serviceLogDir := serviceRootDir + LAYOUT_SERVICE_LOG_DIR
 	serviceDataDir := serviceRootDir + LAYOUT_SERVICE_DATA_DIR
 	dingoStoreRaftDir := ""
-	if role == ROLE_COORDINATOR {
+	dingoStoreDocumentDir := ""
+	dingoStoreVectorDir := ""
+
+	switch role {
+	case ROLE_COORDINATOR:
 		serviceLogDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_COOR_LOG_DIR
 		serviceDataDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_COOR_DATA_DIR
 		dingoStoreRaftDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_COOR_RAFT_DIR
-	} else if role == ROLE_STORE {
+	case ROLE_STORE:
 		serviceLogDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_STORE_LOG_DIR
 		serviceDataDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_STORE_DATA_DIR
 		dingoStoreRaftDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_STORE_RAFT_DIR
-	} else if role == ROLE_MDS_V2 || role == ROLE_DINGODB_EXECUTOR {
+	case ROLE_DINGODB_DOCUMENT:
+		serviceLogDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_DOCUMENT_LOG_DIR
+		serviceDataDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_DOCUMENT_DATA_DIR
+		dingoStoreRaftDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_DOCUMENT_RAFT_DIR
+		dingoStoreDocumentDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_DOCUMENT_DOC_DIR
+	case ROLE_DINGODB_DISKANN:
+		serviceLogDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_DISKANN_LOG_DIR
+		serviceDataDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_DISKANN_DATA_DIR
+	case ROLE_DINGODB_INDEX:
+		serviceLogDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_INDEX_LOG_DIR
+		serviceDataDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_INDEX_DATA_DIR
+		dingoStoreRaftDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_INDEX_RAFT_DIR
+		dingoStoreVectorDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_INDEX_VECTOR_DIR
+	case ROLE_MDS_V2, ROLE_DINGODB_EXECUTOR:
 		serviceLogDir = serviceRootDir + "/log" // /dingofs/mdsv2/log
+	default:
+		// do nothing
 	}
 
 	return Layout{
@@ -464,6 +530,12 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 		DingoStoreBinDir:    LAYOUT_DINGOSTORE_BIN_DIR,
 		DingoStoreRaftDir:   dingoStoreRaftDir,
 		DingoStoreScriptDir: LAYOUT_DINGOSTORE_ROOT_DIR + "/scripts",
+
+		// dingo-store document
+		DingoStoreDocumentDir: dingoStoreDocumentDir,
+		// dingo-store vector
+		DingoStoreVectorDir: dingoStoreVectorDir,
+
 		// core
 		CoreSystemDir: LAYOUT_CORE_SYSTEM_DIR,
 	}
