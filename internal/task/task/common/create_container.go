@@ -27,6 +27,7 @@ package common
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/dingodb/dingoadm/cli/cli"
@@ -60,11 +61,19 @@ const (
 	ENV_DINGOSTORE_INSTANCE_START_ID             = "INSTANCE_START_ID"
 	ENV_DINGOSTORE_ENABLE_LITE                   = "ENABLE_LITE"
 
+	// dingodb
+	ENV_DINGOSTORE_DISKANN_SERVER_HOST       = "DISKANN_SERVER_HOST"
+	ENV_DINGOSTORE_DISKANN_SERVER_START_PORT = "DISKANN_SERVER_START_PORT"
+	ENV_DINGOSTORE_DISKANN_INSTANCE_START_ID = "DISKANN_INSTANCE_START_ID"
+	ENV_DINGOSTORE_INDEX_SERVER_START_PORT   = "INDEX_SERVER_START_PORT"
+	ENV_DINGOSTORE_INDEX_RAFT_START_PORT     = "INDEX_RAFT_START_PORT"
+	ENV_DINGOSTORE_INDEX_INSTANCE_START_ID   = "INDEX_INSTANCE_START_ID"
+
 	// dingofs mdsv2
 	ENV_DINGOFS_V2_FLAGS_ROLE        = "FLAGS_role"
 	ENV_DINGOFS_V2_FLAGS_CLEAN_LOG   = "FLAGS_clean_log"
 	ENV_DINGOFS_V2_FLAGS_SERVER_NUM  = "FLAGS_server_num"
-	ENV_DINGOFS_V2_COORDINATOR_ADDR  = "COORDINATOR_ADDR"
+	ENV_DINGOSTORE_COORDINATOR_ADDR  = "COORDINATOR_ADDR"
 	ENV_DINGOFS_V2_INSTANCE_START_ID = "MDSV2_INSTANCE_START_ID"
 
 	// dingodb executor
@@ -191,8 +200,12 @@ func getContainerCMD(dc *topology.DeployConfig) string {
 		} else {
 			return fmt.Sprintf("--role %s --args='%s'", dc.GetRole(), getArguments(dc))
 		}
-	case topology.KIND_DINGOSTORE:
-		return cmd
+	case topology.KIND_DINGOSTORE, topology.KIND_DINGODB:
+		if dc.GetRole() == topology.ROLE_DINGODB_EXECUTOR || dc.GetRole() == topology.ROLE_DINGODB_WEB || dc.GetRole() == topology.ROLE_DINGODB_PROXY {
+			return ""
+		} else {
+			return cmd
+		}
 	default:
 		return fmt.Sprintf("--role %s --args='%s'", dc.GetRole(), getArguments(dc))
 	}
@@ -226,10 +239,43 @@ func GetEnvironments(dc *topology.DeployConfig) []string {
 		}
 
 	} else if dc.GetKind() == topology.KIND_DINGOSTORE {
+		switch dc.GetRole() {
+		case topology.ROLE_COORDINATOR,
+			topology.ROLE_STORE,
+			topology.ROLE_DINGODB_DOCUMENT,
+			topology.ROLE_DINGODB_INDEX,
+			topology.ROLE_DINGODB_DISKANN:
+			envs = configDingoStoreENV(envs, dc)
+		case topology.ROLE_DINGODB_EXECUTOR,
+			topology.ROLE_DINGODB_PROXY,
+			topology.ROLE_DINGODB_WEB:
+			envs = configExecutorENV(envs, dc)
+		default:
+			// just keep the old envs
+		}
 		envs = configDingoStoreENV(envs, dc)
 		if len(dc.GetEnv()) > 0 {
 			env := strings.Split(dc.GetEnv(), " ")
 			envs = append(envs, env...)
+		}
+	} else if dc.GetKind() == topology.KIND_DINGODB {
+		switch dc.GetRole() {
+		case topology.ROLE_COORDINATOR,
+			topology.ROLE_STORE,
+			topology.ROLE_DINGODB_DOCUMENT,
+			topology.ROLE_DINGODB_INDEX,
+			topology.ROLE_DINGODB_DISKANN:
+			envs = configDingoVectorENV(envs, dc)
+		case topology.ROLE_DINGODB_EXECUTOR,
+			topology.ROLE_DINGODB_PROXY,
+			topology.ROLE_DINGODB_WEB:
+			envs = configExecutorENV(envs, dc)
+		default:
+			// just keep the old envs
+		}
+		env := dc.GetEnv()
+		if len(env) > 0 {
+			envs = append(envs, strings.Split(env, " ")...)
 		}
 	}
 	return envs
@@ -238,7 +284,7 @@ func GetEnvironments(dc *topology.DeployConfig) []string {
 func configExecutorENV(envs []string, dc *topology.DeployConfig) []string {
 	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGODB_EXECUTOR_ROLE, dc.GetRole()))
 	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGODB_EXECUTOR_HOSTNAME, dc.GetHostname()))
-	coordinator_addr := dc.GetDingoFsV2CoordinatorAddr()
+	coordinator_addr := dc.GetDingoStoreCoordinatorAddr()
 	if len(coordinator_addr) == 1 {
 		coordinator_addr, _ = dc.GetVariables().Get("coordinator_addr")
 	}
@@ -252,11 +298,11 @@ func configMdsv2ENV(envs []string, dc *topology.DeployConfig) []string {
 	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGO_SERVER_LISTEN_HOST, dc.GetDingoServerListenHost()))
 	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGO_SERVER_HOST, dc.GetHostname()))
 	envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGO_SERVER_START_PORT, dc.GetDingoServerPort()))
-	coordinator_addr := dc.GetDingoFsV2CoordinatorAddr()
+	coordinator_addr := dc.GetDingoStoreCoordinatorAddr()
 	if len(coordinator_addr) == 1 {
 		coordinator_addr, _ = dc.GetVariables().Get("coordinator_addr")
 	}
-	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_COORDINATOR_ADDR, coordinator_addr))
+	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_COORDINATOR_ADDR, coordinator_addr))
 	envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOFS_V2_INSTANCE_START_ID, dc.GetDingoInstanceId()))
 	return envs
 }
@@ -280,12 +326,29 @@ func configDingoStoreENV(envs []string, dc *topology.DeployConfig) []string {
 	cluster_coor_srv_peers, err := dc.GetVariables().Get("cluster_coor_srv_peers")
 	if err == nil {
 		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_COOR_SRV_PEERS, cluster_coor_srv_peers))
-		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_COORDINATOR_ADDR, cluster_coor_srv_peers))
+		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_COORDINATOR_ADDR, cluster_coor_srv_peers))
 	}
 	cluster_coor_raft_peers, err := dc.GetVariables().Get("cluster_coor_raft_peers")
 	if err == nil {
 		envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_COOR_RAFT_PEERS, cluster_coor_raft_peers))
 	}
+	return envs
+}
+
+func configDingoVectorENV(envs []string, dc *topology.DeployConfig) []string {
+	envs = configDingoStoreENV(envs, dc)
+	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_DISKANN_SERVER_HOST, dc.GetHostname()))
+	str_diskann_server_start_port, err := dc.GetVariables().Get("diskann_server_start_port")
+	if err == nil {
+		int_diskann_server_start_port, err := strconv.Atoi(str_diskann_server_start_port)
+		if err == nil {
+			envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_DISKANN_SERVER_START_PORT, int_diskann_server_start_port))
+		}
+	}
+	envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_DISKANN_INSTANCE_START_ID, dc.GetDingoInstanceId()))
+	envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_INDEX_SERVER_START_PORT, dc.GetDingoServerPort()))
+	envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_INDEX_RAFT_START_PORT, dc.GetDingoStoreRaftPort()))
+	envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOSTORE_INDEX_INSTANCE_START_ID, dc.GetDingoInstanceId()))
 	return envs
 }
 
@@ -322,10 +385,28 @@ func getMountVolumes(dc *topology.DeployConfig) []step.Volume {
 		})
 	}
 
-	if dc.GetRole() == topology.ROLE_COORDINATOR || dc.GetRole() == topology.ROLE_STORE {
+	if dc.GetRole() == topology.ROLE_COORDINATOR ||
+		dc.GetRole() == topology.ROLE_STORE ||
+		dc.GetRole() == topology.ROLE_DINGODB_DOCUMENT ||
+		dc.GetRole() == topology.ROLE_DINGODB_INDEX {
+		// mount raft dir
 		volumes = append(volumes, step.Volume{
 			HostPath:      dc.GetDingoRaftDir(),
 			ContainerPath: layout.DingoStoreRaftDir,
+		})
+	}
+	if dc.GetRole() == topology.ROLE_DINGODB_DOCUMENT {
+		// mount document dir
+		volumes = append(volumes, step.Volume{
+			HostPath:      dc.GetDingoStoreDocDir(),
+			ContainerPath: layout.DingoStoreDocumentDir,
+		})
+	}
+	if dc.GetRole() == topology.ROLE_DINGODB_INDEX {
+		// mount index vector dir
+		volumes = append(volumes, step.Volume{
+			HostPath:      dc.GetDingoStoreVectorDir(),
+			ContainerPath: layout.DingoStoreVectorDir,
 		})
 	}
 
@@ -386,10 +467,17 @@ func NewCreateContainerTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (
 	})
 
 	createDir := []string{dc.GetLogDir(), dc.GetDataDir()}
-	if dc.GetKind() == topology.KIND_DINGOSTORE ||
-		dc.GetRole() == topology.ROLE_COORDINATOR ||
-		dc.GetRole() == topology.ROLE_STORE {
+	if dc.GetRole() == topology.ROLE_COORDINATOR ||
+		dc.GetRole() == topology.ROLE_STORE ||
+		dc.GetRole() == topology.ROLE_DINGODB_DOCUMENT ||
+		dc.GetRole() == topology.ROLE_DINGODB_INDEX {
 		createDir = append(createDir, dc.GetDingoRaftDir())
+	}
+	if dc.GetRole() == topology.ROLE_DINGODB_DOCUMENT {
+		createDir = append(createDir, dc.GetDingoStoreDocDir())
+	}
+	if dc.GetRole() == topology.ROLE_DINGODB_INDEX {
+		createDir = append(createDir, dc.GetDingoStoreVectorDir())
 	}
 	// TODO createDir for dingodb executor /opt/dingo/localStore
 

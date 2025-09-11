@@ -131,8 +131,19 @@ func getCleanFiles(clean map[string]bool, dc *topology.DeployConfig, recycle boo
 				files = append(files, copysetsDir, chunkserverIdMetafile)
 			}
 		case comm.CLEAN_ITEM_RAFT:
-			if dc.GetRole() == topology.ROLE_COORDINATOR || dc.GetRole() == topology.ROLE_STORE {
+			if dc.GetRole() == topology.ROLE_COORDINATOR ||
+				dc.GetRole() == topology.ROLE_STORE ||
+				dc.GetRole() == topology.ROLE_DINGODB_DOCUMENT ||
+				dc.GetRole() == topology.ROLE_DINGODB_INDEX {
 				files = append(files, dc.GetDingoRaftDir())
+			}
+		case comm.CLEAN_ITEM_DOC:
+			if dc.GetRole() == topology.ROLE_DINGODB_DOCUMENT {
+				files = append(files, dc.GetDingoStoreDocDir())
+			}
+		case comm.CLEAN_ITEM_VECTOR:
+			if dc.GetRole() == topology.ROLE_DINGODB_INDEX {
+				files = append(files, dc.GetDingoStoreVectorDir())
 			}
 		}
 	}

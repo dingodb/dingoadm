@@ -149,7 +149,7 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 		Lambda: CheckContainerExist(dc.GetHost(), dc.GetRole(), containerId, &out),
 	})
 
-	if dc.GetKind() == topology.KIND_DINGOFS {
+	if dc.GetKind() == topology.KIND_DINGOFS || dc.GetKind() == topology.KIND_DINGODB {
 		for _, conf := range layout.ServiceConfFiles {
 			t.AddStep(&step.SyncFile{ // sync service config, e.g. dingo-mdsv2.template.conf
 				ContainerSrcId:    &containerId,
@@ -162,6 +162,17 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 				ExecOptions:       dingoadm.ExecOptions(),
 			})
 		}
+
+		if dc.GetRole() == topology.ROLE_DINGODB_EXECUTOR ||
+			dc.GetRole() == topology.ROLE_DINGODB_DOCUMENT ||
+			dc.GetRole() == topology.ROLE_DINGODB_DISKANN ||
+			dc.GetRole() == topology.ROLE_DINGODB_INDEX ||
+			dc.GetRole() == topology.ROLE_DINGODB_PROXY ||
+			dc.GetRole() == topology.ROLE_DINGODB_WEB {
+			// return directly, no more config to sync
+			return t, nil
+		}
+
 		if dc.GetRole() == topology.ROLE_COORDINATOR || dc.GetRole() == topology.ROLE_STORE {
 			// sync check_store_health.sh
 			checkStoreScript := scripts.CHECK_STORE_HEALTH
@@ -186,8 +197,6 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 				ExecOptions:       dingoadm.ExecOptions(),
 			})
 
-		} else if dc.GetRole() == topology.ROLE_DINGODB_EXECUTOR {
-			// sync dingodb executor.yaml
 		} else {
 			containerToolsSrcPath := layout.ToolsV2ConfSrcPath
 			if dc.GetRole() == topology.ROLE_MDS_V2 {
@@ -221,37 +230,6 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 			})
 		}
 
-	}
-
-	if dc.GetKind() == topology.KIND_DINGOSTORE {
-		// sync coordinator.yaml
-		//t.AddStep(&step.SyncFile{
-		//	ContainerSrcId:    &containerId,
-		//	ContainerSrcPath:  layout.CoordinatorConfSrcPath,
-		//	ContainerDestId:   &containerId,
-		//	ContainerDestPath: layout.CoordinatorConfSrcPath,
-		//	KVFieldSplit:      CONFIG_DELIMITER_COLON,
-		//	Mutate:            NewMutate(dc, CONFIG_DELIMITER_COLON, false),
-		//	ExecOptions:       dingoadm.ExecOptions(),
-		//})
-		// sync store.yaml
-		//t.AddStep(&step.SyncFile{
-		//	ContainerSrcId:    &containerId,
-		//	ContainerSrcPath:  layout.StoreConfSrcPath,
-		//	ContainerDestId:   &containerId,
-		//	ContainerDestPath: layout.StoreConfSrcPath,
-		//	KVFieldSplit:      CONFIG_DELIMITER_COLON,
-		//	Mutate:            NewMutate(dc, CONFIG_DELIMITER_COLON, false),
-		//	ExecOptions:       dingoadm.ExecOptions(),
-		//})
-
-		// config environment variables
-		//t.AddStep(&step.ConfigENV{
-		//	ContainerId:   &containerId,
-		//	ContainerPath: CONFIG_DEFAULT_ENV_FILE,
-		//	ContainerEnv:  GetEnvironments(dc),
-		//	ExecOptions:   dingoadm.ExecOptions(),
-		//})
 	}
 
 	return t, nil

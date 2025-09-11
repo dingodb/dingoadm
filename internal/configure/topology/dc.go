@@ -42,6 +42,7 @@ const (
 	KIND_CURVEFS    = "curvefs"
 	KIND_DINGOFS    = "dingofs"
 	KIND_DINGOSTORE = "dingo-store"
+	KIND_DINGODB    = "dingodb"
 
 	ROLE_ETCD          = "etcd"
 	ROLE_MDS           = "mds"
@@ -54,8 +55,13 @@ const (
 	ROLE_MDSV2_CLI = "mdsv2-client" // tmp role: e.g. create meta tables
 
 	// dingo-store
-	ROLE_COORDINATOR = "coordinator"
-	ROLE_STORE       = "store"
+	ROLE_COORDINATOR      = "coordinator"
+	ROLE_STORE            = "store"
+	ROLE_DINGODB_DOCUMENT = "document"
+	ROLE_DINGODB_DISKANN  = "diskann"
+	ROLE_DINGODB_INDEX    = "index"
+	ROLE_DINGODB_PROXY    = "proxy"
+	ROLE_DINGODB_WEB      = "web"
 
 	// dingodb executor
 	ROLE_DINGODB_EXECUTOR = "executor"

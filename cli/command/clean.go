@@ -54,6 +54,8 @@ var (
 		comm.CLEAN_ITEM_DATA,
 		comm.CLEAN_ITEM_CONTAINER,
 		comm.CLEAN_ITEM_RAFT,
+		comm.CLEAN_ITEM_DOC,
+		comm.CLEAN_ITEM_VECTOR,
 	}
 )
 
@@ -118,11 +120,31 @@ func genCleanPlaybook(dingoadm *cli.DingoAdm,
 	}
 
 	roles := dingoadm.GetRoles(dcs)
-	if !utils.Contains(roles, topology.ROLE_COORDINATOR) &&
-		!utils.Contains(roles, topology.ROLE_STORE) {
-		// remove raft item if no coordinator or store
+
+	// remove raft item if no coordinator or store
+	if !utils.Existed(roles, []string{topology.ROLE_COORDINATOR, topology.ROLE_STORE, topology.ROLE_DINGODB_DOCUMENT, topology.ROLE_DINGODB_INDEX}) {
 		for i, item := range options.only {
 			if item == comm.CLEAN_ITEM_RAFT {
+				options.only = append(options.only[:i], options.only[i+1:]...)
+				break
+			}
+		}
+	}
+
+	// remove doc item if no document role
+	if !utils.Contains(roles, topology.ROLE_DINGODB_DOCUMENT) {
+		for i, item := range options.only {
+			if item == comm.CLEAN_ITEM_DOC {
+				options.only = append(options.only[:i], options.only[i+1:]...)
+				break
+			}
+		}
+	}
+
+	// remove vector item if no index role
+	if !utils.Contains(roles, topology.ROLE_DINGODB_INDEX) {
+		for i, item := range options.only {
+			if item == comm.CLEAN_ITEM_VECTOR {
 				options.only = append(options.only[:i], options.only[i+1:]...)
 				break
 			}

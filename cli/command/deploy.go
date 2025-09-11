@@ -67,6 +67,14 @@ const (
 	CHECK_STORE_HEALTH         = playbook.CHECK_STORE_HEALTH
 	CREATE_META_TABLES         = playbook.CREATE_META_TABLES
 
+	// dingodb
+	START_DINGODB_DOCUMENT = playbook.START_DINGODB_DOCUMENT
+	START_DINGODB_INDEX    = playbook.START_DINGODB_INDEX
+	START_DINGODB_DISKANN  = playbook.START_DINGODB_DISKANN
+	START_DINGODB_PROXY    = playbook.START_DINGODB_PROXY
+	START_DINGODB_WEB      = playbook.START_DINGODB_WEB
+
+	// role
 	ROLE_ETCD             = topology.ROLE_ETCD
 	ROLE_MDS              = topology.ROLE_MDS
 	ROLE_CHUNKSERVER      = topology.ROLE_CHUNKSERVER
@@ -75,6 +83,9 @@ const (
 	ROLE_MDS_V2           = topology.ROLE_MDS_V2
 	ROLE_COORDINATOR      = topology.ROLE_COORDINATOR
 	ROLE_STORE            = topology.ROLE_STORE
+	ROLE_DINGODB_DOCUMENT = topology.ROLE_DINGODB_DOCUMENT
+	ROLE_DINGODB_INDEX    = topology.ROLE_DINGODB_INDEX
+	ROLE_DINGODB_DISKANN  = topology.ROLE_DINGODB_DISKANN
 	ROLE_MDSV2_CLI        = topology.ROLE_MDSV2_CLI
 	ROLE_DINGODB_EXECUTOR = topology.ROLE_DINGODB_EXECUTOR
 )
@@ -150,6 +161,22 @@ var (
 		START_STORE,
 	}
 
+	DINGODB_DEPLOY_STEPS = []int{
+		CLEAN_PRECHECK_ENVIRONMENT,
+		PULL_IMAGE,
+		CREATE_CONTAINER,
+		SYNC_CONFIG,
+		START_COORDINATOR,
+		START_STORE,
+		CHECK_STORE_HEALTH,
+		START_DINGODB_DOCUMENT,
+		START_DINGODB_DISKANN,
+		START_DINGODB_INDEX,
+		START_DINGODB_EXECUTOR,
+		// START_DINGODB_PROXY,
+		// START_DINGODB_WEB,
+	}
+
 	DEPLOY_FILTER_ROLE = map[int]string{
 		START_ETCD:                 ROLE_ETCD,
 		ENABLE_ETCD_AUTH:           ROLE_ETCD,
@@ -163,6 +190,9 @@ var (
 		START_MDSV2:                ROLE_MDS_V2,
 		START_COORDINATOR:          ROLE_COORDINATOR,
 		START_STORE:                ROLE_STORE,
+		START_DINGODB_DOCUMENT:     ROLE_DINGODB_DOCUMENT,
+		START_DINGODB_DISKANN:      ROLE_DINGODB_DISKANN,
+		START_DINGODB_INDEX:        ROLE_DINGODB_INDEX,
 		START_MDSV2_CLI_CONTAINER:  ROLE_MDSV2_CLI,
 		START_DINGODB_EXECUTOR:     ROLE_DINGODB_EXECUTOR,
 		CHECK_STORE_HEALTH:         ROLE_STORE,
@@ -322,6 +352,8 @@ func genDeployPlaybook(dingoadm *cli.DingoAdm,
 		}
 	case topology.KIND_DINGOSTORE:
 		steps = DINGOSTORE_DEPLOY_STEPS
+	case topology.KIND_DINGODB:
+		steps = DINGODB_DEPLOY_STEPS
 	default:
 		return nil, errno.ERR_UNSUPPORT_CLUSTER_KIND.F("kind: %s", kind)
 	}
@@ -386,7 +418,7 @@ func statistics(dcs []*topology.DeployConfig) map[string]int {
 	return count
 }
 
-func serviceStats(dcs []*topology.DeployConfig) string {
+func serviceStats(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig) string {
 	count := statistics(dcs)
 	netcd := count[topology.ROLE_ETCD]
 	nmds := count[topology.ROLE_MDS]
@@ -399,9 +431,36 @@ func serviceStats(dcs []*topology.DeployConfig) string {
 	if kind == topology.KIND_CURVEBS { // KIND_CURVEBS
 		serviceStats = fmt.Sprintf("etcd*%d, mds*%d, chunkserver*%d, snapshotclone*%d",
 			netcd, nmds, nchunkserevr, nsnapshotclone)
-	} else { // KIND_CURVEFS
-		serviceStats = fmt.Sprintf("etcd*%d, mds*%d, metaserver*%d",
-			netcd, nmds, nmetaserver)
+	} else if kind == topology.KIND_DINGOFS {
+		roles := dingoadm.GetRoles(dcs)
+		if utils.Contains(roles, topology.ROLE_MDS_V2) {
+			// mds v2
+			ncoordinator := count[topology.ROLE_COORDINATOR]
+			nstore := count[topology.ROLE_STORE]
+			nmdsv2 := count[topology.ROLE_MDS_V2]
+			nexecutor := count[topology.ROLE_DINGODB_EXECUTOR]
+			serviceStats = fmt.Sprintf("coordinator*%d, store*%d, mdsv2*%d, executor*%d", ncoordinator, nstore, nmdsv2, nexecutor)
+		} else {
+			// mds v1
+			serviceStats = fmt.Sprintf("etcd*%d, mds*%d, metaserver*%d", netcd, nmds, nmetaserver)
+		}
+	} else if kind == topology.KIND_DINGOSTORE {
+		ncoordinator := count[topology.ROLE_COORDINATOR]
+		nstore := count[topology.ROLE_STORE]
+		serviceStats = fmt.Sprintf("coordinator*%d, store*%d", ncoordinator, nstore)
+	} else if kind == topology.KIND_DINGODB {
+		ncoordinator := count[topology.ROLE_COORDINATOR]
+		nstore := count[topology.ROLE_STORE]
+		ndocument := count[topology.ROLE_DINGODB_DOCUMENT]
+		ndiskann := count[topology.ROLE_DINGODB_DISKANN]
+		nindex := count[topology.ROLE_DINGODB_INDEX]
+		// nproxy := count[topology.ROLE_DINGODB_PROXY]
+		// nweb := count[topology.ROLE_DINGODB_WEB]
+		nexecutor := count[topology.ROLE_DINGODB_EXECUTOR]
+		serviceStats = fmt.Sprintf("coordinator*%d, store*%d, document*%d, diskann*%d, index*%d, executor*%d",
+			ncoordinator, nstore, ndocument, ndiskann, nindex, nexecutor)
+	} else {
+		serviceStats = "unknown"
 	}
 
 	return serviceStats
@@ -410,7 +469,7 @@ func serviceStats(dcs []*topology.DeployConfig) string {
 func displayDeployTitle(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig) {
 	dingoadm.WriteOutln("Cluster Name    : %s", dingoadm.ClusterName())
 	dingoadm.WriteOutln("Cluster Kind    : %s", dcs[0].GetKind())
-	dingoadm.WriteOutln("Cluster Services: %s", serviceStats(dcs))
+	dingoadm.WriteOutln("Cluster Services: %s", serviceStats(dingoadm, dcs))
 	dingoadm.WriteOutln("")
 }
 

@@ -64,6 +64,11 @@ const (
 	DEFAULT_CHUNKSERVER_COPYSETS            = 100 // copysets per chunkserver
 	DEFAULT_METASERVER_COPYSETS             = 100 // copysets per metaserver
 	DEFAULT_DINGODB_EXECUTOR_SERVER_PORT    = 3307
+	DEFAULT_DOCUMENT_SERVER_PORT            = 23001
+	DEFAULT_DOCUMENT_RAFT_PORT              = 23101
+	DEFAULT_INDEX_SERVER_PORT               = 21001
+	DEFAULT_INDEX_RAFT_PORT                 = 21101
+	DEFAULT_DISKANN_SERVER_PORT             = 24001
 )
 
 type (
@@ -101,25 +106,38 @@ var (
 		REQUIRE_STRING,
 		true,
 		func(dc *DeployConfig) interface{} {
-			if dc.GetKind() == KIND_CURVEBS {
-				return path.Join(LAYOUT_CURVEBS_ROOT_DIR, dc.GetRole())
-			} else if dc.GetKind() == KIND_DINGOFS {
+			root_dir := LAYOUT_DINGO_ROOT_DIR
+			switch dc.GetKind() {
+			case KIND_CURVEBS:
+				root_dir = path.Join(LAYOUT_CURVEBS_ROOT_DIR, dc.GetRole())
+			case KIND_DINGOFS:
 				if dc.GetRole() == ROLE_MDS_V2 {
-					return path.Join(LAYOUT_DINGOFS_ROOT_DIR, "dist", dc.GetRole())
+					root_dir = path.Join(LAYOUT_DINGOFS_ROOT_DIR, "dist", dc.GetRole())
 				} else if dc.GetRole() == ROLE_COORDINATOR || dc.GetRole() == ROLE_STORE {
-					return LAYOUT_DINGOSTORE_ROOT_DIR
+					root_dir = LAYOUT_DINGOSTORE_ROOT_DIR
 				} else if dc.GetRole() == ROLE_DINGODB_EXECUTOR {
-					return LAYOUT_DINGDB_EXECUTOR
+					root_dir = LAYOUT_DINGDB_DINGO_ROOT_DIR
+				} else {
+					root_dir = path.Join(LAYOUT_DINGOFS_ROOT_DIR, dc.GetRole())
 				}
-				return path.Join(LAYOUT_DINGOFS_ROOT_DIR, dc.GetRole())
-			} else if dc.GetKind() == KIND_DINGOSTORE {
+			case KIND_DINGOSTORE:
 				// Deprecated, need modify dingo-store's docker-dingo-store.sh to support
 				//return path.Join(LAYOUT_DINGOSTORE_ROOT_DIR, fmt.Sprintf("%s%d", dc.GetRole(), dc.GetHostSequence()+1))
 				// TODO
 				//return path.Join(LAYOUT_DINGOSTORE_ROOT_DIR, dc.GetRole())
-				return LAYOUT_DINGOSTORE_DIST_DIR
+				root_dir = LAYOUT_DINGOSTORE_DIST_DIR
+			case KIND_DINGODB:
+				dc_role := dc.GetRole()
+				switch dc_role {
+				case ROLE_COORDINATOR, ROLE_STORE, ROLE_DINGODB_DOCUMENT, ROLE_DINGODB_INDEX, ROLE_DINGODB_DISKANN:
+					root_dir = LAYOUT_DINGOSTORE_ROOT_DIR
+				case ROLE_DINGODB_PROXY, ROLE_DINGODB_WEB, ROLE_DINGODB_EXECUTOR:
+					root_dir = LAYOUT_DINGDB_DINGO_ROOT_DIR
+				}
+			default:
+				root_dir = path.Join(LAYOUT_DINGO_ROOT_DIR, dc.GetRole())
 			}
-			return path.Join(LAYOUT_DINGO_ROOT_DIR, dc.GetRole())
+			return root_dir
 		},
 	)
 
@@ -418,6 +436,12 @@ var (
 				return DEFAULT_STORE_SERVER_PORT
 			case ROLE_MDS_V2:
 				return DEFAULT_MDS_V2_LISTEN_PORT
+			case ROLE_DINGODB_DOCUMENT:
+				return DEFAULT_DOCUMENT_SERVER_PORT
+			case ROLE_DINGODB_INDEX:
+				return DEFAULT_INDEX_SERVER_PORT
+			case ROLE_DINGODB_DISKANN:
+				return DEFAULT_DISKANN_SERVER_PORT
 			}
 			return nil
 		},
@@ -434,6 +458,10 @@ var (
 				return DEFAULT_COORDINATOR_RAFT_PORT
 			case ROLE_STORE:
 				return DEFAULT_STORE_RAFT_PORT
+			case ROLE_DINGODB_DOCUMENT:
+				return DEFAULT_DOCUMENT_RAFT_PORT
+			case ROLE_DINGODB_INDEX:
+				return DEFAULT_INDEX_RAFT_PORT
 			}
 			return nil
 		},
@@ -482,8 +510,8 @@ var (
 		},
 	)
 
-	CONFIG_DINGOFS_V2_COORDINATOR_ADDR = itemset.insert(
-		KIND_DINGOFS,
+	CONFIG_DINGOSTORE_COORDINATOR_ADDR = itemset.insert(
+		KIND_DINGO,
 		"coordinator_addr",
 		REQUIRE_STRING,
 		true,
@@ -504,6 +532,22 @@ var (
 		func(dc *DeployConfig) interface{} {
 			return DEFAULT_DINGO_SERVER_LISTEN_HOST
 		},
+	)
+
+	CONFIG_DINGO_STORE_DOCUMENT_DIR = itemset.insert(
+		KIND_DINGODB,
+		"doc_dir",
+		REQUIRE_STRING,
+		true,
+		nil,
+	)
+
+	CONFIG_DINGO_STORE_VECTOR_DIR = itemset.insert(
+		KIND_DINGODB,
+		"vector_dir",
+		REQUIRE_STRING,
+		true,
+		nil,
 	)
 
 	//CONFIG_DINGO_SERVER_NUM = itemset.insert(

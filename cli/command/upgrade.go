@@ -163,7 +163,7 @@ func displayTitle(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options 
 	} else {
 		dingoadm.WriteOutln(color.YellowString("Upgrade %d services one by one", total))
 	}
-	dingoadm.WriteOutln(color.YellowString("Upgrade services: %s", serviceStats(dcs)))
+	dingoadm.WriteOutln(color.YellowString("Upgrade services: %s", serviceStats(dingoadm, dcs)))
 }
 
 func upgradeAtOnce(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options upgradeOptions) error {

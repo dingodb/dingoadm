@@ -94,6 +94,8 @@ type (
 		LogDir      string
 		DataDir     string
 		RaftDir     string
+		DocDir      string
+		VectorDir   string
 		Config      *topology.DeployConfig
 	}
 )
@@ -125,6 +127,8 @@ func (s *step2InitStatus) Execute(ctx *context.Context) error {
 		LogDir:      dc.GetLogDir(),
 		DataDir:     dc.GetDataDir(),
 		RaftDir:     dc.GetDingoRaftDir(),
+		DocDir:      dc.GetDingoStoreDocDir(),
+		VectorDir:   dc.GetDingoStoreVectorDir(),
 		Config:      dc,
 	})
 	return nil
@@ -232,6 +236,8 @@ func (s *step2FormatServiceStatus) Execute(ctx *context.Context) error {
 		LogDir:      dc.GetLogDir(),
 		DataDir:     dc.GetDataDir(),
 		RaftDir:     dc.GetDingoRaftDir(),
+		DocDir:      dc.GetDingoStoreDocDir(),
+		VectorDir:   dc.GetDingoStoreVectorDir(),
 		Config:      dc,
 	})
 	return nil
