@@ -475,7 +475,10 @@ var (
 		REQUIRE_POSITIVE_INTEGER,
 		true,
 		func(dc *DeployConfig) interface{} {
-			return DEFAULT_STORE_INSTANCE_START_ID + dc.GetHostSequence()
+			if dc.GetInstances() > 0 {
+				return DEFAULT_STORE_INSTANCE_START_ID + dc.GetHostSequence()*dc.GetInstances() + dc.GetInstancesSequence()
+			}
+			return DEFAULT_STORE_INSTANCE_START_ID + dc.GetHostSequence() + dc.GetInstancesSequence()
 		},
 	)
 
