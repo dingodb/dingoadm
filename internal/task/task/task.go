@@ -131,7 +131,7 @@ func (t *Task) Execute() error {
 
 	for _, step := range t.steps {
 		err := step.Execute(ctx)
-		if err == ERR_TASK_DONE {
+		if err == ERR_TASK_DONE || err == ERR_SKIP_TASK {
 			break
 		} else if err != nil {
 			return err
