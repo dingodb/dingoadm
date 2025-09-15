@@ -249,11 +249,13 @@ var (
 	// 210: command options (cluster)
 	ERR_ID_NOT_FOUND                   = EC(210000, "id not found")
 	ERR_UNSUPPORT_CURVEBS_ROLE         = EC(210001, "unsupport curvebs role (etcd/mds/chunkserver/snapshotclone)")
-	ERR_UNSUPPORT_DINGOFS_ROLE         = EC(210002, "unsupport dingofs role (etcd/mds/metaserver/coordinator/store/mdsv2)")
+	ERR_UNSUPPORT_DINGOFS_ROLE         = EC(210002, "unsupport dingofs role (etcd/mds/metaserver/coordinator/store/mdsv2/executor)")
 	ERR_UNSUPPORT_SKIPPED_SERVICE_ROLE = EC(210003, "unsupport skipped service role")
 	ERR_UNSUPPORT_SKIPPED_CHECK_ITEM   = EC(210004, "unsupport skipped check item")
 	ERR_UNSUPPORT_CLEAN_ITEM           = EC(210005, "unsupport clean item")
 	ERR_NO_SERVICES_MATCHED            = EC(210006, "no services matched")
+	ERR_UNSUPPORT_DINGODB_ROLE         = EC(210007, "unsupport dingodb role (coordinator/store/executor/document/index/diskann/proxy/web)")
+	ERR_UNSUPPORT_DINGOSTORE_ROLE      = EC(210008, "unsupport dingo-store role (coordinator/store/document/index/diskann)")
 	// TODO: please check pool set disk type
 	ERR_INVALID_DISK_TYPE = EC(210007, "poolset disk type must be lowercase and can only be one of ssd, hdd and nvme")
 

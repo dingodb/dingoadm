@@ -451,15 +451,26 @@ func (dingoadm *DingoAdm) CheckRole(role string) error {
 	roles := topology.CURVEBS_ROLES
 	if kind == topology.KIND_CURVEFS || kind == topology.KIND_DINGOFS {
 		roles = topology.DINGOFS_ROLES
+	} else if kind == topology.KIND_DINGODB {
+		roles = topology.DINGODB_ROLES
+	} else if kind == topology.KIND_DINGOSTORE {
+		roles = topology.DINGOSTORE_ROLES
 	}
 	supported := utils.Slice2Map(roles)
 	if !supported[role] {
 		if kind == topology.KIND_CURVEBS {
 			return errno.ERR_UNSUPPORT_CURVEBS_ROLE.
 				F("role: %s", role)
+		} else if kind == topology.KIND_DINGOFS {
+			return errno.ERR_UNSUPPORT_DINGOFS_ROLE.
+				F("role: %s", role)
+		} else if kind == topology.KIND_DINGODB {
+			return errno.ERR_UNSUPPORT_DINGODB_ROLE.
+				F("role: %s", role)
+		} else if kind == topology.KIND_DINGOSTORE {
+			return errno.ERR_UNSUPPORT_DINGOSTORE_ROLE.
+				F("role: %s", role)
 		}
-		return errno.ERR_UNSUPPORT_DINGOFS_ROLE.
-			F("role: %s", role)
 	}
 	return nil
 }
