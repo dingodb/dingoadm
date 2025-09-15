@@ -31,7 +31,6 @@ import (
 	"github.com/dingodb/dingoadm/cli/cli"
 	comm "github.com/dingodb/dingoadm/internal/common"
 	"github.com/dingodb/dingoadm/internal/configure/topology"
-	"github.com/dingodb/dingoadm/internal/errno"
 	"github.com/dingodb/dingoadm/internal/task/context"
 	"github.com/dingodb/dingoadm/internal/task/step"
 	"github.com/dingodb/dingoadm/internal/task/task"
@@ -41,9 +40,10 @@ import (
 func CheckContainerExist(host, role, containerId string, out *string) step.LambdaType {
 	return func(ctx *context.Context) error {
 		if len(*out) == 0 {
-			return errno.ERR_CONTAINER_ALREADT_REMOVED.
-				F("host=%s role=%s containerId=%s",
-					host, role, tui.TrimContainerId(containerId))
+			//return errno.ERR_CONTAINER_ALREADT_REMOVED.
+			//	F("host=%s role=%s containerId=%s",
+			//		host, role, tui.TrimContainerId(containerId))
+			return task.ERR_SKIP_TASK
 		}
 		return nil
 	}
@@ -101,6 +101,7 @@ func NewStopServiceTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*tas
 	})
 	t.AddStep(&step.StopContainer{
 		ContainerId: containerId,
+		Out:         &out,
 		ExecOptions: dingoadm.ExecOptions(),
 	})
 	return t, nil

@@ -86,6 +86,7 @@ type (
 		ContainerId string
 		Time        int
 		Out         *string
+		Skip        bool
 		module.ExecOptions
 	}
 
@@ -242,6 +243,9 @@ func (s *StartContainer) Execute(ctx *context.Context) error {
 }
 
 func (s *StopContainer) Execute(ctx *context.Context) error {
+	if len(*s.Out) == 0 {
+		return nil
+	}
 	cli := ctx.Module().DockerCli().StopContainer(s.ContainerId)
 	if s.Time > 0 {
 		cli.AddOption("--time %d", s.Time)
