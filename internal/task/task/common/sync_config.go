@@ -103,6 +103,21 @@ func newCrontab(uuid string, dc *topology.DeployConfig, reportScriptPath string)
 	return fmt.Sprintf("%s %s\n", period, command)
 }
 
+func syncJavaOpts(java_opts map[string]interface{}, hostSyncJavaOptsScriptPath, hostStartExecutorPath string) string {
+	cmd_envs := ""
+	if len(java_opts) == 0 {
+		return cmd_envs
+	}
+	// iterate config map item to env
+	for k, v := range java_opts {
+		// config command env in command line
+		cmd_envs += fmt.Sprintf("%s=%s ", k, v)
+	}
+
+	command := fmt.Sprintf("%s bash %s %s", cmd_envs, hostSyncJavaOptsScriptPath, hostStartExecutorPath)
+	return command
+}
+
 func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
 	if dc.GetRole() == topology.ROLE_MDSV2_CLI {
 		skipTmp := dingoadm.MemStorage().Get(comm.KEY_SKIP_MDSV2_CLI)
@@ -163,8 +178,7 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 			})
 		}
 
-		if dc.GetRole() == topology.ROLE_DINGODB_EXECUTOR ||
-			dc.GetRole() == topology.ROLE_DINGODB_DOCUMENT ||
+		if dc.GetRole() == topology.ROLE_DINGODB_DOCUMENT ||
 			dc.GetRole() == topology.ROLE_DINGODB_DISKANN ||
 			dc.GetRole() == topology.ROLE_DINGODB_INDEX ||
 			dc.GetRole() == topology.ROLE_DINGODB_PROXY ||
@@ -176,8 +190,8 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 		if dc.GetRole() == topology.ROLE_COORDINATOR || dc.GetRole() == topology.ROLE_STORE {
 			// sync check_store_health.sh
 			checkStoreScript := scripts.CHECK_STORE_HEALTH
-			checkStoreScriptPath := fmt.Sprintf("%s/check_store_health.sh", layout.DingoStoreScriptDir) // /opt/dingo-store/scripts
-			t.AddStep(&step.InstallFile{                                                                // install create_mdsv2_tables.sh script
+			checkStoreScriptPath := fmt.Sprintf("%s/%s", layout.DingoStoreScriptDir, topology.SCRIPT_CHECK_STORE_HEALTH) // /opt/dingo-store/scripts
+			t.AddStep(&step.InstallFile{                                                                                 // install create_mdsv2_tables.sh script
 				ContainerId:       &containerId,
 				ContainerDestPath: checkStoreScriptPath,
 				Content:           &checkStoreScript,
@@ -188,12 +202,50 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 		} else if dc.GetRole() == topology.ROLE_MDSV2_CLI {
 			// sync create_mdsv2_tables.sh
 			createTablesScript := scripts.CREATE_MDSV2_TABLES
-			createTablesScriptPath := fmt.Sprintf("%s/create_mdsv2_tables.sh", layout.MdsV2CliBinDir) // /dingofs/mdsv2-client/sbin
+			createTablesScriptPath := fmt.Sprintf("%s/%s", layout.MdsV2CliBinDir, topology.SCRIPT_CREATE_MDSV2_TABLES) // /dingofs/mdsv2-client/sbin
 			// createTablesScriptPath := fmt.Sprintf("%s/create_mdsv2_tables.sh", STORE_BUILD_BIN_DIR) // /opt/dingo-store/build/bin
 			t.AddStep(&step.InstallFile{ // install create_mdsv2_tables.sh script
 				ContainerId:       &containerId,
 				ContainerDestPath: createTablesScriptPath,
 				Content:           &createTablesScript,
+				ExecOptions:       dingoadm.ExecOptions(),
+			})
+
+		} else if dc.GetRole() == topology.ROLE_DINGODB_EXECUTOR {
+			java_opts := dc.GetDingoExecutorJavaOpts()
+			if len(java_opts) == 0 {
+				// if no java opts config, return directly
+				return t, nil
+			}
+			// sync executor java opts config /opt/dingo/bin/start-executor.sh
+			syncJavaOptsScript := scripts.SYNC_JAVA_OPTS
+			// containerSyncJavaOptsScriptPath := fmt.Sprintf("%s/%s", layout.DingoExecutorBinDir, topology.SCRIPT_SYNC_JAVA_OPTS)
+			hostSyncJavaOptsScriptPath := fmt.Sprintf("%s/%s", TEMP_DIR, topology.SCRIPT_SYNC_JAVA_OPTS)
+			containerStartExecutorPath := fmt.Sprintf("%s/%s", layout.DingoExecutorBinDir, topology.SCRIPT_START_EXECUTOR)
+			hostStartExecutorPath := fmt.Sprintf("%s/%s", TEMP_DIR, topology.SCRIPT_START_EXECUTOR)
+			t.AddStep(&step.InstallFile{ // install sync_java_opts.sh on local script
+				HostDestPath: hostSyncJavaOptsScriptPath,
+				Content:      &syncJavaOptsScript,
+				ExecOptions:  dingoadm.ExecOptions(),
+			})
+
+			t.AddStep(&step.CopyFromContainer{ // copy container /opt/dingo/bin/start-executor.sh to host
+				ContainerId:      containerId,
+				ContainerSrcPath: containerStartExecutorPath,
+				HostDestPath:     hostStartExecutorPath,
+				ExecOptions:      dingoadm.ExecOptions(),
+			})
+
+			t.AddStep(&step.Command{
+				Command:     syncJavaOpts(java_opts, hostSyncJavaOptsScriptPath, hostStartExecutorPath),
+				Out:         &out,
+				ExecOptions: dingoadm.ExecOptions(),
+			})
+
+			t.AddStep(&step.CopyIntoContainer{ // copy host start-executor.sh to container
+				HostSrcPath:       hostStartExecutorPath,
+				ContainerId:       containerId,
+				ContainerDestPath: containerStartExecutorPath,
 				ExecOptions:       dingoadm.ExecOptions(),
 			})
 

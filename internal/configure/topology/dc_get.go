@@ -160,6 +160,14 @@ func (dc *DeployConfig) getBool(i *item) bool {
 	return v.(bool)
 }
 
+func (dc *DeployConfig) getMap(i *item) map[string]interface{} {
+	v := dc.get(i)
+	if v == nil {
+		return map[string]interface{}{}
+	}
+	return v.(map[string]interface{})
+}
+
 // (1): config property
 func (dc *DeployConfig) GetKind() string                     { return dc.kind }
 func (dc *DeployConfig) GetId() string                       { return dc.id }
@@ -280,6 +288,10 @@ func (dc *DeployConfig) GetDingoStoreCoordinatorAddr() string {
 	return dc.getString(CONFIG_DINGOSTORE_COORDINATOR_ADDR)
 }
 
+func (dc *DeployConfig) GetDingoExecutorJavaOpts() map[string]interface{} {
+	return dc.getMap(CONFIG_DINGO_EXECUTOR_JAVA_OPTS)
+}
+
 //func (dc *DeployConfig) GetDingoServerNum() int {
 //	return dc.getInt(CONFIG_DINGO_SERVER_NUM)
 //}
@@ -385,6 +397,9 @@ type (
 		DingoStoreDocumentDir string // /opt/dingo-store/xxx/data/document_index
 		// dingo-store vector
 		DingoStoreVectorDir string // /opt/dingo-store/xxx/data/vector_index_snapshot
+
+		//dingo executor
+		DingoExecutorBinDir string // /opt/dingo/bin
 
 		// core
 		CoreSystemDir string
@@ -535,6 +550,9 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 		DingoStoreDocumentDir: dingoStoreDocumentDir,
 		// dingo-store vector
 		DingoStoreVectorDir: dingoStoreVectorDir,
+
+		// dingo executor
+		DingoExecutorBinDir: serviceRootDir + "/bin",
 
 		// core
 		CoreSystemDir: LAYOUT_CORE_SYSTEM_DIR,

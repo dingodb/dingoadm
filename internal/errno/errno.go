@@ -291,6 +291,7 @@ var (
 	ERR_CONFIGURE_VALUE_REQUIRES_NON_EMPTY_STRING = EC(301004, "configure value requires non-empty string")
 	ERR_CONFIGURE_VALUE_REQUIRES_POSITIVE_INTEGER = EC(301005, "configure value requires positive integer")
 	ERR_CONFIGURE_VALUE_REQUIRES_STRING_SLICE     = EC(301006, "configure value requires string array")
+	ERR_CONFIGURE_VALUE_REQUIRES_MAP     		  = EC(301007, "configure value requires map")
 	ERR_UNSUPPORT_VARIABLE_VALUE_TYPE             = EC(301100, "unsupport variable value type")
 	ERR_INVALID_VARIABLE_VALUE                    = EC(301101, "invalid variable value")
 

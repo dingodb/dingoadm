@@ -27,6 +27,7 @@ package topology
 
 import (
 	"path"
+	"strings"
 )
 
 const (
@@ -35,6 +36,7 @@ const (
 	REQUIRE_STRING
 	REQUIRE_BOOL
 	REQUIRE_POSITIVE_INTEGER
+	REQUIRE_MAP
 
 	// default value
 	DEFAULT_REPORT_USAGE                    = true
@@ -550,15 +552,25 @@ var (
 		nil,
 	)
 
-	//CONFIG_DINGO_SERVER_NUM = itemset.insert(
-	//	KIND_DINGO,
-	//	"server_num",
-	//	REQUIRE_POSITIVE_INTEGER,
-	//	true,
-	//	func(dc *DeployConfig) interface{} {
-	//		return dc.GetHostSequence() + 1
-	//	},
-	//)
+	CONFIG_DINGO_EXECUTOR_JAVA_OPTS = itemset.insert(
+		KIND_DINGO,
+		"java_opts",
+		REQUIRE_MAP,
+		true,
+		func(dc *DeployConfig) interface{} {
+			config := dc.GetServiceConfig()
+			// filter java prefix config
+			java_opts := map[string]interface{}{}
+			for k, v := range config {
+				if strings.HasPrefix(k, "java.") {
+					// subtrim 'java.' prefix
+					k = strings.TrimPrefix(k, "java.")
+					java_opts[k] = v
+				}
+			}
+			return java_opts
+		},
+	)
 )
 
 func (i *item) Key() string {

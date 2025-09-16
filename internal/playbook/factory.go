@@ -156,6 +156,9 @@ const (
 	// gateway
 	START_GATEWAY
 
+	// dingo executor
+	SYNC_JAVA_OPTS
+
 	// unknown
 	UNKNOWN
 )
@@ -371,6 +374,9 @@ func (p *Playbook) createTasks(step *PlaybookStep) (*tasks.Tasks, error) {
 			t, err = monitor.NewCleanMonitorTask(dingoadm, config.GetMC(i))
 		case START_GATEWAY:
 			t, err = gateway.NewStartGatewayTask(dingoadm, config.GetGC())
+		// dingo executor
+		case SYNC_JAVA_OPTS:
+			t, err = comm.NewSyncJavaOptsTask(dingoadm, config.GetDC(i))
 
 		default:
 			return nil, errno.ERR_UNKNOWN_TASK_TYPE.

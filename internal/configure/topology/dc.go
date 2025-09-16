@@ -65,6 +65,12 @@ const (
 
 	// dingodb executor
 	ROLE_DINGODB_EXECUTOR = "executor"
+
+	// script
+	SCRIPT_CHECK_STORE_HEALTH  = "check_store_health.sh"
+	SCRIPT_SYNC_JAVA_OPTS      = "sync_java_opts.sh"
+	SCRIPT_START_EXECUTOR      = "start-executor.sh"
+	SCRIPT_CREATE_MDSV2_TABLES = "create_mdsv2_tables.sh"
 )
 
 type (
@@ -221,6 +227,9 @@ func (dc *DeployConfig) convert() error {
 	// convret config item to its require type,
 	// return error if convert failed
 	for _, item := range itemset.getAll() {
+		if item.require == REQUIRE_MAP {
+			continue
+		}
 		if item.kind != KIND_DINGO && item.kind != dc.kind {
 			continue
 		}
@@ -267,6 +276,11 @@ func (dc *DeployConfig) convert() error {
 					F("%s: %v", k, value)
 			} else {
 				dc.config[k] = intv
+			}
+		case REQUIRE_MAP:
+			if !utils.IsStringAnyMap(value) {
+				return errno.ERR_CONFIGURE_VALUE_REQUIRES_MAP.
+					F("%s: %v", k, value)
 			}
 		}
 	}

@@ -66,6 +66,7 @@ const (
 	SYNC_MDSV2_CONFIG          = playbook.SYNC_CONFIG
 	CHECK_STORE_HEALTH         = playbook.CHECK_STORE_HEALTH
 	CREATE_META_TABLES         = playbook.CREATE_META_TABLES
+	SYNC_JAVA_OPTS             = playbook.SYNC_JAVA_OPTS
 
 	// dingodb
 	START_DINGODB_DOCUMENT = playbook.START_DINGODB_DOCUMENT
@@ -198,6 +199,7 @@ var (
 		CHECK_STORE_HEALTH:         ROLE_STORE,
 		CREATE_META_TABLES:         ROLE_MDSV2_CLI,
 		CREATE_MDSV2_CLI_CONTAINER: ROLE_MDSV2_CLI,
+		SYNC_JAVA_OPTS:             ROLE_DINGODB_EXECUTOR,
 	}
 
 	// DEPLOY_LIMIT_SERVICE is used to limit the number of services
@@ -209,6 +211,7 @@ var (
 		CREATE_META_TABLES:         1,
 		CREATE_MDSV2_CLI_CONTAINER: 1,
 		CHECK_STORE_HEALTH:         1,
+		SYNC_JAVA_OPTS:             1,
 	}
 
 	CAN_SKIP_ROLES = []string{

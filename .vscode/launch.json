@@ -283,6 +283,21 @@
             "showLog": true
         },
         {
+            "name": "dingoadm umount",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {},
+            "args": [
+                "umount",
+                "/dingofs/mdsv2-s3-fs",
+                "--host",
+                "dingo-dongwei-2",
+            ],
+            "showLog": true
+        },
+        {
             "name": "dingoadm config commit",
             "type": "go",
             "request": "launch",
@@ -292,7 +307,7 @@
             "args": [
                 "config",
                 "commit",
-                "/home/dongwei/deploy/dingofs/topology-mdsv2-v5-replica.yaml"
+                "/home/dongwei/deploy/dingofs/topology-mdsv2-v6-sync-java-opts.sh"
             ],
             "showLog": true
         },

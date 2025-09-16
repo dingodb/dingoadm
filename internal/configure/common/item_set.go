@@ -36,6 +36,7 @@ const (
 	REQUIRE_BOOL
 	REQUIRE_INT
 	REQUIRE_POSITIVE_INTEGER
+	REQUIRE_MAP
 )
 
 type (
@@ -86,6 +87,9 @@ func (itemset *ItemSet) Build(key string, value interface{}) (interface{}, error
 	item := itemset.Get(key)
 	if item == nil {
 		return value, nil
+	}
+	if item.require == REQUIRE_MAP {
+		return nil, nil
 	}
 
 	v, ok := utils.All2Str(value)
