@@ -73,4 +73,8 @@ var (
 	// DingoStore
 	//go:embed shell/check_store_health.sh
 	CHECK_STORE_HEALTH string
+
+	// DingoFS Executor
+	//go:embed shell/sync_java_opts.sh
+	SYNC_JAVA_OPTS string
 )
