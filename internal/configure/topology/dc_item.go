@@ -39,7 +39,7 @@ const (
 	REQUIRE_MAP
 
 	// default value
-	DEFAULT_REPORT_USAGE                    = true
+	DEFAULT_REPORT_USAGE                    = false
 	DEFAULT_CURVEBS_CONTAINER_IMAGE         = "opencurvedocker/curvebs:latest"
 	DEFAULT_DINGOFS_CONTAINER_IMAGE         = "dingodatabase/dingofs:latest"
 	DEFAULT_ETCD_LISTEN_PEER_PORT           = 2380

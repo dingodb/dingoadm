@@ -1,6 +1,6 @@
 kind: dingofs
 global:
-  container_image: dockerproxy.zetyun.cn/docker.io/dingodatabase/dingofs:mdsv2-226b854
+  container_image: dingodatabase/dingofs:mdsv2-latest
   data_dir: ${home}/dingofs/data/${service_role}
   log_dir: ${home}/dingofs/logs/${service_role}
   raft_dir: ${home}/dingofs/raft/${service_role}
@@ -13,7 +13,7 @@ global:
 
 coordinator_services:
   config:
-    container_image: dockerproxy.zetyun.cn/docker.io/dingodatabase/dingo-store:latest
+    container_image: dingodatabase/dingo-store:latest
     server.port: 6500
     raft.port: 7500
   deploy:
@@ -23,7 +23,7 @@ coordinator_services:
 
 store_services:
   config:
-    container_image: dockerproxy.zetyun.cn/docker.io/dingodatabase/dingo-store:latest
+    container_image: dingodatabase/dingo-store:latest
     server.port: 6600
     raft.port: 7600
   deploy:
@@ -38,3 +38,15 @@ mdsv2_services:
     - host: ${machine1}
     - host: ${machine2}
     - host: ${machine3}
+
+executor_services:
+  config:
+    container_image: dingodatabase/dingo:latest
+    port: 8765
+    mysqlPort: 3307
+    java.Xms: 2g
+    java.Xmx: 2g
+    java.SoftMaxHeapSize: 1g
+    java.MaxDirectMemorySize: 256m
+  deploy:
+    - host: ${machine1}
