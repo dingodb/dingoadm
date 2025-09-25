@@ -56,7 +56,7 @@ type statusOptions struct {
 	verbose       bool
 	showInstances bool
 	withCluster   string
-	onlyDirs      string
+	dir           string
 }
 
 func NewStatusCommand(dingoadm *cli.DingoAdm) *cobra.Command {
@@ -79,7 +79,7 @@ func NewStatusCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	flags.BoolVarP(&options.verbose, "verbose", "v", false, "Verbose output for status")
 	flags.BoolVarP(&options.showInstances, "show-instances", "s", false, "Display service num")
 	flags.StringVarP(&options.withCluster, "with-cluster", "w", "", "Display status of specified cluster with current default cluster")
-	flags.StringVarP(&options.onlyDirs, "only-dirs", "d", "log,data", "Only display services which data/raft/doc/vector dirs contain specified string")
+	flags.StringVar(&options.dir, "dir", "", "Only display services which data/raft/doc/vector dirs contain specified string")
 
 	return cmd
 }
@@ -158,10 +158,10 @@ func displayStatus(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options
 	//}
 	output := ""
 	width := 0
-	if options.onlyDirs == "log,data" {
+	if len(options.dir) == 0 {
 		output, width = tui.FormatStatus(dcs[0].GetKind(), statuses, options.verbose, options.showInstances, excludeCols, isMdsv2)
 	} else {
-		dirStrs := strings.Split(options.onlyDirs, ",")
+		dirStrs := strings.Split(options.dir, ",")
 		onlyDirs := []string{}
 		if len(dirStrs) > 0 {
 			if utils.Contains(dirStrs, "log") {

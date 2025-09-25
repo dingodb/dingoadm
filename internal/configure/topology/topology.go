@@ -68,6 +68,8 @@ type (
 		DiskannServices     Service `mapstructure:"diskann_services"`
 		// dingodb
 		ExecutorServices Service `mapstructure:"executor_services"`
+		WebServices      Service `mapstructure:"web_services"`
+		ProxyServices    Service `mapstructure:"proxy_services"`
 	}
 )
 
@@ -216,6 +218,10 @@ func ParseTopology(data string, ctx *Context) ([]*DeployConfig, error) {
 				Config: newIfNil(topology.MdsV2Services.Config),
 				Deploy: []Deploy{tmpDeploy},
 			}
+		case ROLE_DINGODB_WEB:
+			services = topology.WebServices
+		case ROLE_DINGODB_PROXY:
+			services = topology.ProxyServices
 		}
 
 		// merge global config into services config

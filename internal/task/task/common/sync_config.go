@@ -149,7 +149,8 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 	role := dc.GetRole()
 
 	delimiter := CONFIG_DELIMITER_ASSIGN
-	if role == topology.ROLE_ETCD || role == topology.ROLE_DINGODB_EXECUTOR {
+	if role == topology.ROLE_ETCD || role == topology.ROLE_DINGODB_EXECUTOR ||
+		role == topology.ROLE_DINGODB_WEB || role == topology.ROLE_DINGODB_PROXY {
 		delimiter = CONFIG_DELIMITER_COLON
 	}
 

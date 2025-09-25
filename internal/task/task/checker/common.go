@@ -47,23 +47,29 @@ const (
 	DATA_DIR = "data_dir"
 	CORE_DIR = "core_dir"
 
-	ROLE_ETCD          = topology.ROLE_ETCD
-	ROLE_MDS           = topology.ROLE_MDS
-	ROLE_CHUNKSERVER   = topology.ROLE_CHUNKSERVER
-	ROLE_SNAPSHOTCLONE = topology.ROLE_SNAPSHOTCLONE
-	ROLE_METASERVER    = topology.ROLE_METASERVER
-	ROLE_MDS_V2        = topology.ROLE_MDS_V2
-	ROLE_COORDINATOR   = topology.ROLE_COORDINATOR
-	ROLE_STORE         = topology.ROLE_STORE
+	ROLE_ETCD             = topology.ROLE_ETCD
+	ROLE_MDS              = topology.ROLE_MDS
+	ROLE_CHUNKSERVER      = topology.ROLE_CHUNKSERVER
+	ROLE_SNAPSHOTCLONE    = topology.ROLE_SNAPSHOTCLONE
+	ROLE_METASERVER       = topology.ROLE_METASERVER
+	ROLE_MDS_V2           = topology.ROLE_MDS_V2
+	ROLE_COORDINATOR      = topology.ROLE_COORDINATOR
+	ROLE_STORE            = topology.ROLE_STORE
+	ROLE_DINGODB_DOCUMENT = topology.ROLE_DINGODB_DOCUMENT
+	ROLE_DINGODB_DISKANN  = topology.ROLE_DINGODB_DISKANN
+	ROLE_DINGODB_INDEX    = topology.ROLE_DINGODB_INDEX
+	ROLE_DINGODB_EXECUTOR = topology.ROLE_DINGODB_EXECUTOR
+	ROLE_DINGODB_WEB      = topology.ROLE_DINGODB_WEB
+	ROLE_DINGODB_PROXY    = topology.ROLE_DINGODB_PROXY
 )
 
 var (
 	CONNECT = map[string][]string{
-		ROLE_ETCD:          []string{ROLE_ETCD},
-		ROLE_MDS:           []string{ROLE_MDS, ROLE_ETCD},
-		ROLE_CHUNKSERVER:   []string{ROLE_CHUNKSERVER, ROLE_MDS},
-		ROLE_SNAPSHOTCLONE: []string{ROLE_SNAPSHOTCLONE},
-		ROLE_METASERVER:    []string{ROLE_METASERVER, ROLE_MDS},
+		ROLE_ETCD:          {ROLE_ETCD},
+		ROLE_MDS:           {ROLE_MDS, ROLE_ETCD},
+		ROLE_CHUNKSERVER:   {ROLE_CHUNKSERVER, ROLE_MDS},
+		ROLE_SNAPSHOTCLONE: {ROLE_SNAPSHOTCLONE},
+		ROLE_METASERVER:    {ROLE_METASERVER, ROLE_MDS},
 	}
 )
 
@@ -196,6 +202,62 @@ func getServiceListenAddresses(dc *topology.DeployConfig) []Address {
 			Role: ROLE_STORE,
 			IP:   dc.GetListenIp(),
 			Port: dc.GetDingoStoreRaftPort(),
+		})
+	case ROLE_DINGODB_DOCUMENT:
+		address = append(address, Address{
+			Role: ROLE_DINGODB_DOCUMENT,
+			IP:   dc.GetListenIp(),
+			Port: dc.GetDingoServerPort(),
+		})
+		address = append(address, Address{
+			Role: ROLE_DINGODB_DOCUMENT,
+			IP:   dc.GetListenIp(),
+			Port: dc.GetDingoStoreRaftPort(),
+		})
+	case ROLE_DINGODB_DISKANN:
+		address = append(address, Address{
+			Role: ROLE_DINGODB_DISKANN,
+			IP:   dc.GetListenIp(),
+			Port: dc.GetDingoServerPort(),
+		})
+	case ROLE_DINGODB_INDEX:
+		address = append(address, Address{
+			Role: ROLE_DINGODB_INDEX,
+			IP:   dc.GetListenIp(),
+			Port: dc.GetDingoServerPort(),
+		})
+		address = append(address, Address{
+			Role: ROLE_DINGODB_INDEX,
+			IP:   dc.GetListenIp(),
+			Port: dc.GetDingoStoreRaftPort(),
+		})
+	case ROLE_DINGODB_EXECUTOR:
+		address = append(address, Address{
+			Role: ROLE_DINGODB_EXECUTOR,
+			IP:   dc.GetListenIp(),
+			Port: dc.GetDingoDBServerPort(),
+		})
+		address = append(address, Address{
+			Role: ROLE_DINGODB_EXECUTOR,
+			IP:   dc.GetListenIp(),
+			Port: dc.GetDingoDBMySQLPort(),
+		})
+	case ROLE_DINGODB_WEB:
+		address = append(address, Address{
+			Role: ROLE_DINGODB_WEB,
+			IP:   dc.GetListenIp(),
+			Port: dc.GetDingoDBServerPort(),
+		})
+		address = append(address, Address{
+			Role: ROLE_DINGODB_WEB,
+			IP:   dc.GetListenIp(),
+			Port: dc.GetDingoDBExportPort(),
+		})
+	case ROLE_DINGODB_PROXY:
+		address = append(address, Address{
+			Role: ROLE_DINGODB_PROXY,
+			IP:   dc.GetListenIp(),
+			Port: dc.GetDingoDBServerPort(),
 		})
 
 	default:
