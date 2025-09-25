@@ -255,6 +255,10 @@ func (s *Filter) Execute(ctx *context.Context) error {
 		}
 
 		originServiceConfigKeys = append(originServiceConfigKeys, key)
+		if strings.TrimSpace(key) == "port" {
+			// print value
+			fmt.Print(value)
+		}
 
 		out, err := s.Mutate(in, key, value)
 		if err != nil {

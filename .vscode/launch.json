@@ -13,7 +13,7 @@
             "env": {
                 "CGO_ENABLED": "1",
                 "PATH": "/opt/rh/gcc-toolset-13/root/usr/bin:${env:PATH}",
-                "dingo_cluster": "mdsv2"
+                "dingo_cluster": "dingodb"
             },
             "args": [
                 "deploy",
@@ -100,6 +100,24 @@
                 "-sv",
                 "-w",
                 "store-cluster",
+            ],
+            "showLog": true,
+        },
+        {
+            "name": "dingoadm status -s --dir doc",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {
+                "CGO_ENABLED": "1",
+                "PATH": "/opt/rh/gcc-toolset-13/root/usr/bin:${env:PATH}"
+            },
+            "args": [
+                "status",
+                // "-s",
+                "--dir",
+                "doc",
             ],
             "showLog": true,
         },

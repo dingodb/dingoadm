@@ -81,6 +81,8 @@ const (
 	LAYOUT_DINGO_INDEX_LOG_DIR    = "/index1/log"
 	LAYOUT_DINGO_INDEX_VECTOR_DIR = "/index1/data/vector_index_snapshot"
 	LAYOUT_DINGO_INDEX_RAFT_DIR   = "/index1/data/raft"
+	// dingo log
+	LAYOUT_DINGO_LOG_DIR = "/log"
 
 	LAYOUT_CORE_SYSTEM_DIR = "/core"
 
@@ -98,15 +100,17 @@ var (
 	DefaultCurveFSDeployConfig = &DeployConfig{kind: KIND_DINGOFS}
 
 	ServiceConfigs = map[string][]string{
-		ROLE_ETCD:             []string{"etcd.conf"},
-		ROLE_MDS:              []string{"mds.conf"},
-		ROLE_CHUNKSERVER:      []string{"chunkserver.conf", "cs_client.conf", "s3.conf"},
-		ROLE_SNAPSHOTCLONE:    []string{"snapshotclone.conf", "snap_client.conf", "s3.conf", "nginx.conf"},
-		ROLE_METASERVER:       []string{"metaserver.conf"},
-		ROLE_COORDINATOR:      []string{"coordinator-gflags.conf "},
-		ROLE_STORE:            []string{"store-gflags.conf"},
-		ROLE_MDS_V2:           []string{"dingo-mdsv2.template.conf"},
-		ROLE_DINGODB_EXECUTOR: []string{"executor.yaml"},
+		ROLE_ETCD:             {"etcd.conf"},
+		ROLE_MDS:              {"mds.conf"},
+		ROLE_CHUNKSERVER:      {"chunkserver.conf", "cs_client.conf", "s3.conf"},
+		ROLE_SNAPSHOTCLONE:    {"snapshotclone.conf", "snap_client.conf", "s3.conf", "nginx.conf"},
+		ROLE_METASERVER:       {"metaserver.conf"},
+		ROLE_COORDINATOR:      {"coordinator-gflags.conf "},
+		ROLE_STORE:            {"store-gflags.conf"},
+		ROLE_MDS_V2:           {"dingo-mdsv2.template.conf"},
+		ROLE_DINGODB_EXECUTOR: {"executor.yaml"},
+		ROLE_DINGODB_WEB:      {"application-web-dev.yaml"},
+		ROLE_DINGODB_PROXY:    {"application-proxy-dev.yaml"},
 	}
 )
 
@@ -188,7 +192,7 @@ func (dc *DeployConfig) GetReportUsage() bool      { return dc.getBool(CONFIG_RE
 func (dc *DeployConfig) GetContainerImage() string { return dc.getString(CONFIG_CONTAINER_IMAGE) }
 func (dc *DeployConfig) GetLogDir() string         { return dc.getString(CONFIG_LOG_DIR) }
 func (dc *DeployConfig) GetDataDir() string {
-	if dc.GetRole() == ROLE_MDS_V2 || dc.GetRole() == ROLE_DINGODB_EXECUTOR {
+	if dc.GetRole() == ROLE_MDS_V2 || dc.GetRole() == ROLE_DINGODB_EXECUTOR || dc.GetRole() == ROLE_DINGODB_WEB || dc.GetRole() == ROLE_DINGODB_PROXY {
 		return "-"
 	}
 	return dc.getString(CONFIG_DATA_DIR)
@@ -274,6 +278,18 @@ func (dc *DeployConfig) GetDingoServerPort() int {
 
 func (dc *DeployConfig) GetDingoStoreRaftPort() int {
 	return dc.getInt(CONFIG_DINGO_STORE_RAFT_PORT)
+}
+
+func (dc *DeployConfig) GetDingoDBServerPort() int {
+	return dc.getInt(CONFIG_DINGODB_SERVER_PORT)
+}
+
+func (dc *DeployConfig) GetDingoDBMySQLPort() int {
+	return dc.getInt(CONFIG_DINGODB_EXECUTOR_MYSQL_PORT)
+}
+
+func (dc *DeployConfig) GetDingoDBExportPort() int {
+	return dc.getInt(CONFIG_DINGODB_WEB_EXPORT_PORT)
 }
 
 func (dc *DeployConfig) GetDingoStoreReplicaNum() int {
@@ -487,8 +503,8 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 		serviceDataDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_INDEX_DATA_DIR
 		dingoStoreRaftDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_INDEX_RAFT_DIR
 		dingoStoreVectorDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_INDEX_VECTOR_DIR
-	case ROLE_MDS_V2, ROLE_DINGODB_EXECUTOR:
-		serviceLogDir = serviceRootDir + "/log" // /dingofs/mdsv2/log
+	case ROLE_MDS_V2, ROLE_DINGODB_EXECUTOR, ROLE_DINGODB_WEB, ROLE_DINGODB_PROXY:
+		serviceLogDir = serviceRootDir + LAYOUT_DINGO_LOG_DIR // /opt/dingo/log
 	default:
 		// do nothing
 	}

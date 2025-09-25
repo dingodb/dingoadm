@@ -243,7 +243,8 @@ func (s *StartContainer) Execute(ctx *context.Context) error {
 }
 
 func (s *StopContainer) Execute(ctx *context.Context) error {
-	if len(*s.Out) == 0 {
+	// check out is nil
+	if s.Out == nil || len(*s.Out) == 0 {
 		return nil
 	}
 	cli := ctx.Module().DockerCli().StopContainer(s.ContainerId)
