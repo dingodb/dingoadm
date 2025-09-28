@@ -473,7 +473,7 @@ func NewMountFSTask(dingoadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.T
 func fetchFuseConfigPath(fsType string, rootPath string) string {
 	fuse_config := fmt.Sprintf("%s/conf/client.conf", rootPath)
 	if fsType == configure.FS_TYPE_VKS_V2 {
-		fuse_config = fmt.Sprintf("%s/confv2/client.conf", rootPath)
+		fuse_config = fmt.Sprintf("%s/conf/client.conf", rootPath) // change vks2 confv2 to conf
 	}
 	return fuse_config
 }
@@ -481,7 +481,7 @@ func fetchFuseConfigPath(fsType string, rootPath string) string {
 func fetchDingoConfigPath(useNewDingo bool, rootPath string) string {
 	dingo_config := fmt.Sprintf("%s/conf/dingo.yaml", rootPath)
 	if useNewDingo {
-		dingo_config = fmt.Sprintf("%s/confv2/dingo.yaml", rootPath)
+		dingo_config = fmt.Sprintf("%s/conf/dingo.yaml", rootPath) // change mdsv2 configv2 to config
 	}
 	return dingo_config
 }

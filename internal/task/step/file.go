@@ -281,7 +281,7 @@ func (s *Filter) Execute(ctx *context.Context) error {
 		for _, k := range extraServiceConfigKeys {
 			v := s.SerivceConfig[k]
 			if len(v) > 0 {
-				// dingo-mdsv2.template.conf
+				// mds.template.conf
 				out := fmt.Sprintf("%s%s%s%s", comm.MDSV2_CONFIG_PREFIX, k, s.KVFieldSplit, v)
 				output = append(output, out)
 			}
