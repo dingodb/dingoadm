@@ -118,7 +118,7 @@ var (
 				root_dir = path.Join(LAYOUT_CURVEBS_ROOT_DIR, dc.GetRole())
 			case KIND_DINGOFS:
 				if dc.GetRole() == ROLE_MDS_V2 {
-					root_dir = path.Join(LAYOUT_DINGOFS_ROOT_DIR, "dist", dc.GetRole())
+					root_dir = path.Join(LAYOUT_DINGOFS_ROOT_DIR, "dist", ROLE_MDS) // change root dir from mdsv2 (dc.GetRole()) to mds
 				} else if dc.GetRole() == ROLE_COORDINATOR || dc.GetRole() == ROLE_STORE {
 					root_dir = LAYOUT_DINGOSTORE_ROOT_DIR
 				} else if dc.GetRole() == ROLE_DINGODB_EXECUTOR {

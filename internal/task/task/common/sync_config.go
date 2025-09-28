@@ -167,7 +167,7 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 
 	if dc.GetKind() == topology.KIND_DINGOFS || dc.GetKind() == topology.KIND_DINGODB {
 		for _, conf := range layout.ServiceConfFiles {
-			t.AddStep(&step.SyncFile{ // sync service config, e.g. dingo-mdsv2.template.conf
+			t.AddStep(&step.SyncFile{ // sync service config, e.g. mds.template.conf
 				ContainerSrcId:    &containerId,
 				ContainerSrcPath:  conf.SourcePath,
 				ContainerDestId:   &containerId,
@@ -203,7 +203,7 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 		} else if dc.GetRole() == topology.ROLE_MDSV2_CLI {
 			// sync create_mdsv2_tables.sh
 			createTablesScript := scripts.CREATE_MDSV2_TABLES
-			createTablesScriptPath := fmt.Sprintf("%s/%s", layout.MdsV2CliBinDir, topology.SCRIPT_CREATE_MDSV2_TABLES) // /dingofs/mdsv2-client/sbin
+			createTablesScriptPath := fmt.Sprintf("%s/%s", layout.MdsV2CliBinDir, topology.SCRIPT_CREATE_MDSV2_TABLES) // /dingofs/mds-client/sbin
 			// createTablesScriptPath := fmt.Sprintf("%s/create_mdsv2_tables.sh", STORE_BUILD_BIN_DIR) // /opt/dingo-store/build/bin
 			t.AddStep(&step.InstallFile{ // install create_mdsv2_tables.sh script
 				ContainerId:       &containerId,

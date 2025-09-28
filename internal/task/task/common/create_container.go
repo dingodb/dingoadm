@@ -74,7 +74,7 @@ const (
 	ENV_DINGOFS_V2_FLAGS_CLEAN_LOG   = "FLAGS_clean_log"
 	ENV_DINGOFS_V2_FLAGS_SERVER_NUM  = "FLAGS_server_num"
 	ENV_DINGOSTORE_COORDINATOR_ADDR  = "COORDINATOR_ADDR"
-	ENV_DINGOFS_V2_INSTANCE_START_ID = "MDSV2_INSTANCE_START_ID"
+	ENV_DINGOFS_V2_INSTANCE_START_ID = "MDS_INSTANCE_START_ID"
 
 	// dingodb executor
 	ENV_DINGODB_EXECUTOR_ROLE         = "DINGO_ROLE"
@@ -293,8 +293,9 @@ func configExecutorENV(envs []string, dc *topology.DeployConfig) []string {
 }
 
 func configMdsv2ENV(envs []string, dc *topology.DeployConfig) []string {
-	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_FLAGS_ROLE, dc.GetRole()))
-	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_FLAGS_CLEAN_LOG, "0")) // do not clean log
+	// envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_FLAGS_ROLE, dc.GetRole()))
+	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_FLAGS_ROLE, topology.ROLE_MDS)) // mds always (change mdsv2 name to mds)
+	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_FLAGS_CLEAN_LOG, "0"))          // do not clean log
 	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGO_SERVER_LISTEN_HOST, dc.GetDingoServerListenHost()))
 	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGO_SERVER_HOST, dc.GetHostname()))
 	envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGO_SERVER_START_PORT, dc.GetDingoServerPort()))
