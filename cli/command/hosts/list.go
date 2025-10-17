@@ -38,7 +38,7 @@ type listOptions struct {
 	labels  string
 }
 
-func NewListCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewListCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options listOptions
 
 	cmd := &cobra.Command{
@@ -47,7 +47,7 @@ func NewListCommand(curveadm *cli.DingoAdm) *cobra.Command {
 		Short:   "List hosts",
 		Args:    cliutil.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runList(curveadm, options)
+			return runList(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -154,10 +154,10 @@ func filter(data string, labels []string) ([]*hosts.HostConfig, error) {
 	return out, nil
 }
 
-func runList(curveadm *cli.DingoAdm, options listOptions) error {
+func runList(dingoadm *cli.DingoAdm, options listOptions) error {
 	var hcs []*hosts.HostConfig
 	var err error
-	data := curveadm.Hosts()
+	data := dingoadm.Hosts()
 	if len(data) > 0 {
 		labels := strings.Split(options.labels, ":")
 		hcs, err = filter(data, labels) // filter hosts
@@ -167,6 +167,6 @@ func runList(curveadm *cli.DingoAdm, options listOptions) error {
 	}
 
 	output := tui.FormatHosts(hcs, options.verbose)
-	curveadm.WriteOut(output)
+	dingoadm.WriteOut(output)
 	return nil
 }

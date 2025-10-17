@@ -1,5 +1,6 @@
 /*
 *  Copyright (c) 2023 NetEase Inc.
+*  Copyright (c) 2025 dingodb.com.
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -18,6 +19,9 @@
 * Project: Curveadm
 * Created Date: 2023-04-27
 * Author: wanghai (SeanHai)
+*
+* Project: Dingoadm
+* Author: jackblack369 (Dongwei)
  */
 
 package monitor
@@ -54,9 +58,9 @@ func getCleanFiles(clean map[string]bool, mc *configure.MonitorConfig) []string 
 	return files
 }
 
-func NewCleanMonitorTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
-	serviceId := curveadm.GetServiceId(cfg.GetId())
-	containerId, err := curveadm.GetContainerId(serviceId)
+func NewCleanMonitorTask(dingoadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
+	serviceId := dingoadm.GetServiceId(cfg.GetId())
+	containerId, err := dingoadm.GetContainerId(serviceId)
 	if err != nil {
 		return nil, err
 	}
@@ -64,13 +68,13 @@ func NewCleanMonitorTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (
 		(len(containerId) == 0 || containerId == comm.CLEANED_CONTAINER_ID) {
 		return nil, nil
 	}
-	hc, err := curveadm.GetHost(cfg.GetHost())
+	hc, err := dingoadm.GetHost(cfg.GetHost())
 	if err != nil {
 		return nil, err
 	}
 
 	// new task
-	only := curveadm.MemStorage().Get(comm.KEY_CLEAN_ITEMS).([]string)
+	only := dingoadm.MemStorage().Get(comm.KEY_CLEAN_ITEMS).([]string)
 	subname := fmt.Sprintf("host=%s role=%s containerId=%s clean=%s",
 		cfg.GetHost(), cfg.GetRole(), tui.TrimContainerId(containerId), strings.Join(only, ","))
 	t := task.NewTask("Clean Monitor", subname, hc.GetSSHConfig())
@@ -80,14 +84,14 @@ func NewCleanMonitorTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (
 	files := getCleanFiles(clean, cfg) // directorys which need cleaned
 	t.AddStep(&step.RemoveFile{
 		Files:       files,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	if clean[comm.CLEAN_ITEM_CONTAINER] == true {
 		t.AddStep(&common.Step2CleanContainer{
 			ServiceId:   serviceId,
 			ContainerId: containerId,
-			Storage:     curveadm.Storage(),
-			ExecOptions: curveadm.ExecOptions(),
+			Storage:     dingoadm.Storage(),
+			ExecOptions: dingoadm.ExecOptions(),
 		})
 	}
 	return t, nil

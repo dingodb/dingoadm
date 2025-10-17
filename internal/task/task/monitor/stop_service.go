@@ -1,5 +1,6 @@
 /*
 *  Copyright (c) 2023 NetEase Inc.
+*  Copyright (c) 2025 dingodb.com.
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -18,6 +19,9 @@
 * Project: Curveadm
 * Created Date: 2023-04-27
 * Author: wanghai (SeanHai)
+*
+* Project: Dingoadm
+* Author: jackblack369 (Dongwei)
  */
 
 package monitor
@@ -33,15 +37,15 @@ import (
 	tui "github.com/dingodb/dingoadm/internal/tui/common"
 )
 
-func NewStopServiceTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
-	serviceId := curveadm.GetServiceId(cfg.GetId())
-	containerId, err := curveadm.GetContainerId(serviceId)
+func NewStopServiceTask(dingoadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
+	serviceId := dingoadm.GetServiceId(cfg.GetId())
+	containerId, err := dingoadm.GetContainerId(serviceId)
 	if IsSkip(cfg, []string{ROLE_MONITOR_CONF}) {
 		return nil, nil
 	} else if err != nil {
 		return nil, err
 	}
-	hc, err := curveadm.GetHost(cfg.GetHost())
+	hc, err := dingoadm.GetHost(cfg.GetHost())
 	if err != nil {
 		return nil, err
 	}
@@ -59,14 +63,15 @@ func NewStopServiceTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*
 		Format:      `"{{.ID}}"`,
 		Filter:      fmt.Sprintf("id=%s", containerId),
 		Out:         &out,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.Lambda{
 		Lambda: common.CheckContainerExist(host, role, containerId, &out),
 	})
 	t.AddStep(&step.StopContainer{
 		ContainerId: containerId,
-		ExecOptions: curveadm.ExecOptions(),
+		Out:         &out,
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	return t, nil
 }

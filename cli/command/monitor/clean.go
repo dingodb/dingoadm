@@ -19,6 +19,9 @@
 * Project: Curveadm
 * Created Date: 2023-04-27
 * Author: wanghai (SeanHai)
+*
+* Project: Dingoadm
+* Author: jackblack369 (Dongwei)
  */
 
 package monitor
@@ -53,10 +56,11 @@ var (
 )
 
 type cleanOptions struct {
-	id   string
-	role string
-	host string
-	only []string
+	id    string
+	role  string
+	host  string
+	only  []string
+	force bool
 }
 
 func NewCleanCommand(dingoadm *cli.DingoAdm) *cobra.Command {
@@ -78,6 +82,7 @@ func NewCleanCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	flags.StringVar(&options.role, "role", "*", "Specify monitor service role")
 	flags.StringVar(&options.host, "host", "*", "Specify monitor service host")
 	flags.StringSliceVarP(&options.only, "only", "o", CLEAN_ITEMS, "Specify clean item")
+	flags.BoolVarP(&options.force, "force", "f", false, "Force to clean without confirmation")
 	return cmd
 }
 
@@ -119,10 +124,12 @@ func runClean(dingoadm *cli.DingoAdm, options cleanOptions) error {
 		return err
 	}
 
-	// 3) confirm by user
-	if pass := tui.ConfirmYes(tui.PromptCleanService(options.role, options.host, options.only)); !pass {
-		dingoadm.WriteOut(tui.PromptCancelOpetation("clean monitor service"))
-		return errno.ERR_CANCEL_OPERATION
+	if !options.force {
+		// 3) confirm by user
+		if pass := tui.ConfirmYes(tui.PromptCleanService(options.role, options.host, options.only)); !pass {
+			dingoadm.WriteOut(tui.PromptCancelOpetation("clean monitor service"))
+			return errno.ERR_CANCEL_OPERATION
+		}
 	}
 
 	// 4) run playground
