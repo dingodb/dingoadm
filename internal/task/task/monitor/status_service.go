@@ -1,5 +1,6 @@
 /*
 *  Copyright (c) 2023 NetEase Inc.
+*  Copyright (c) 2025 dingodb.com.
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -18,6 +19,9 @@
 * Project: Curveadm
 * Created Date: 2023-04-27
 * Author: wanghai (SeanHai)
+*
+* Project: Dingoadm
+* Author: jackblack369 (Dongwei)
  */
 
 package monitor

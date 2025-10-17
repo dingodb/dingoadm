@@ -1,5 +1,6 @@
 /*
 *  Copyright (c) 2023 NetEase Inc.
+*  Copyright (c) 2025 dingodb.com.
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -18,6 +19,9 @@
 * Project: Curveadm
 * Created Date: 2023-04-19
 * Author: wanghai (SeanHai)
+*
+* Project: Dingoadm
+* Author: jackblack369 (Dongwei)
  */
 
 package monitor
@@ -89,10 +93,22 @@ func getMountVolumes(cfg *configure.MonitorConfig) []step.Volume {
 			HostPath:      cfg.GetDataDir(),
 			ContainerPath: "/prometheus",
 		})
+		volumes = append(volumes, step.Volume{
+			HostPath:      cfg.GetConfDir(),
+			ContainerPath: "/etc/prometheus",
+		})
 	case ROLE_GRAFANA:
 		volumes = append(volumes, step.Volume{
 			HostPath:      cfg.GetDataDir(),
 			ContainerPath: "/var/lib/grafana",
+		})
+		volumes = append(volumes, step.Volume{
+			HostPath:      cfg.GetConfDir(),
+			ContainerPath: "/etc/grafana",
+		})
+		volumes = append(volumes, step.Volume{
+			HostPath:      cfg.GetProvisionDir(),
+			ContainerPath: "/etc/grafana/provisioning",
 		})
 	}
 	return volumes
@@ -138,8 +154,14 @@ func NewCreateContainerTask(dingoadm *cli.DingoAdm, cfg *configure.MonitorConfig
 		ContainerId: &oldContainerId,
 		Storage:     dingoadm.Storage(),
 	})
+	paths := []string{cfg.GetDataDir()}
+	if role == ROLE_GRAFANA {
+		paths = append(paths, cfg.GetConfDir(), cfg.GetProvisionDir()+"/datasources")
+	} else if role == ROLE_PROMETHEUS {
+		paths = append(paths, cfg.GetConfDir())
+	}
 	t.AddStep(&step.CreateDirectory{
-		Paths:       []string{cfg.GetDataDir()},
+		Paths:       paths,
 		ExecOptions: options,
 	})
 	t.AddStep(&step.CreateContainer{

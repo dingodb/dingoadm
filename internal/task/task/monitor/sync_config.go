@@ -1,5 +1,6 @@
 /*
 *  Copyright (c) 2023 NetEase Inc.
+*  Copyright (c) 2025 dingodb.com.
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -18,6 +19,9 @@
 * Project: Curveadm
 * Created Date: 2023-04-21
 * Author: wanghai (SeanHai)
+*
+* Project: Dingoadm
+* Author: jackblack369 (Dongwei)
  */
 
 package monitor
@@ -54,9 +58,9 @@ func getNodeExporterAddrs(hosts []string, port int) string {
 	return fmt.Sprintf("[%s]", strings.Join(endpoint, ","))
 }
 
-func NewSyncConfigTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
-	serviceId := curveadm.GetServiceId(cfg.GetId())
-	containerId, err := curveadm.GetContainerId(serviceId)
+func NewSyncConfigTask(dingoadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*task.Task, error) {
+	serviceId := dingoadm.GetServiceId(cfg.GetId())
+	containerId, err := dingoadm.GetContainerId(serviceId)
 	if IsSkip(cfg, []string{ROLE_MONITOR_CONF, ROLE_NODE_EXPORTER}) {
 		return nil, nil
 	} else if err != nil {
@@ -64,7 +68,7 @@ func NewSyncConfigTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*t
 	}
 
 	role, host := cfg.GetRole(), cfg.GetHost()
-	hc, err := curveadm.GetHost(host)
+	hc, err := dingoadm.GetHost(host)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +84,7 @@ func NewSyncConfigTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*t
 		Format:      `"{{.ID}}"`,
 		Filter:      fmt.Sprintf("id=%s", containerId),
 		Out:         &out,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.Lambda{
 		Lambda: common.CheckContainerExist(cfg.GetHost(), cfg.GetRole(), containerId, &out),
@@ -90,7 +94,7 @@ func NewSyncConfigTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*t
 			HostDirName:       "prometheus",
 			ContainerDestId:   &containerId,
 			ContainerDestPath: "/etc",
-			ExecOptions:       curveadm.ExecOptions(),
+			ExecOptions:       dingoadm.ExecOptions(),
 		})
 		content := fmt.Sprintf(scripts.PROMETHEUS_YML, cfg.GetListenPort(),
 			getNodeExporterAddrs(cfg.GetNodeIps(), cfg.GetNodeListenPort()))
@@ -98,18 +102,18 @@ func NewSyncConfigTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*t
 			ContainerId:       &containerId,
 			ContainerDestPath: path.Join(PROMETHEUS_CONTAINER_PATH, "prometheus.yml"),
 			Content:           &content,
-			ExecOptions:       curveadm.ExecOptions(),
+			ExecOptions:       dingoadm.ExecOptions(),
 		})
 		target := cfg.GetPrometheusTarget()
 		t.AddStep(&step.InstallFile{ // install target.json file
 			ContainerId:       &containerId,
 			ContainerDestPath: path.Join(PROMETHEUS_CONTAINER_PATH, "target.json"),
 			Content:           &target,
-			ExecOptions:       curveadm.ExecOptions(),
+			ExecOptions:       dingoadm.ExecOptions(),
 		})
 	} else if role == ROLE_GRAFANA {
-		serviceId = curveadm.GetServiceId(fmt.Sprintf("%s_%s", ROLE_MONITOR_CONF, cfg.GetHost()))
-		confContainerId, err := curveadm.GetContainerId(serviceId)
+		serviceId = dingoadm.GetServiceId(fmt.Sprintf("%s_%s", ROLE_MONITOR_CONF, cfg.GetHost()))
+		confContainerId, err := dingoadm.GetContainerId(serviceId)
 		if err != nil {
 			return nil, err
 		}
@@ -119,7 +123,7 @@ func NewSyncConfigTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*t
 			ContainerDestId:   &containerId,
 			ContainerDestPath: GRAFANA_CONTAINER_PATH,
 			IsDir:             false,
-			ExecOptions:       curveadm.ExecOptions(),
+			ExecOptions:       dingoadm.ExecOptions(),
 		})
 		t.AddStep(&step.SyncFileDirectly{ // sync dashboard dir
 			ContainerSrcId:    &confContainerId,
@@ -127,14 +131,14 @@ func NewSyncConfigTask(curveadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*t
 			ContainerDestId:   &containerId,
 			ContainerDestPath: DASHBOARD_CONTAINER_PATH,
 			IsDir:             true,
-			ExecOptions:       curveadm.ExecOptions(),
+			ExecOptions:       dingoadm.ExecOptions(),
 		})
 		content := fmt.Sprintf(scripts.GRAFANA_DATA_SOURCE, cfg.GetPrometheusIp(), cfg.GetPrometheusListenPort())
 		t.AddStep(&step.InstallFile{ // install grafana datasource file
 			ContainerId:       &containerId,
 			ContainerDestPath: GRAFANA_DATA_SOURCE_PATH,
 			Content:           &content,
-			ExecOptions:       curveadm.ExecOptions(),
+			ExecOptions:       dingoadm.ExecOptions(),
 		})
 	}
 	return t, nil

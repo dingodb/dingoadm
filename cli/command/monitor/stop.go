@@ -19,6 +19,9 @@
 * Project: Curveadm
 * Created Date: 2023-04-27
 * Author: wanghai (SeanHai)
+*
+* Project: Dingoadm
+* Author: jackblack369 (Dongwei)
  */
 
 package monitor
@@ -40,9 +43,10 @@ var (
 )
 
 type stopOptions struct {
-	id   string
-	role string
-	host string
+	id    string
+	role  string
+	host  string
+	force bool
 }
 
 func NewStopCommand(dingoadm *cli.DingoAdm) *cobra.Command {
@@ -61,6 +65,7 @@ func NewStopCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	flags.StringVar(&options.id, "id", "*", "Specify service id")
 	flags.StringVar(&options.role, "role", "*", "Specify service role")
 	flags.StringVar(&options.host, "host", "*", "Specify service host")
+	flags.BoolVarP(&options.force, "force", "f", false, "Force to stop without confirmation")
 
 	return cmd
 }
@@ -101,11 +106,13 @@ func runStop(dingoadm *cli.DingoAdm, options stopOptions) error {
 		return err
 	}
 
-	// 3) confirm by user
-	pass := tui.ConfirmYes(tui.PromptStopService(options.id, options.role, options.host))
-	if !pass {
-		dingoadm.WriteOut(tui.PromptCancelOpetation("stop monitor service"))
-		return errno.ERR_CANCEL_OPERATION
+	if !options.force {
+		// 3) confirm by user
+		pass := tui.ConfirmYes(tui.PromptStopService(options.id, options.role, options.host))
+		if !pass {
+			dingoadm.WriteOut(tui.PromptCancelOpetation("stop monitor service"))
+			return errno.ERR_CANCEL_OPERATION
+		}
 	}
 
 	// 4) run playground
