@@ -42,11 +42,12 @@ const (
 )
 
 type (
-	step2CopyFilesFromContainer struct {
-		files       *[]string
-		containerId string
-		hostDestDir string
-		curveadm    *cli.DingoAdm
+	Step2CopyFilesFromContainer struct {
+		Files         *[]string
+		ContainerId   string
+		HostDestDir   string
+		ExcludeParent bool
+		Dingoadm      *cli.DingoAdm
 	}
 )
 
@@ -54,14 +55,15 @@ func encodeSecret(secret string) string {
 	return utils.MD5Sum(secret)
 }
 
-func (s *step2CopyFilesFromContainer) Execute(ctx *context.Context) error {
+func (s *Step2CopyFilesFromContainer) Execute(ctx *context.Context) error {
 	steps := []task.Step{}
-	for _, file := range *s.files {
+	for _, file := range *s.Files {
 		steps = append(steps, &step.CopyFromContainer{
 			ContainerSrcPath: file,
-			HostDestPath:     s.hostDestDir,
-			ContainerId:      s.containerId,
-			ExecOptions:      s.curveadm.ExecOptions(),
+			HostDestPath:     s.HostDestDir,
+			ContainerId:      s.ContainerId,
+			ExcludeParent:    s.ExcludeParent,
+			ExecOptions:      s.Dingoadm.ExecOptions(),
 		})
 	}
 
@@ -74,10 +76,10 @@ func (s *step2CopyFilesFromContainer) Execute(ctx *context.Context) error {
 	return nil
 }
 
-func NewCollectServiceTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
-	serviceId := curveadm.GetServiceId(dc.GetId())
-	containerId, err := curveadm.Storage().GetContainerId(serviceId)
-	if curveadm.IsSkip(dc) {
+func NewCollectServiceTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
+	serviceId := dingoadm.GetServiceId(dc.GetId())
+	containerId, err := dingoadm.Storage().GetContainerId(serviceId)
+	if dingoadm.IsSkip(dc) {
 		return nil, nil
 	} else if err != nil {
 		return nil, err
@@ -86,7 +88,7 @@ func NewCollectServiceTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*
 	} else if containerId == comm.CLEANED_CONTAINER_ID {
 		return nil, nil
 	}
-	hc, err := curveadm.GetHost(dc.GetHost())
+	hc, err := dingoadm.GetHost(dc.GetHost())
 	if err != nil {
 		return nil, err
 	}
@@ -98,8 +100,8 @@ func NewCollectServiceTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*
 
 	// add step to task
 	var out string
-	secret := curveadm.MemStorage().Get(comm.KEY_SECRET).(string)
-	urlFormat := curveadm.MemStorage().Get(comm.KEY_SUPPORT_UPLOAD_URL_FORMAT).(string)
+	secret := dingoadm.MemStorage().Get(comm.KEY_SECRET).(string)
+	urlFormat := dingoadm.MemStorage().Get(comm.KEY_SUPPORT_UPLOAD_URL_FORMAT).(string)
 	baseDir := TEMP_DIR
 	vname := utils.NewVariantName(fmt.Sprintf("%s_%s", serviceId, utils.RandString(5)))
 	remoteSaveDir := fmt.Sprintf("%s/%s", baseDir, vname.Name)                // /tmp/7b510fb63730_ox1fe
@@ -110,34 +112,34 @@ func NewCollectServiceTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*
 	layout := dc.GetProjectLayout()
 	containerLogDir := layout.ServiceLogDir   // /curvebs/etcd/logs
 	containerConfDir := layout.ServiceConfDir // /curvebs/etcd/conf
-	localOptions := curveadm.ExecOptions()
+	localOptions := dingoadm.ExecOptions()
 	localOptions.ExecInLocal = true
 
 	t.AddStep(&step.CreateDirectory{
 		Paths:       []string{remoteSaveDir},
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
-	t.AddStep(&step2CopyFilesFromContainer{ // copy logs directory
-		containerId: containerId,
-		files:       &[]string{containerLogDir},
-		hostDestDir: remoteSaveDir,
-		curveadm:    curveadm,
+	t.AddStep(&Step2CopyFilesFromContainer{ // copy logs directory
+		ContainerId: containerId,
+		Files:       &[]string{containerLogDir},
+		HostDestDir: remoteSaveDir,
+		Dingoadm:    dingoadm,
 	})
-	t.AddStep(&step2CopyFilesFromContainer{ // copy conf directory
-		containerId: containerId,
-		files:       &[]string{containerConfDir},
-		hostDestDir: remoteSaveDir,
-		curveadm:    curveadm,
+	t.AddStep(&Step2CopyFilesFromContainer{ // copy conf directory
+		ContainerId: containerId,
+		Files:       &[]string{containerConfDir},
+		HostDestDir: remoteSaveDir,
+		Dingoadm:    dingoadm,
 	})
 	t.AddStep(&step.ContainerLogs{
 		ContainerId: containerId,
 		Out:         &out,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.InstallFile{
 		Content:      &out,
 		HostDestPath: fmt.Sprintf("%s/docker.log", path.Join(remoteSaveDir, "logs")),
-		ExecOptions:  curveadm.ExecOptions(),
+		ExecOptions:  dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.Tar{
 		File:        remoteSaveDir,
@@ -145,12 +147,12 @@ func NewCollectServiceTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*
 		Create:      true,
 		Gzip:        true,
 		Verbose:     true,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.DownloadFile{
 		RemotePath:  remoteTarbllPath,
 		LocalPath:   localTarballPath,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step2EncryptFile{
 		source: localTarballPath,
@@ -164,7 +166,7 @@ func NewCollectServiceTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*
 	})
 	t.AddPostStep(&step.RemoveFile{
 		Files:       []string{remoteSaveDir, remoteTarbllPath},
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddPostStep(&step.RemoveFile{
 		Files:       []string{localTarballPath, localEncryptdTarballPath},

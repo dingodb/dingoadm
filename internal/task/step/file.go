@@ -134,7 +134,7 @@ func (s *ReadFile) Execute(ctx *context.Context) error {
 	} else {
 		remotePath = utils.RandFilename(TEMP_DIR)
 		// defer ctx.Module().Shell().Remove(remotePath).Execute(module.ExecOptions{})
-		dockerCli := ctx.Module().DockerCli().CopyFromContainer(s.ContainerId, s.ContainerSrcPath, remotePath)
+		dockerCli := ctx.Module().DockerCli().CopyFromContainer(s.ContainerId, s.ContainerSrcPath, remotePath, false)
 		_, err := dockerCli.Execute(s.ExecOptions)
 		if err != nil {
 			return errno.ERR_COPY_FROM_CONTAINER_FAILED.FD("(%s cp CONTAINER:SRC_PATH DEST_PATH)", s.ExecWithEngine).E(err)

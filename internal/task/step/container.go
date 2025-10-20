@@ -130,6 +130,7 @@ type (
 		ContainerId      string
 		ContainerSrcPath string
 		HostDestPath     string
+		ExcludeParent    bool
 		Out              *string
 		module.ExecOptions
 	}
@@ -303,7 +304,7 @@ func (s *ContainerExec) Execute(ctx *context.Context) error {
 }
 
 func (s *CopyFromContainer) Execute(ctx *context.Context) error {
-	cli := ctx.Module().DockerCli().CopyFromContainer(s.ContainerId, s.ContainerSrcPath, s.HostDestPath)
+	cli := ctx.Module().DockerCli().CopyFromContainer(s.ContainerId, s.ContainerSrcPath, s.HostDestPath, s.ExcludeParent)
 	out, err := cli.Execute(s.ExecOptions)
 	return PostHandle(nil, s.Out, out, err, errno.ERR_COPY_FROM_CONTAINER_FAILED.FD("(%s cp CONTAINER:SRC_PATH DEST_PATH)", s.ExecWithEngine))
 }

@@ -33,6 +33,7 @@ import (
 	"github.com/dingodb/dingoadm/internal/configure/hosts"
 	"github.com/dingodb/dingoadm/internal/configure/topology"
 	"github.com/dingodb/dingoadm/internal/errno"
+	"github.com/dingodb/dingoadm/pkg/variable"
 	"github.com/spf13/viper"
 )
 
@@ -41,6 +42,7 @@ const (
 	ROLE_PROMETHEUS    = "prometheus"
 	ROLE_GRAFANA       = "grafana"
 	ROLE_MONITOR_CONF  = "monitor_conf"
+	ROLE_MONITOR_SYNC  = "monitor_sync"
 
 	KEY_HOST              = "host"
 	KEY_LISTEN_PORT       = "listen_port"
@@ -54,6 +56,8 @@ const (
 	KRY_NODE_LISTEN_PORT = "node_listen_port"
 	KEY_PROMETHEUS_IP    = "prometheus_listen_ip"
 	KEY_PROMETHEUS_PORT  = "prometheus_listen_port"
+
+	KEY_ORIGIN_CONFIG_ID = "origin_config_id"
 )
 
 type (
@@ -71,15 +75,17 @@ type (
 		NodeExporter service                `mapstructure:"node_exporter"`
 		Prometheus   service                `mapstructure:"prometheus"`
 		Grafana      service                `mapstructure:"grafana"`
+		MonitroSync  service                `mapstructure:"monitor_sync"`
 	}
 
 	MonitorConfig struct {
-		kind   string
-		id     string // role_host
-		role   string
-		host   string
-		config map[string]interface{}
-		ctx    *topology.Context
+		kind      string
+		id        string // role_host
+		role      string
+		host      string
+		config    map[string]interface{}
+		variables *variable.Variables
+		ctx       *topology.Context
 	}
 
 	serviceTarget struct {
@@ -194,6 +200,12 @@ func (m *MonitorConfig) GetGrafanaPassword() string {
 	return m.getString(&m.config, KEY_GRAFANA_PASSWORD)
 }
 
+func (m *MonitorConfig) GetVariables() *variable.Variables { return m.variables }
+
+func (m *MonitorConfig) GetServiceConfig() map[string]interface{} {
+	return m.config
+}
+
 func getHost(c *monitor, role string) []string {
 	hosts := []string{}
 	for _, d := range c.NodeExporter.Deploy {
@@ -295,7 +307,8 @@ func ParseMonitorConfig(dingoadm *cli.DingoAdm, filename string, data string, hs
 	}
 
 	mkind := dcs[0].GetKind()
-	mconfImage := dcs[0].GetContainerImage()
+	// mconfImage := dcs[0].GetContainerImage()
+	syncMonitorPath := config.MonitroSync.Config[KEY_DATA_DIR].(string)
 	roles := []string{}
 	switch {
 	case config.NodeExporter.Deploy != nil:
@@ -306,6 +319,9 @@ func ParseMonitorConfig(dingoadm *cli.DingoAdm, filename string, data string, hs
 		fallthrough
 	case config.Grafana.Deploy != nil:
 		roles = append(roles, ROLE_GRAFANA)
+		fallthrough
+	case config.MonitroSync.Config != nil:
+		roles = append(roles, ROLE_MONITOR_SYNC)
 	}
 	ret := []*MonitorConfig{}
 	for _, role := range roles {
@@ -321,6 +337,8 @@ func ParseMonitorConfig(dingoadm *cli.DingoAdm, filename string, data string, hs
 			if config.NodeExporter.Deploy != nil {
 				config.Prometheus.Config[KEY_NODE_IPS] = hostIps
 				config.Prometheus.Config[KRY_NODE_LISTEN_PORT] = config.NodeExporter.Config[KEY_LISTEN_PORT]
+				config.Prometheus.Config[KEY_CONF_DIR] = syncMonitorPath + "/" + ROLE_PROMETHEUS
+				config.Prometheus.Config[KEY_DATA_DIR] = syncMonitorPath + "/" + ROLE_PROMETHEUS + "/data"
 			}
 			config.Prometheus.Config[KEY_PROMETHEUS_TARGET] = target
 			ret = append(ret, &MonitorConfig{
@@ -335,6 +353,9 @@ func ParseMonitorConfig(dingoadm *cli.DingoAdm, filename string, data string, hs
 			if config.Prometheus.Deploy != nil {
 				config.Grafana.Config[KEY_PROMETHEUS_PORT] = config.Prometheus.Config[KEY_LISTEN_PORT]
 				config.Grafana.Config[KEY_PROMETHEUS_IP] = ctx.Lookup(config.Prometheus.Config[KEY_HOST].([]string)[0])
+				config.Grafana.Config[KEY_CONF_DIR] = syncMonitorPath + "/" + ROLE_GRAFANA
+				config.Grafana.Config[KEY_DATA_DIR] = syncMonitorPath + "/" + ROLE_GRAFANA + "/data"
+				config.Grafana.Config[KEY_PROVISIONING_DIR] = syncMonitorPath + "/" + ROLE_GRAFANA + "/provisioning"
 			}
 			ret = append(ret, &MonitorConfig{
 				kind:   mkind,
@@ -343,16 +364,18 @@ func ParseMonitorConfig(dingoadm *cli.DingoAdm, filename string, data string, hs
 				host:   host,
 				config: config.Grafana.Config,
 				ctx:    ctx,
-			}, &MonitorConfig{
-				kind: mkind,
-				id:   fmt.Sprintf("%s_%s", ROLE_MONITOR_CONF, host),
-				role: ROLE_MONITOR_CONF,
-				host: host,
-				config: map[string]interface{}{
-					KEY_CONTAINER_IMAGE: mconfImage,
-				},
-				ctx: ctx,
-			})
+			},
+			//&MonitorConfig{
+			//	kind: mkind,
+			//	id:   fmt.Sprintf("%s_%s", ROLE_MONITOR_CONF, host),
+			//	role: ROLE_MONITOR_CONF,
+			//	host: host,
+			//	config: map[string]interface{}{
+			//		KEY_CONTAINER_IMAGE: mconfImage,
+			//	},
+			//	ctx: ctx,
+			//}
+			)
 		case ROLE_NODE_EXPORTER:
 			for _, h := range hs {
 				ret = append(ret, &MonitorConfig{
@@ -364,6 +387,17 @@ func ParseMonitorConfig(dingoadm *cli.DingoAdm, filename string, data string, hs
 					ctx:    ctx,
 				})
 			}
+		case ROLE_MONITOR_SYNC:
+			config.MonitroSync.Config[KEY_ORIGIN_CONFIG_ID] = dcs[0].GetId()
+			ret = append(ret, &MonitorConfig{
+				kind:      mkind,
+				id:        fmt.Sprintf("%s_%s", role, host),
+				role:      role,
+				host:      host,
+				config:    config.MonitroSync.Config,
+				variables: dcs[0].GetVariables(),
+				ctx:       ctx,
+			})
 		}
 	}
 	return ret, nil

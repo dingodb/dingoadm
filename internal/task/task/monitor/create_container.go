@@ -37,6 +37,14 @@ import (
 	"github.com/dingodb/dingoadm/internal/task/task/common"
 )
 
+func getEntrypoint(cfg *configure.MonitorConfig) string {
+	role := cfg.GetRole()
+	if role == ROLE_MONITOR_SYNC {
+		return "/dingofs/monitor/start_monitor_sync.sh"
+	}
+	return ""
+}
+
 func getArguments(cfg *configure.MonitorConfig) string {
 	role := cfg.GetRole()
 	var argsMap map[string]interface{}
@@ -110,6 +118,11 @@ func getMountVolumes(cfg *configure.MonitorConfig) []step.Volume {
 			HostPath:      cfg.GetProvisionDir(),
 			ContainerPath: "/etc/grafana/provisioning",
 		})
+	case ROLE_MONITOR_SYNC:
+		volumes = append(volumes, step.Volume{
+			HostPath:      cfg.GetDataDir(),
+			ContainerPath: "/dingofs/monitor",
+		})
 	}
 	return volumes
 }
@@ -166,6 +179,7 @@ func NewCreateContainerTask(dingoadm *cli.DingoAdm, cfg *configure.MonitorConfig
 	})
 	t.AddStep(&step.CreateContainer{
 		Image:       cfg.GetImage(),
+		Entrypoint:  getEntrypoint(cfg),
 		Command:     getArguments(cfg),
 		AddHost:     []string{fmt.Sprintf("%s:127.0.0.1", hostname)},
 		Envs:        getEnvironments(cfg),

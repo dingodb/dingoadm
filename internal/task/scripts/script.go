@@ -19,6 +19,9 @@
  * Project: CurveAdm
  * Created Date: 2021-11-25
  * Author: Jingli Chen (Wine93)
+ *
+ * Project: Dingoadm
+ * Author: Dongwei (jackblack369)
  */
 
 package scripts
@@ -77,4 +80,8 @@ var (
 	// DingoFS Executor
 	//go:embed shell/sync_java_opts.sh
 	SYNC_JAVA_OPTS string
+
+	// DingoFS Monitor
+	//go:embed shell/start_monitor_sync.sh
+	START_MONITOR_SYNC string
 )

@@ -32,21 +32,22 @@ import (
 )
 
 const (
-	TEMPLATE_DOCKER_INFO         = "{{.engine}} info"
-	TEMPLATE_PULL_IMAGE          = "{{.engine}} pull {{.options}} {{.name}}"
-	TEMPLATE_CREATE_CONTAINER    = "{{.engine}} create {{.options}} {{.image}} {{.command}}"
-	TEMPLATE_START_CONTAINER     = "{{.engine}} start {{.options}} {{.containers}}"
-	TEMPLATE_STOP_CONTAINER      = "{{.engine}} stop {{.options}} {{.containers}}"
-	TEMPLATE_RESTART_CONTAINER   = "{{.engine}} restart {{.options}} {{.containers}}"
-	TEMPLATE_WAIT_CONTAINER      = "{{.engine}} wait {{.options}} {{.containers}}"
-	TEMPLATE_REMOVE_CONTAINER    = "{{.engine}} rm {{.options}} {{.containers}}"
-	TEMPLATE_LIST_CONTAINERS     = "{{.engine}} ps {{.options}}"
-	TEMPLATE_CONTAINER_EXEC      = "{{.engine}} exec {{.options}} {{.container}} {{.command}}"
-	TEMPLATE_COPY_FROM_CONTAINER = "{{.engine}} cp {{.options}} {{.container}}:{{.srcPath}} {{.destPath}}"
-	TEMPLATE_COPY_INTO_CONTAINER = "{{.engine}} cp {{.options}}  {{.srcPath}} {{.container}}:{{.destPath}}"
-	TEMPLATE_INSPECT_CONTAINER   = "{{.engine}} inspect {{.options}} {{.container}}"
-	TEMPLATE_CONTAINER_LOGS      = "{{.engine}} logs {{.options}} {{.container}}"
-	TEMPLATE_UPDATE_CONTAINER    = "{{.engine}} update {{.options}} {{.container}}"
+	TEMPLATE_DOCKER_INFO                            = "{{.engine}} info"
+	TEMPLATE_PULL_IMAGE                             = "{{.engine}} pull {{.options}} {{.name}}"
+	TEMPLATE_CREATE_CONTAINER                       = "{{.engine}} create {{.options}} {{.image}} {{.command}}"
+	TEMPLATE_START_CONTAINER                        = "{{.engine}} start {{.options}} {{.containers}}"
+	TEMPLATE_STOP_CONTAINER                         = "{{.engine}} stop {{.options}} {{.containers}}"
+	TEMPLATE_RESTART_CONTAINER                      = "{{.engine}} restart {{.options}} {{.containers}}"
+	TEMPLATE_WAIT_CONTAINER                         = "{{.engine}} wait {{.options}} {{.containers}}"
+	TEMPLATE_REMOVE_CONTAINER                       = "{{.engine}} rm {{.options}} {{.containers}}"
+	TEMPLATE_LIST_CONTAINERS                        = "{{.engine}} ps {{.options}}"
+	TEMPLATE_CONTAINER_EXEC                         = "{{.engine}} exec {{.options}} {{.container}} {{.command}}"
+	TEMPLATE_COPY_FROM_CONTAINER                    = "{{.engine}} cp {{.options}} {{.container}}:{{.srcPath}} {{.destPath}}"
+	TEMPLATE_COPY_FROM_CONTAINER_EXCLUDE_PARENT_DIR = "{{.engine}} cp {{.options}} {{.container}}:{{.srcPath}}/. {{.destPath}}"
+	TEMPLATE_COPY_INTO_CONTAINER                    = "{{.engine}} cp {{.options}}  {{.srcPath}} {{.container}}:{{.destPath}}"
+	TEMPLATE_INSPECT_CONTAINER                      = "{{.engine}} inspect {{.options}} {{.container}}"
+	TEMPLATE_CONTAINER_LOGS                         = "{{.engine}} logs {{.options}} {{.container}}"
+	TEMPLATE_UPDATE_CONTAINER                       = "{{.engine}} update {{.options}} {{.container}}"
 )
 
 type DockerCli struct {
@@ -136,8 +137,12 @@ func (cli *DockerCli) ContainerExec(containerId, command string) *DockerCli {
 	return cli
 }
 
-func (cli *DockerCli) CopyFromContainer(containerId, srcPath, destPath string) *DockerCli {
-	cli.tmpl = template.Must(template.New("CopyFromContainer").Parse(TEMPLATE_COPY_FROM_CONTAINER))
+func (cli *DockerCli) CopyFromContainer(containerId, srcPath, destPath string, excludeParent bool) *DockerCli {
+	command := TEMPLATE_COPY_FROM_CONTAINER
+	if excludeParent {
+		command = TEMPLATE_COPY_FROM_CONTAINER_EXCLUDE_PARENT_DIR
+	}
+	cli.tmpl = template.Must(template.New("CopyFromContainer").Parse(command))
 	cli.data["container"] = containerId
 	cli.data["srcPath"] = srcPath
 	cli.data["destPath"] = destPath

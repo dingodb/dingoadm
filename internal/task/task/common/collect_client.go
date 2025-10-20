@@ -73,17 +73,17 @@ func NewCollectClientTask(curveadm *cli.DingoAdm, v interface{}) (*task.Task, er
 		Paths:       []string{remoteSaveDir},
 		ExecOptions: curveadm.ExecOptions(),
 	})
-	t.AddStep(&step2CopyFilesFromContainer{ // copy logs directory
-		containerId: containerId,
-		files:       &[]string{containerLogDir},
-		hostDestDir: remoteSaveDir,
-		curveadm:    curveadm,
+	t.AddStep(&Step2CopyFilesFromContainer{ // copy logs directory
+		ContainerId: containerId,
+		Files:       &[]string{containerLogDir},
+		HostDestDir: remoteSaveDir,
+		Dingoadm:    curveadm,
 	})
-	t.AddStep(&step2CopyFilesFromContainer{ // copy conf directory
-		containerId: containerId,
-		files:       &[]string{containerConfDir},
-		hostDestDir: remoteSaveDir,
-		curveadm:    curveadm,
+	t.AddStep(&Step2CopyFilesFromContainer{ // copy conf directory
+		ContainerId: containerId,
+		Files:       &[]string{containerConfDir},
+		HostDestDir: remoteSaveDir,
+		Dingoadm:    curveadm,
 	})
 	t.AddStep(&step.ContainerLogs{
 		ContainerId: containerId,
