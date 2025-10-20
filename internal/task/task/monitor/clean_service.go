@@ -45,6 +45,7 @@ var (
 	ROLE_PROMETHEUS    = configure.ROLE_PROMETHEUS
 	ROLE_GRAFANA       = configure.ROLE_GRAFANA
 	ROLE_MONITOR_CONF  = configure.ROLE_MONITOR_CONF
+	ROLE_MONITOR_SYNC  = configure.ROLE_MONITOR_SYNC
 )
 
 func getCleanFiles(clean map[string]bool, mc *configure.MonitorConfig) []string {
