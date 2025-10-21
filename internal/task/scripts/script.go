@@ -78,4 +78,12 @@ var (
 	// DingoFS Monitor
 	//go:embed shell/start_monitor_sync.sh
 	START_MONITOR_SYNC string
+
+	// Prometheus Node Exporter
+	//go:embed shell/sync_prometheus.sh
+	SYNC_PROMETHEUS string
+
+	// Grafana dashboard
+	//go:embed shell/server_metric_zh.json
+	GRAFANA_SERVER_METRIC string
 )
