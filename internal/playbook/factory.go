@@ -128,6 +128,7 @@ const (
 	INIT_MONITOR_STATUS
 	GET_MONITOR_STATUS
 	CLEAN_MONITOR
+	SYNC_GRAFANA_DASHBOARD
 
 	// bs/target
 	START_TARGET_DAEMON
@@ -204,6 +205,10 @@ func (p *Playbook) createTasks(step *PlaybookStep) (*tasks.Tasks, error) {
 			}
 		case SYNC_MONITOR_ALT_CONFIG:
 			if config.GetMC(i).GetRole() == configure.ROLE_MONITOR_SYNC {
+				continue
+			}
+		case SYNC_GRAFANA_DASHBOARD:
+			if config.GetMC(i).GetRole() != configure.ROLE_GRAFANA {
 				continue
 			}
 		}
@@ -388,6 +393,8 @@ func (p *Playbook) createTasks(step *PlaybookStep) (*tasks.Tasks, error) {
 		// dingo executor
 		case SYNC_JAVA_OPTS:
 			t, err = comm.NewSyncJavaOptsTask(dingoadm, config.GetDC(i))
+		case SYNC_GRAFANA_DASHBOARD:
+			t, err = monitor.NewSyncGrafanaDashboardTask(dingoadm, config.GetMC(i))
 
 		default:
 			return nil, errno.ERR_UNKNOWN_TASK_TYPE.

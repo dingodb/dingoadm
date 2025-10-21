@@ -54,6 +54,7 @@ var (
 		playbook.SYNC_MONITOR_ALT_CONFIG,
 		playbook.CLEAN_CONFIG_CONTAINER,
 		playbook.START_MONITOR_SERVICE,
+		playbook.SYNC_GRAFANA_DASHBOARD,
 	}
 )
 
