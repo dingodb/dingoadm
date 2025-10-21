@@ -24,6 +24,8 @@
 package playbook
 
 import (
+	"sort"
+
 	"github.com/dingodb/dingoadm/internal/build"
 	"github.com/dingodb/dingoadm/internal/configure"
 	"github.com/dingodb/dingoadm/internal/configure/hosts"
@@ -161,6 +163,10 @@ func NewSmartConfig(configs interface{}) (*SmartConfig, error) {
 	case []*configure.MonitorConfig:
 		c.ctype = TYPE_CONFIG_MONITOR
 		c.mcs = configs.([]*configure.MonitorConfig)
+		// Sort mcs slice by order ascending
+		sort.Slice(c.mcs, func(i, j int) bool {
+			return c.mcs[i].GetOrder() < c.mcs[j].GetOrder()
+		})
 		c.len = len(c.mcs)
 	case []interface{}:
 		c.ctype = TYPE_CONFIG_ANY

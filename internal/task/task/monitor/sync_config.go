@@ -115,65 +115,27 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*t
 	// confContainerId, err := dingoadm.GetContainerId(serviceId)
 
 	if role == ROLE_PROMETHEUS {
-		//t.AddStep(&step.CreateAndUploadDir{ // prepare prometheus conf upath
-		//	HostDirName:       "prometheus",
-		//	ContainerDestId:   &containerId,
-		//	ContainerDestPath: "/etc",
-		//	ExecOptions:       dingoadm.ExecOptions(),
-		//})
 
-		////content := fmt.Sprintf(scripts.PROMETHEUS_YML, cfg.GetListenPort(),
-		////	getNodeExporterAddrs(cfg.GetNodeIps(), cfg.GetNodeListenPort()))
-		////t.AddStep(&step.InstallFile{ // install prometheus.yml file
-		////	ContainerId:       &containerId,
-		////	ContainerDestPath: path.Join(PROMETHEUS_CONTAINER_PATH, "prometheus.yml"),
-		////	Content:           &content,
-		////	ExecOptions:       dingoadm.ExecOptions(),
-		////})
-
-		//t.AddStep(&step.SyncFileDirectly{ // sync prometheus.yml file
-		//	ContainerSrcId:    &confContainerId,
-		//	ContainerSrcPath:  path.Join("/", cfg.GetKind(), MONITOR_CONF_PATH, "prometheus/prometheus.yml"),
-		//	ContainerDestId:   &containerId,
-		//	ContainerDestPath: path.Join(PROMETHEUS_CONTAINER_CONF_PATH, "prometheus.yml"),
-		//	IsDir:             false,
-		//	ExecOptions:       dingoadm.ExecOptions(),
-		//})
-
-		//target := cfg.GetPrometheusTarget()
-		//t.AddStep(&step.InstallFile{ // install target.json file
-		//	ContainerId:       &containerId,
-		//	ContainerDestPath: path.Join(PROMETHEUS_CONTAINER_CONF_PATH, "target.json"),
-		//	Content:           &target,
-		//	ExecOptions:       dingoadm.ExecOptions(),
-		//})
+		// replace prometheus/prometheus.yml port info
+		sedCMD := fmt.Sprintf(`sed -i 's/localhost:[0-9]*/localhost:%d/g' %s/prometheus.yml`, cfg.GetListenPort(), cfg.GetConfDir())
+		t.AddStep(&step.Command{
+			Command:     sedCMD,
+			Out:         &out,
+			ExecOptions: dingoadm.ExecOptions(),
+		})
 	} else if role == ROLE_GRAFANA {
 		if err != nil {
 			return nil, err
 		}
-		//t.AddStep(&step.SyncFileDirectly{ // sync grafana.ini file
-		//	ContainerSrcId:    &confContainerId,
-		//	ContainerSrcPath:  path.Join("/", cfg.GetKind(), MONITOR_CONF_PATH, "grafana/grafana.ini"),
-		//	ContainerDestId:   &containerId,
-		//	ContainerDestPath: GRAFANA_CONTAINER_PATH,
-		//	IsDir:             false,
-		//	ExecOptions:       dingoadm.ExecOptions(),
-		//})
-		//t.AddStep(&step.SyncFileDirectly{ // sync dashboard dir
-		//	ContainerSrcId:    &confContainerId,
-		//	ContainerSrcPath:  path.Join("/", cfg.GetKind(), MONITOR_CONF_PATH, "grafana/provisioning/dashboards"),
-		//	ContainerDestId:   &containerId,
-		//	ContainerDestPath: DASHBOARD_CONTAINER_PATH,
-		//	IsDir:             true,
-		//	ExecOptions:       dingoadm.ExecOptions(),
-		//})
-		//content := fmt.Sprintf(scripts.GRAFANA_DATA_SOURCE, cfg.GetPrometheusIp(), cfg.GetPrometheusListenPort())
-		//t.AddStep(&step.InstallFile{ // install grafana datasource file
-		//	ContainerId:       &containerId,
-		//	ContainerDestPath: GRAFANA_DATA_SOURCE_PATH,
-		//	Content:           &content,
-		//	ExecOptions:       dingoadm.ExecOptions(),
-		//})
+
+		// replace grafana/provisioning/datasources/all.yml port info
+		sedCMD := fmt.Sprintf(`sed -i 's/localhost:[0-9]*/localhost:%d/g' %s/datasources/all.yml`, cfg.GetPrometheusListenPort(), cfg.GetProvisionDir())
+		t.AddStep(&step.Command{
+			Command:     sedCMD,
+			Out:         &out,
+			ExecOptions: dingoadm.ExecOptions(),
+		})
+
 	} else if role == ROLE_MONITOR_SYNC {
 
 		confID := cfg.GetServiceConfig()[configure.KEY_ORIGIN_CONFIG_ID].(string)

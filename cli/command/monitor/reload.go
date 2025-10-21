@@ -37,7 +37,7 @@ import (
 var (
 	MONITOR_RELOAD_STEPS = []int{
 		playbook.CREATE_MONITOR_CONTAINER,
-		playbook.SYNC_MONITOR_CONFIG,
+		playbook.SYNC_MONITOR_ALT_CONFIG,
 		playbook.CLEAN_CONFIG_CONTAINER,
 		playbook.RESTART_MONITOR_SERVICE,
 	}
