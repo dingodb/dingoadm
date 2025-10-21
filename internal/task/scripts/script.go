@@ -30,12 +30,6 @@ import (
 	_ "embed"
 )
 
-const (
-	STATUS_OK      = "CURVEADM_OK"
-	STATUS_FAIL    = "CURVEADM_FAIL"
-	STATUS_TIMEOUT = "CURVEADM_TIMEOUT"
-)
-
 var (
 	// Common
 

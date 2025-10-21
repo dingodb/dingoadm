@@ -86,6 +86,7 @@ type (
 		config    map[string]interface{}
 		variables *variable.Variables
 		ctx       *topology.Context
+		order     int
 	}
 
 	serviceTarget struct {
@@ -204,6 +205,10 @@ func (m *MonitorConfig) GetVariables() *variable.Variables { return m.variables 
 
 func (m *MonitorConfig) GetServiceConfig() map[string]interface{} {
 	return m.config
+}
+
+func (m *MonitorConfig) GetOrder() int {
+	return m.order
 }
 
 func getHost(c *monitor, role string) []string {
@@ -348,6 +353,7 @@ func ParseMonitorConfig(dingoadm *cli.DingoAdm, filename string, data string, hs
 				host:   host,
 				config: config.Prometheus.Config,
 				ctx:    ctx,
+				order:  2,
 			})
 		case ROLE_GRAFANA:
 			if config.Prometheus.Deploy != nil {
@@ -364,6 +370,7 @@ func ParseMonitorConfig(dingoadm *cli.DingoAdm, filename string, data string, hs
 				host:   host,
 				config: config.Grafana.Config,
 				ctx:    ctx,
+				order:  3,
 			},
 			//&MonitorConfig{
 			//	kind: mkind,
@@ -385,6 +392,7 @@ func ParseMonitorConfig(dingoadm *cli.DingoAdm, filename string, data string, hs
 					host:   h,
 					config: config.NodeExporter.Config,
 					ctx:    ctx,
+					order:  1,
 				})
 			}
 		case ROLE_MONITOR_SYNC:
@@ -397,6 +405,7 @@ func ParseMonitorConfig(dingoadm *cli.DingoAdm, filename string, data string, hs
 				config:    config.MonitroSync.Config,
 				variables: dcs[0].GetVariables(),
 				ctx:       ctx,
+				order:     0,
 			})
 		}
 	}

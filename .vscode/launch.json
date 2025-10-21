@@ -447,7 +447,7 @@
                 "monitor",
                 "deploy",
                 "-c",
-                "/home/dongwei/deploy/monitor/monitor.yaml",
+                "/home/dongwei/deploy/monitor/monitor-v2.yaml",
                 // "--local"
             ],
             "showLog": true,

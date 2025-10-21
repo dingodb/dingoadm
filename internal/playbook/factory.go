@@ -30,6 +30,7 @@
 package playbook
 
 import (
+	"github.com/dingodb/dingoadm/internal/configure"
 	"github.com/dingodb/dingoadm/internal/errno"
 	"github.com/dingodb/dingoadm/internal/task/task"
 	"github.com/dingodb/dingoadm/internal/task/task/bs"
@@ -118,7 +119,8 @@ const (
 	// monitor
 	PULL_MONITOR_IMAGE
 	CREATE_MONITOR_CONTAINER
-	SYNC_MONITOR_CONFIG
+	SYNC_MONITOR_ORIGIN_CONFIG
+	SYNC_MONITOR_ALT_CONFIG
 	CLEAN_CONFIG_CONTAINER
 	START_MONITOR_SERVICE
 	RESTART_MONITOR_SERVICE
@@ -196,6 +198,14 @@ func (p *Playbook) createTasks(step *PlaybookStep) (*tasks.Tasks, error) {
 				continue
 			}
 			once[host+"_"+image] = true
+		case SYNC_MONITOR_ORIGIN_CONFIG:
+			if config.GetMC(i).GetRole() != configure.ROLE_MONITOR_SYNC {
+				continue
+			}
+		case SYNC_MONITOR_ALT_CONFIG:
+			if config.GetMC(i).GetRole() == configure.ROLE_MONITOR_SYNC {
+				continue
+			}
 		}
 
 		switch step.Type {
@@ -357,7 +367,7 @@ func (p *Playbook) createTasks(step *PlaybookStep) (*tasks.Tasks, error) {
 			t, err = monitor.NewPullImageTask(dingoadm, config.GetMC(i))
 		case CREATE_MONITOR_CONTAINER:
 			t, err = monitor.NewCreateContainerTask(dingoadm, config.GetMC(i))
-		case SYNC_MONITOR_CONFIG:
+		case SYNC_MONITOR_ORIGIN_CONFIG, SYNC_MONITOR_ALT_CONFIG:
 			t, err = monitor.NewSyncConfigTask(dingoadm, config.GetMC(i))
 		case CLEAN_CONFIG_CONTAINER:
 			t, err = monitor.NewCleanConfigContainerTask(dingoadm, config.GetMC(i))
