@@ -12,13 +12,16 @@
 *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
-*/
+ */
 
 /*
 * Project: Curveadm
 * Created Date: 2023-08-02
 * Author: wanghai (SeanHai)
-*/
+*
+* Project: Dingoadm
+* Author: jackblack369 (Dongwei)
+ */
 
 package scripts
 

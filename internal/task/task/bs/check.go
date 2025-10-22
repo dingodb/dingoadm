@@ -19,6 +19,9 @@
  * Project: CurveAdm
  * Created Date: 2021-12-25
  * Author: Jingli Chen (Wine93)
+ *
+ * Project: dingoadm
+ * Author: dongwei (jackblack369)
  */
 
 package bs

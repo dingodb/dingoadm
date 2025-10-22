@@ -19,6 +19,9 @@
  * Project: CurveAdm
  * Created Date: 2022-05-20
  * Author: Jingli Chen (Wine93)
+ *
+ * Project: dingoadm
+ * Author: dongwei (jackblack369)
  */
 
 // __SIGN_BY_WINE93__
@@ -53,6 +56,7 @@ const (
 	POOLSET                   = "poolset"
 	POOLSET_DISK_TYPE         = "poolset-disktype"
 	KEY_NUMBER_OF_CHUNKSERVER = "NUMBER_OF_CHUNKSERVER"
+	KEY_SKIP_CHECKS_ROLES     = "SKIP_CHECKS_ROLES"
 
 	// format
 	KEY_ALL_FORMAT_STATUS = "ALL_FORMAT_STATUS"
@@ -62,7 +66,6 @@ const (
 	KEY_CHECK_KERNEL_MODULE_NAME = "CHECK_KERNEL_MODULE_NAME"
 	KEY_CHECK_SKIP_SNAPSHOECLONE = "CHECK_SKIP_SNAPSHOTCLONE"
 	KEY_ALL_HOST_DATE            = "ALL_HOST_DATE"
-	KEY_ALLOW_ABSENT             = "ALLOW_ABSENT"
 
 	// scale-out / migrate
 	KEY_SCALE_OUT_CLUSTER = "SCALE_OUT_CLUSTER"

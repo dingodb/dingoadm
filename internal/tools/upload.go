@@ -19,6 +19,9 @@
  * Project: CurveAdm
  * Created Date: 2021-11-26
  * Author: Jingli Chen (Wine93)
+ *
+ * Project: dingoadm
+ * Author: dongwei (jackblack369)
  */
 
 // __SIGN_BY_WINE93__

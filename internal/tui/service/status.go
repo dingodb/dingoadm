@@ -19,6 +19,9 @@
  * Project: CurveAdm
  * Created Date: 2021-10-15
  * Author: Jingli Chen (Wine93)
+ *
+ * Project: dingoadm
+ * Author: dongwei (jackblack369)
  */
 
 // __SIGN_BY_WINE93__
@@ -93,9 +96,10 @@ var (
 		ROLE_DINGODB_PROXY:    7,
 	}
 	MONITOT_ROLE_SCORE = map[string]int{
-		configure.ROLE_NODE_EXPORTER: 0,
-		configure.ROLE_PROMETHEUS:    1,
-		configure.ROLE_GRAFANA:       2,
+		configure.ROLE_MONITOR_SYNC:  0,
+		configure.ROLE_NODE_EXPORTER: 1,
+		configure.ROLE_PROMETHEUS:    2,
+		configure.ROLE_GRAFANA:       3,
 	}
 )
 
@@ -404,9 +408,9 @@ func sortMonitorStatues(statuses []monitor.MonitorStatus) {
 	sort.Slice(statuses, func(i, j int) bool {
 		s1, s2 := statuses[i], statuses[j]
 		if s1.Role == s2.Role {
-			return s1.Host < s1.Host
+			return s1.HostSequence < s2.HostSequence
 		}
-		return MONITOT_ROLE_SCORE[s1.Role] < ROLE_SCORE[s2.Role]
+		return MONITOT_ROLE_SCORE[s1.Role] < MONITOT_ROLE_SCORE[s2.Role]
 	})
 }
 

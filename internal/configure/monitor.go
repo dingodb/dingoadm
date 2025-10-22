@@ -18,6 +18,9 @@
 * Project: Curveadm
 * Created Date: 2023-04-17
 * Author: wanghai (SeanHai)
+*
+* Project: dingoadm
+* Author: dongwei (jackblack369)
  */
 
 package configure
@@ -79,14 +82,15 @@ type (
 	}
 
 	MonitorConfig struct {
-		kind      string
-		id        string // role_host
-		role      string
-		host      string
-		config    map[string]interface{}
-		variables *variable.Variables
-		ctx       *topology.Context
-		order     int
+		kind         string
+		id           string // role_host
+		role         string
+		host         string
+		hostSequence int
+		config       map[string]interface{}
+		variables    *variable.Variables
+		ctx          *topology.Context
+		order        int
 	}
 
 	serviceTarget struct {
@@ -139,6 +143,10 @@ func (m *MonitorConfig) GetRole() string {
 
 func (m *MonitorConfig) GetHost() string {
 	return m.host
+}
+
+func (m *MonitorConfig) GetHostSequence() int {
+	return m.hostSequence
 }
 
 func (m *MonitorConfig) GetNodeIps() []string {
@@ -372,27 +380,18 @@ func ParseMonitorConfig(dingoadm *cli.DingoAdm, filename string, data string, hs
 				ctx:    ctx,
 				order:  3,
 			},
-			//&MonitorConfig{
-			//	kind: mkind,
-			//	id:   fmt.Sprintf("%s_%s", ROLE_MONITOR_CONF, host),
-			//	role: ROLE_MONITOR_CONF,
-			//	host: host,
-			//	config: map[string]interface{}{
-			//		KEY_CONTAINER_IMAGE: mconfImage,
-			//	},
-			//	ctx: ctx,
-			//}
 			)
 		case ROLE_NODE_EXPORTER:
-			for _, h := range hs {
+			for hostSequence, h := range hs {
 				ret = append(ret, &MonitorConfig{
-					kind:   mkind,
-					id:     fmt.Sprintf("%s_%s", role, h),
-					role:   role,
-					host:   h,
-					config: config.NodeExporter.Config,
-					ctx:    ctx,
-					order:  1,
+					kind:         mkind,
+					id:           fmt.Sprintf("%s_%s", role, h),
+					role:         role,
+					host:         h,
+					hostSequence: hostSequence,
+					config:       config.NodeExporter.Config,
+					ctx:          ctx,
+					order:        1,
 				})
 			}
 		case ROLE_MONITOR_SYNC:
