@@ -39,7 +39,7 @@ type enterOptions struct {
 	id string
 }
 
-func NewEnterCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewEnterCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options enterOptions
 
 	cmd := &cobra.Command{
@@ -48,7 +48,7 @@ func NewEnterCommand(curveadm *cli.DingoAdm) *cobra.Command {
 		Args:  utils.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			options.id = args[0]
-			return runEnter(curveadm, options)
+			return runEnter(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -56,9 +56,9 @@ func NewEnterCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	return cmd
 }
 
-func runEnter(curveadm *cli.DingoAdm, options enterOptions) error {
+func runEnter(dingoadm *cli.DingoAdm, options enterOptions) error {
 	// 1) get container id
-	clients, err := curveadm.Storage().GetClient(options.id)
+	clients, err := dingoadm.Storage().GetClient(options.id)
 	if err != nil {
 		return err
 	} else if len(clients) != 1 {
@@ -71,5 +71,5 @@ func runEnter(curveadm *cli.DingoAdm, options enterOptions) error {
 	if client.Kind == topology.KIND_CURVEFS || client.Kind == topology.KIND_DINGOFS {
 		home = "/dingofs/client"
 	}
-	return tools.AttachRemoteContainer(curveadm, client.Host, client.ContainerId, home)
+	return tools.AttachRemoteContainer(dingoadm, client.Host, client.ContainerId, home)
 }

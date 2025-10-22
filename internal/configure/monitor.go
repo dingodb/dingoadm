@@ -219,6 +219,10 @@ func (m *MonitorConfig) GetOrder() int {
 	return m.order
 }
 
+func (m *MonitorConfig) GetContext() *topology.Context {
+	return m.ctx
+}
+
 func getHost(c *monitor, role string) []string {
 	hosts := []string{}
 	for _, d := range c.NodeExporter.Deploy {
