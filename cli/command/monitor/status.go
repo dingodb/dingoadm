@@ -27,6 +27,8 @@
 package monitor
 
 import (
+	"fmt"
+
 	"github.com/dingodb/dingoadm/cli/cli"
 	comm "github.com/dingodb/dingoadm/internal/common"
 	"github.com/dingodb/dingoadm/internal/configure"
@@ -122,11 +124,23 @@ func displayStatus(dingoadm *cli.DingoAdm, mcs []*configure.MonitorConfig, optio
 			statuses = append(statuses, status)
 		}
 	}
+	// flite grafana role monitor config
+	var grafanaAddr string
+	for _, mc := range mcs {
+		if mc.GetRole() == configure.ROLE_GRAFANA {
+			grafanaHost := mc.GetHost()
+			grafanaIP := mc.GetContext().Lookup(grafanaHost)
+			grafanaPort := mc.GetListenPort()
+			grafanaAddr = fmt.Sprintf("http://%s:%d", grafanaIP, grafanaPort)
+			break
+		}
+	}
 
 	output := tui.FormatMonitorStatus(statuses, options.verbose)
 	dingoadm.WriteOutln("")
-	dingoadm.WriteOutln("cluster name      : %s", dingoadm.ClusterName())
-	dingoadm.WriteOutln("cluster kind      : %s", mcs[0].GetKind())
+	dingoadm.WriteOutln("cluster name    : %s", dingoadm.ClusterName())
+	dingoadm.WriteOutln("cluster kind    : %s", mcs[0].GetKind())
+	dingoadm.WriteOutln("grafana address : %s", grafanaAddr)
 	dingoadm.WriteOutln("")
 	dingoadm.WriteOut("%s", output)
 }

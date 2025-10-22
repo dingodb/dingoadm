@@ -440,7 +440,7 @@ func FormatMonitorStatus(statuses []monitor.MonitorStatus, verbose bool) string 
 			status.Host,
 			status.ContainerId,
 			tui.DecorateMessage{Message: status.Status, Decorate: statusDecorate},
-			utils.Choose(len(status.Ports) == 0, "-", status.Ports),
+			utils.Choose(len(status.Ports) == 0 || status.Ports == "-1", "-", status.Ports),
 			status.DataDir,
 		})
 	}
