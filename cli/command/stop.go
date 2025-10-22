@@ -19,6 +19,9 @@
  * Project: CurveAdm
  * Created Date: 2021-10-15
  * Author: Jingli Chen (Wine93)
+ *
+ * Project: dingoadm
+ * Author: dongwei (jackblack369)
  */
 
 // __SIGN_BY_WINE93__
@@ -50,7 +53,7 @@ type stopOptions struct {
 	force bool
 }
 
-func NewStopCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewStopCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options stopOptions
 
 	cmd := &cobra.Command{
@@ -58,10 +61,10 @@ func NewStopCommand(curveadm *cli.DingoAdm) *cobra.Command {
 		Short: "Stop service",
 		Args:  cliutil.NoArgs,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return checkCommonOptions(curveadm, options.id, options.role, options.host)
+			return checkCommonOptions(dingoadm, options.id, options.role, options.host)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runStop(curveadm, options)
+			return runStop(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -75,10 +78,10 @@ func NewStopCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	return cmd
 }
 
-func genStopPlaybook(curveadm *cli.DingoAdm,
+func genStopPlaybook(dingoadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options stopOptions) (*playbook.Playbook, error) {
-	dcs = curveadm.FilterDeployConfig(dcs, topology.FilterOption{
+	dcs = dingoadm.FilterDeployConfig(dcs, topology.FilterOption{
 		Id:   options.id,
 		Role: options.role,
 		Host: options.host,
@@ -88,7 +91,7 @@ func genStopPlaybook(curveadm *cli.DingoAdm,
 	}
 
 	steps := STOP_PLAYBOOK_STEPS
-	pb := playbook.NewPlaybook(curveadm)
+	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
 		pb.AddStep(&playbook.PlaybookStep{
 			Type:    step,
@@ -98,15 +101,15 @@ func genStopPlaybook(curveadm *cli.DingoAdm,
 	return pb, nil
 }
 
-func runStop(curveadm *cli.DingoAdm, options stopOptions) error {
+func runStop(dingoadm *cli.DingoAdm, options stopOptions) error {
 	// 1) parse cluster topology
-	dcs, err := curveadm.ParseTopology()
+	dcs, err := dingoadm.ParseTopology()
 	if err != nil {
 		return err
 	}
 
 	// 2) generate stop playbook
-	pb, err := genStopPlaybook(curveadm, dcs, options)
+	pb, err := genStopPlaybook(dingoadm, dcs, options)
 	if err != nil {
 		return err
 	}
@@ -120,7 +123,7 @@ func runStop(curveadm *cli.DingoAdm, options stopOptions) error {
 	// 3) confirm by user
 	pass := tui.ConfirmYes(tui.PromptStopService(options.id, options.role, options.host))
 	if !pass {
-		curveadm.WriteOut(tui.PromptCancelOpetation("stop service"))
+		dingoadm.WriteOut(tui.PromptCancelOpetation("stop service"))
 		return errno.ERR_CANCEL_OPERATION
 	}
 

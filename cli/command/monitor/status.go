@@ -19,6 +19,9 @@
 * Project: Curveadm
 * Created Date: 2023-04-26
 * Author: wanghai (SeanHai)
+*
+* Project: Dingoadm
+* Author: jackblack369 (Dongwei)
  */
 
 package monitor
@@ -110,7 +113,7 @@ func genStatusPlaybook(dingoadm *cli.DingoAdm,
 	return pb, nil
 }
 
-func displayStatus(dingoadm *cli.DingoAdm, dcs []*configure.MonitorConfig, options statusOptions) {
+func displayStatus(dingoadm *cli.DingoAdm, mcs []*configure.MonitorConfig, options statusOptions) {
 	statuses := []monitor.MonitorStatus{}
 	value := dingoadm.MemStorage().Get(comm.KEY_MONITOR_STATUS)
 	if value != nil {
@@ -123,7 +126,7 @@ func displayStatus(dingoadm *cli.DingoAdm, dcs []*configure.MonitorConfig, optio
 	output := tui.FormatMonitorStatus(statuses, options.verbose)
 	dingoadm.WriteOutln("")
 	dingoadm.WriteOutln("cluster name      : %s", dingoadm.ClusterName())
-	dingoadm.WriteOutln("cluster kind      : %s", dcs[0].GetKind())
+	dingoadm.WriteOutln("cluster kind      : %s", mcs[0].GetKind())
 	dingoadm.WriteOutln("")
 	dingoadm.WriteOut("%s", output)
 }

@@ -33,6 +33,7 @@ import (
 	"github.com/dingodb/dingoadm/internal/errno"
 	"github.com/dingodb/dingoadm/internal/playbook"
 	tui "github.com/dingodb/dingoadm/internal/tui/common"
+	"github.com/dingodb/dingoadm/internal/utils"
 	cliutil "github.com/dingodb/dingoadm/internal/utils"
 	"github.com/spf13/cobra"
 )
@@ -98,6 +99,11 @@ func genCleanPlaybook(dingoadm *cli.DingoAdm,
 		return nil, errno.ERR_NO_SERVICES_MATCHED
 	}
 	steps := CLEAN_PLAYBOOK_STEPS
+	// check if options's only item include container
+	if utils.Contains(options.only, comm.CLEAN_ITEM_CONTAINER) {
+		// add stop service step before clean service step
+		steps = append([]int{playbook.STOP_MONITOR_SERVICE}, steps...)
+	}
 	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
 		pb.AddStep(&playbook.PlaybookStep{

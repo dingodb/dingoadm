@@ -58,14 +58,15 @@ type step2FormatMonitorStatus struct {
 }
 
 type MonitorStatus struct {
-	Id          string
-	Role        string
-	Host        string
-	ContainerId string
-	Ports       string
-	Status      string
-	DataDir     string
-	Config      *configure.MonitorConfig
+	Id           string
+	Role         string
+	Host         string
+	HostSequence int
+	ContainerId  string
+	Ports        string
+	Status       string
+	DataDir      string
+	Config       *configure.MonitorConfig
 }
 
 func setMonitorStatus(memStorage *utils.SafeMap, id string, status MonitorStatus) {
@@ -85,13 +86,14 @@ func (s *step2InitMonitorStatus) Execute(ctx *context.Context) error {
 	mc := s.mc
 	id := s.serviceId
 	setMonitorStatus(s.memStorage, id, MonitorStatus{
-		Id:          id,
-		Role:        mc.GetRole(),
-		Host:        mc.GetHost(),
-		ContainerId: tui.TrimContainerId(s.containerId),
-		Status:      comm.SERVICE_STATUS_UNKNOWN,
-		DataDir:     mc.GetDataDir(),
-		Config:      mc,
+		Id:           id,
+		Role:         mc.GetRole(),
+		Host:         mc.GetHost(),
+		HostSequence: mc.GetHostSequence(),
+		ContainerId:  tui.TrimContainerId(s.containerId),
+		Status:       comm.SERVICE_STATUS_UNKNOWN,
+		DataDir:      mc.GetDataDir(),
+		Config:       mc,
 	})
 	return nil
 }

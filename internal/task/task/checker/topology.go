@@ -19,6 +19,9 @@
  * Project: CurveAdm
  * Created Date: 2022-07-14
  * Author: Jingli Chen (Wine93)
+ *
+ * Project: dingoadm
+ * Author: dongwei (jackblack369)
  */
 
 // __SIGN_BY_WINE93__
@@ -35,6 +38,7 @@ import (
 	"github.com/dingodb/dingoadm/internal/errno"
 	"github.com/dingodb/dingoadm/internal/task/context"
 	"github.com/dingodb/dingoadm/internal/task/task"
+	"github.com/dingodb/dingoadm/internal/utils"
 )
 
 const (
@@ -74,8 +78,9 @@ type (
 	//   (1) each role requires at least 3 services
 	//   (2) each requires at least 3 hosts
 	step2CheckServices struct {
-		dingoadm *cli.DingoAdm
-		dcs      []*topology.DeployConfig
+		dingoadm  *cli.DingoAdm
+		dcs       []*topology.DeployConfig
+		skipRoles []string
 	}
 )
 
@@ -185,7 +190,7 @@ func (s *step2CheckServices) getHostNum(dcs []*topology.DeployConfig) int {
 func (s *step2CheckServices) skip(role string) bool {
 	kind := s.dcs[0].GetKind()
 	// skip dingofs v2 check
-	if kind == topology.KIND_DINGOFS && s.dcs[0].GetRole() == ROLE_MDS_V2 {
+	if utils.Contains(s.skipRoles, role) {
 		return true
 	}
 	// KIND_DINGOFS
@@ -296,13 +301,11 @@ func NewCheckTopologyTask(dingoadm *cli.DingoAdm, null interface{}) (*task.Task,
 	}
 	t.AddStep(&step2CheckDataDirectoryDuplicate{dcs: dcs})
 	t.AddStep(&step2CheckAddressDuplicate{dcs: dcs})
-	allowAbsent := dingoadm.MemStorage().Get(comm.KEY_ALLOW_ABSENT).(bool)
-	if !allowAbsent {
-		t.AddStep(&step2CheckServices{
-			dcs:      dcs,
-			dingoadm: dingoadm,
-		})
-	}
+	t.AddStep(&step2CheckServices{
+		dcs:       dcs,
+		dingoadm:  dingoadm,
+		skipRoles: dingoadm.MemStorage().Get(comm.KEY_SKIP_CHECKS_ROLES).([]string),
+	})
 	for _, dc := range dcs {
 		t.AddStep(&step2CheckS3Configure{
 			dc:       dc,

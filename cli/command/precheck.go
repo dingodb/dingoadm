@@ -19,6 +19,9 @@
  * Project: CurveAdm
  * Created Date: 2022-07-11
  * Author: Jingli Chen (Wine93)
+ *
+ * Project: dingoadm
+ * Author: dongwei (jackblack369)
  */
 
 package command
@@ -189,11 +192,12 @@ func genPrecheckPlaybook(dingoadm *cli.DingoAdm,
 		steps = CURVEBS_PRECHECK_STEPS
 	}
 
-	allowAbsent := false
 	roles := dingoadm.GetRoles(dcs)
-	if kind == topology.KIND_DINGOFS && !utils.Contains(roles, topology.ROLE_METASERVER) {
-		// if no metaservers, allow absent metaservers
-		allowAbsent = true
+	var skipRoles []string
+	if kind == topology.KIND_DINGOFS {
+		if !utils.Contains(roles, topology.ROLE_MDS_V2) {
+			skipRoles = append(skipRoles, topology.ROLE_COORDINATOR, topology.ROLE_STORE, topology.ROLE_MDS_V2)
+		}
 	}
 
 	steps = skipPrecheckSteps(steps, options)
@@ -221,7 +225,7 @@ func genPrecheckPlaybook(dingoadm *cli.DingoAdm,
 				comm.KEY_ALL_DEPLOY_CONFIGS:       dcs,
 				comm.KEY_CHECK_WITH_WEAK:          false,
 				comm.KEY_CHECK_SKIP_SNAPSHOECLONE: options.skipSnapshotClone,
-				comm.KEY_ALLOW_ABSENT:             allowAbsent,
+				comm.KEY_SKIP_CHECKS_ROLES:        skipRoles,
 			},
 			ExecOptions: playbook.ExecOptions{
 				SilentSubBar: step == playbook.CHECK_HOST_DATE,

@@ -19,6 +19,9 @@
  * Project: CurveAdm
  * Created Date: 2021-10-15
  * Author: Jingli Chen (Wine93)
+ *
+ * Project: dingoadm
+ * Author: dongwei (jackblack369)
  */
 
 // __SIGN_BY_WINE93__
@@ -103,9 +106,11 @@ func genCheckTopologyPlaybook(dingoadm *cli.DingoAdm,
 	kind := dcs[0].GetKind()
 	roles := dingoadm.GetRoles(dcs)
 
-	if kind == topology.KIND_DINGOFS && !utils.Contains(roles, topology.ROLE_METASERVER) {
-		// if no metaservers, allow absent metaservers
-		options.allowAbsent = true
+	var skipRoles []string
+	if kind == topology.KIND_DINGOFS {
+		if !utils.Contains(roles, topology.ROLE_MDS_V2) {
+			skipRoles = append(skipRoles, topology.ROLE_COORDINATOR, topology.ROLE_STORE, topology.ROLE_MDS_V2)
+		}
 	}
 	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
@@ -116,7 +121,7 @@ func genCheckTopologyPlaybook(dingoadm *cli.DingoAdm,
 				comm.KEY_ALL_DEPLOY_CONFIGS:       dcs,
 				comm.KEY_CHECK_SKIP_SNAPSHOECLONE: false,
 				comm.KEY_CHECK_WITH_WEAK:          true,
-				comm.KEY_ALLOW_ABSENT:             options.allowAbsent,
+				comm.KEY_SKIP_CHECKS_ROLES:        skipRoles,
 			},
 			ExecOptions: playbook.ExecOptions{
 				Concurrency:   100,

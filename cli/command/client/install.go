@@ -19,6 +19,9 @@
  * Project: CurveAdm
  * Created Date: 2022-08-08
  * Author: Jingli Chen (Wine93)
+ *
+ * Project: dingoadm
+ * Author: dongwei (jackblack369)
  */
 
 package client
