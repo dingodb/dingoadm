@@ -99,7 +99,7 @@ var (
 
 	MIGRATE_ROLE_STEPS = map[string][]int{
 		topology.ROLE_ETCD:          MIGRATE_ETCD_STEPS,
-		topology.ROLE_MDS:           MIGRATE_MDS_STEPS,
+		topology.ROLE_MDS_V2:        MIGRATE_MDS_STEPS,
 		topology.ROLE_CHUNKSERVER:   MIGRATE_CHUNKSERVER_STEPS,
 		topology.ROLE_SNAPSHOTCLONE: MIGRATE_SNAPSHOTCLONE_STEPS,
 		topology.ROLE_METASERVER:    MIGRATE_METASERVER_STEPS,
@@ -210,7 +210,7 @@ func genMigratePlaybook(curveadm *cli.DingoAdm,
 			config = curveadm.FilterDeployConfigByRole(dcs, topology.ROLE_ETCD)
 		case CREATE_PHYSICAL_POOL,
 			CREATE_LOGICAL_POOL:
-			config = curveadm.FilterDeployConfigByRole(dcs, topology.ROLE_MDS)[:1]
+			config = curveadm.FilterDeployConfigByRole(dcs, topology.ROLE_MDS_V2)[:1]
 		}
 
 		// options

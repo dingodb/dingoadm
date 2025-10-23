@@ -79,13 +79,13 @@ type (
 var (
 	CURVEBS_ROLES = []string{
 		ROLE_ETCD,
-		ROLE_MDS,
+		ROLE_MDS_V2,
 		ROLE_CHUNKSERVER,
 		ROLE_SNAPSHOTCLONE,
 	}
 	DINGOFS_ROLES = []string{
 		ROLE_ETCD,
-		ROLE_MDS,
+		// ROLE_MDS_V1,
 		ROLE_METASERVER,
 		ROLE_COORDINATOR,
 		ROLE_STORE,
@@ -160,20 +160,16 @@ func ParseTopology(data string, ctx *Context) ([]*DeployConfig, error) {
 	kind := topology.Kind
 	roles := []string{}
 	switch kind {
-	case KIND_CURVEBS:
-		roles = append(roles, CURVEBS_ROLES...)
-	case KIND_CURVEFS, KIND_DINGOFS:
-		if topology.MdsV2Services.Deploy != nil {
-			if topology.CoordinatorServices.Deploy != nil && topology.StoreServices.Deploy != nil {
-				roles = append(roles, DINGOFS_MDSV2_FOLLOW_ROLES...)
-				if topology.ExecutorServices.Deploy != nil {
-					roles = append(roles, ROLE_DINGODB_EXECUTOR)
-				}
-			} else {
-				roles = append(roles, DINGOFS_MDSV2_ONLY_ROLES...)
+	case KIND_DINGOFS:
+		if topology.CoordinatorServices.Deploy != nil {
+			roles = append(roles, DINGOFS_MDSV2_FOLLOW_ROLES...)
+			if topology.ExecutorServices.Deploy != nil {
+				roles = append(roles, ROLE_DINGODB_EXECUTOR)
+				ctx.Add(CTX_KEY_MDS_VERSION, CTX_VAL_MDS_V2)
 			}
 		} else {
 			roles = append(roles, DINGOFS_ROLES...)
+			ctx.Add(CTX_KEY_MDS_VERSION, CTX_VAL_MDS_V1)
 		}
 	case KIND_DINGOSTORE:
 		roles = append(roles, DINGOSTORE_ROLES...)
@@ -190,8 +186,8 @@ func ParseTopology(data string, ctx *Context) ([]*DeployConfig, error) {
 		switch role {
 		case ROLE_ETCD:
 			services = topology.EtcdServices
-		case ROLE_MDS:
-			services = topology.MdsServices
+		// case ROLE_MDS_V1:
+		// 	services = topology.MdsServices
 		case ROLE_CHUNKSERVER:
 			services = topology.ChunkserverServices
 		case ROLE_SNAPSHOTCLONE:
@@ -199,7 +195,7 @@ func ParseTopology(data string, ctx *Context) ([]*DeployConfig, error) {
 		case ROLE_METASERVER:
 			services = topology.MetaserverServices
 		case ROLE_MDS_V2:
-			services = topology.MdsV2Services
+			services = topology.MdsServices
 		case ROLE_COORDINATOR:
 			services = topology.CoordinatorServices
 		case ROLE_STORE:
@@ -215,10 +211,10 @@ func ParseTopology(data string, ctx *Context) ([]*DeployConfig, error) {
 		case ROLE_MDSV2_CLI:
 			// create tables role, only used to create meta tables
 			// just keep one deploy config
-			tmpDeploy := topology.MdsV2Services.Deploy[0]
+			tmpDeploy := topology.CoordinatorServices.Deploy[0]
 			tmpDeploy.Replicas = 0
 			services = Service{
-				Config: newIfNil(topology.MdsV2Services.Config),
+				Config: newIfNil(topology.MdsServices.Config),
 				Deploy: []Deploy{tmpDeploy},
 			}
 		case ROLE_DINGODB_WEB:

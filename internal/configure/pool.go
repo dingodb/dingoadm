@@ -167,9 +167,7 @@ func createLogicalPool(dcs []*topology.DeployConfig, logicalPool, poolset string
 	SortDeployConfigs(dcs)
 	for _, dc := range dcs {
 		role := dc.GetRole()
-		if (role == ROLE_CHUNKSERVER && kind == KIND_CURVEBS) ||
-			(role == ROLE_METASERVER && kind == KIND_CURVEFS) ||
-			(role == ROLE_METASERVER && kind == KIND_DINGOFS) {
+		if role == ROLE_METASERVER && kind == KIND_DINGOFS {
 			if dc.GetParentId() == dc.GetId() {
 				zone = nextZone()
 			}

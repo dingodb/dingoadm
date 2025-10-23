@@ -258,8 +258,8 @@ func parsePrometheusTarget(dcs []*topology.DeployConfig) (string, error) {
 		switch role {
 		case topology.ROLE_ETCD:
 			item = fmt.Sprintf("%s:%d", ip, dc.GetListenClientPort())
-		case topology.ROLE_MDS,
-			topology.ROLE_CHUNKSERVER,
+		case topology.ROLE_CHUNKSERVER,
+			// topology.ROLE_MDS_V1,
 			topology.ROLE_METASERVER:
 			item = fmt.Sprintf("%s:%d", ip, dc.GetListenPort())
 		case topology.ROLE_SNAPSHOTCLONE:

@@ -47,7 +47,6 @@ import (
 
 const (
 	ROLE_ETCD             = topology.ROLE_ETCD
-	ROLE_MDS              = topology.ROLE_MDS
 	ROLE_CHUNKSERVER      = topology.ROLE_CHUNKSERVER
 	ROLE_METASERVER       = topology.ROLE_METASERVER
 	ROLE_SNAPSHOTCLONE    = topology.ROLE_SNAPSHOTCLONE
@@ -82,14 +81,13 @@ var (
 	ROLE_SCORE = map[string]int{
 		ROLE_ETCD:             0,
 		ROLE_COORDINATOR:      0,
-		ROLE_MDS:              1,
 		ROLE_STORE:            1,
 		ROLE_DINGODB_DOCUMENT: 2,
 		ROLE_CHUNKSERVER:      2,
-		ROLE_METASERVER:       2,
 		ROLE_SNAPSHOTCLONE:    3,
 		ROLE_MDS_V2:           3,
 		ROLE_DINGODB_INDEX:    3,
+		ROLE_METASERVER:       4,
 		ROLE_DINGODB_DISKANN:  4,
 		ROLE_DINGODB_EXECUTOR: 5,
 		ROLE_DINGODB_WEB:      6,

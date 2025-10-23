@@ -121,7 +121,11 @@ var (
 				root_dir = path.Join(LAYOUT_CURVEBS_ROOT_DIR, dc.GetRole())
 			case KIND_DINGOFS:
 				if dc.GetRole() == ROLE_MDS_V2 {
-					root_dir = path.Join(LAYOUT_DINGOFS_ROOT_DIR, "dist", ROLE_MDS) // change root dir from mdsv2 (dc.GetRole()) to mds
+					if dc.GetCtx().Lookup(CTX_KEY_MDS_VERSION) == CTX_VAL_MDS_V2 {
+						root_dir = path.Join(LAYOUT_DINGOFS_ROOT_DIR, "dist", ROLE_MDS_V2) // change root dir from mdsv2 (dc.GetRole()) to mds
+					} else {
+						root_dir = path.Join(LAYOUT_DINGOFS_ROOT_DIR, dc.GetRole())
+					}
 				} else if dc.GetRole() == ROLE_COORDINATOR || dc.GetRole() == ROLE_STORE {
 					root_dir = LAYOUT_DINGOSTORE_ROOT_DIR
 				} else if dc.GetRole() == ROLE_DINGODB_EXECUTOR {
@@ -238,8 +242,8 @@ var (
 			switch dc.GetRole() {
 			case ROLE_ETCD:
 				return DEFAULT_ETCD_LISTEN_PEER_PORT
-			case ROLE_MDS:
-				return DEFAULT_MDS_LISTEN_PORT
+			// case ROLE_MDS_V1:
+			// 	return DEFAULT_MDS_LISTEN_PORT
 			case ROLE_CHUNKSERVER:
 				return DEFAULT_CHUNKSERVER_LISTN_PORT
 			case ROLE_SNAPSHOTCLONE:
@@ -275,7 +279,7 @@ var (
 		true,
 		func(dc *DeployConfig) interface{} {
 			switch dc.GetRole() {
-			case ROLE_MDS:
+			case ROLE_MDS_V2:
 				return DEFAULT_MDS_LISTEN_DUMMY_PORT
 			case ROLE_SNAPSHOTCLONE:
 				return DEFAULT_SNAPSHOTCLONE_LISTEN_DUMMY_PORT

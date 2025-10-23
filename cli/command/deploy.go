@@ -79,8 +79,8 @@ const (
 	START_DINGODB_WEB      = playbook.START_DINGODB_WEB
 
 	// role
-	ROLE_ETCD             = topology.ROLE_ETCD
-	ROLE_MDS              = topology.ROLE_MDS
+	ROLE_ETCD = topology.ROLE_ETCD
+	// ROLE_MDS_V1           = topology.ROLE_MDS_V1
 	ROLE_CHUNKSERVER      = topology.ROLE_CHUNKSERVER
 	ROLE_SNAPSHOTCLONE    = topology.ROLE_SNAPSHOTCLONE
 	ROLE_METASERVER       = topology.ROLE_METASERVER
@@ -186,13 +186,13 @@ var (
 	DEPLOY_FILTER_ROLE = map[int]string{
 		START_ETCD:                 ROLE_ETCD,
 		ENABLE_ETCD_AUTH:           ROLE_ETCD,
-		START_MDS:                  ROLE_MDS,
+		START_MDS:                  ROLE_MDS_V2,
 		START_CHUNKSERVER:          ROLE_CHUNKSERVER,
 		START_SNAPSHOTCLONE:        ROLE_SNAPSHOTCLONE,
 		START_METASERVER:           ROLE_METASERVER,
-		CREATE_PHYSICAL_POOL:       ROLE_MDS,
-		CREATE_LOGICAL_POOL:        ROLE_MDS,
-		BALANCE_LEADER:             ROLE_MDS,
+		CREATE_PHYSICAL_POOL:       ROLE_MDS_V2,
+		CREATE_LOGICAL_POOL:        ROLE_MDS_V2,
+		BALANCE_LEADER:             ROLE_MDS_V2,
 		START_MDSV2:                ROLE_MDS_V2,
 		START_COORDINATOR:          ROLE_COORDINATOR,
 		START_STORE:                ROLE_STORE,
@@ -343,7 +343,7 @@ func genDeployPlaybook(dingoadm *cli.DingoAdm,
 
 	switch kind {
 	case topology.KIND_DINGOFS:
-		if utils.Contains(roles, topology.ROLE_MDS_V2) {
+		if utils.Contains(roles, topology.ROLE_COORDINATOR) {
 			if len(roles) == 1 {
 				// only mds v2, no coordinator/store
 				steps = DINGOFS_MDSV2_ONLY_DEPLOY_STEPS
@@ -431,7 +431,7 @@ func statistics(dcs []*topology.DeployConfig) map[string]int {
 func serviceStats(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig) string {
 	count := statistics(dcs)
 	netcd := count[topology.ROLE_ETCD]
-	nmds := count[topology.ROLE_MDS]
+	nmds := count[topology.ROLE_MDS_V2]
 	nchunkserevr := count[topology.ROLE_METASERVER]
 	nsnapshotclone := count[topology.ROLE_SNAPSHOTCLONE]
 	nmetaserver := count[topology.ROLE_METASERVER]
@@ -449,7 +449,7 @@ func serviceStats(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig) string {
 			nstore := count[topology.ROLE_STORE]
 			nmdsv2 := count[topology.ROLE_MDS_V2]
 			nexecutor := count[topology.ROLE_DINGODB_EXECUTOR]
-			serviceStats = fmt.Sprintf("coordinator*%d, store*%d, mdsv2*%d, executor*%d", ncoordinator, nstore, nmdsv2, nexecutor)
+			serviceStats = fmt.Sprintf("coordinator*%d, store*%d, mds*%d, executor*%d", ncoordinator, nstore, nmdsv2, nexecutor)
 		} else {
 			// mds v1
 			serviceStats = fmt.Sprintf("etcd*%d, mds*%d, metaserver*%d", netcd, nmds, nmetaserver)

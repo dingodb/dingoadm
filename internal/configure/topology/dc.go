@@ -48,14 +48,13 @@ const (
 	KIND_DINGODB    = "dingodb"
 
 	ROLE_ETCD          = "etcd"
-	ROLE_MDS           = "mds"
 	ROLE_CHUNKSERVER   = "chunkserver"
 	ROLE_SNAPSHOTCLONE = "snapshotclone"
 	ROLE_METASERVER    = "metaserver"
 
 	// dingofs mdsv2
-	ROLE_MDS_V2    = "mdsv2"
-	ROLE_MDSV2_CLI = "mdsv2-client" // tmp role: e.g. create meta tables
+	ROLE_MDS_V2    = "mds"
+	ROLE_MDSV2_CLI = "mds-client" // tmp role: e.g. create meta tables
 
 	// dingo-store
 	ROLE_COORDINATOR      = "coordinator"
@@ -74,6 +73,11 @@ const (
 	SCRIPT_SYNC_JAVA_OPTS      = "sync_java_opts.sh"
 	SCRIPT_START_EXECUTOR      = "start-executor.sh"
 	SCRIPT_CREATE_MDSV2_TABLES = "create_mdsv2_tables.sh"
+
+	// ctx version
+	CTX_KEY_MDS_VERSION = "mds.version"
+	CTX_VAL_MDS_V1      = "v1"
+	CTX_VAL_MDS_V2      = "v2"
 )
 
 type (

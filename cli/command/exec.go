@@ -41,7 +41,7 @@ type execOptions struct {
 	cmd string
 }
 
-func NewExecCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewExecCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options execOptions
 
 	cmd := &cobra.Command{
@@ -51,10 +51,10 @@ func NewExecCommand(curveadm *cli.DingoAdm) *cobra.Command {
 			options.id = args[0]
 			options.cmd = strings.Join(args[1:], " ")
 			args = args[:1]
-			return curveadm.CheckId(options.id)
+			return dingoadm.CheckId(options.id)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runExec(curveadm, options)
+			return runExec(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -67,15 +67,15 @@ func NewExecCommand(curveadm *cli.DingoAdm) *cobra.Command {
 //  2. filter service
 //  3. get container id
 //  4. exec cmd in remote container
-func runExec(curveadm *cli.DingoAdm, options execOptions) error {
+func runExec(dingoadm *cli.DingoAdm, options execOptions) error {
 	// 1) parse cluster topology
-	dcs, err := curveadm.ParseTopology()
+	dcs, err := dingoadm.ParseTopology()
 	if err != nil {
 		return err
 	}
 
 	// 2) filter service
-	dcs = curveadm.FilterDeployConfig(dcs, topology.FilterOption{
+	dcs = dingoadm.FilterDeployConfig(dcs, topology.FilterOption{
 		Id:   options.id,
 		Role: "*",
 		Host: "*",
@@ -86,12 +86,12 @@ func runExec(curveadm *cli.DingoAdm, options execOptions) error {
 
 	// 3) get container id
 	dc := dcs[0]
-	serviceId := curveadm.GetServiceId(dc.GetId())
-	containerId, err := curveadm.GetContainerId(serviceId)
+	serviceId := dingoadm.GetServiceId(dc.GetId())
+	containerId, err := dingoadm.GetContainerId(serviceId)
 	if err != nil {
 		return err
 	}
 
 	// 4) exec cmd in remote container
-	return tools.ExecCmdInRemoteContainer(curveadm, dc.GetHost(), containerId, options.cmd)
+	return tools.ExecCmdInRemoteContainer(dingoadm, dc.GetHost(), containerId, options.cmd)
 }

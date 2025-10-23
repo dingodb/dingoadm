@@ -64,7 +64,7 @@ func getAttchMount(kind, mountPoint string) string {
 
 func getMountVolumes(kind string) []step.Volume {
 	volumes := []step.Volume{}
-	if kind == topology.KIND_CURVEFS || kind == topology.KIND_DINGOFS {
+	if kind == topology.KIND_DINGOFS {
 		return volumes
 	}
 

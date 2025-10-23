@@ -103,14 +103,14 @@ var (
 	DefaultCurveFSDeployConfig = &DeployConfig{kind: KIND_DINGOFS}
 
 	ServiceConfigs = map[string][]string{
-		ROLE_ETCD:             {"etcd.conf"},
-		ROLE_MDS:              {"mds.conf"},
+		ROLE_ETCD: {"etcd.conf"},
+		// ROLE_MDS_V1:           {"mds.conf"},
 		ROLE_CHUNKSERVER:      {"chunkserver.conf", "cs_client.conf", "s3.conf"},
 		ROLE_SNAPSHOTCLONE:    {"snapshotclone.conf", "snap_client.conf", "s3.conf", "nginx.conf"},
 		ROLE_METASERVER:       {"metaserver.conf"},
 		ROLE_COORDINATOR:      {"coordinator-gflags.conf "},
 		ROLE_STORE:            {"store-gflags.conf"},
-		ROLE_MDS_V2:           {"mds.template.conf"}, // change dingo-mdsv2.template.conf to mds.template.conf
+		ROLE_MDS_V2:           {"mds.conf", "mds.template.conf"}, // change dingo-mdsv2.template.conf to mds.template.conf
 		ROLE_DINGODB_EXECUTOR: {"executor.yaml"},
 		ROLE_DINGODB_WEB:      {"application-web-dev.yaml"},
 		ROLE_DINGODB_PROXY:    {"application-proxy-dev.yaml"},
@@ -188,6 +188,7 @@ func (dc *DeployConfig) GetHostSequence() int                { return dc.hostSeq
 func (dc *DeployConfig) GetInstancesSequence() int           { return dc.instancesSequence }
 func (dc *DeployConfig) GetServiceConfig() map[string]string { return dc.serviceConfig }
 func (dc *DeployConfig) GetVariables() *variable.Variables   { return dc.variables }
+func (dc *DeployConfig) GetCtx() *Context                    { return dc.ctx }
 
 // (2): config item
 func (dc *DeployConfig) GetPrefix() string         { return dc.getString(CONFIG_PREFIX) }
@@ -195,9 +196,12 @@ func (dc *DeployConfig) GetReportUsage() bool      { return dc.getBool(CONFIG_RE
 func (dc *DeployConfig) GetContainerImage() string { return dc.getString(CONFIG_CONTAINER_IMAGE) }
 func (dc *DeployConfig) GetLogDir() string         { return dc.getString(CONFIG_LOG_DIR) }
 func (dc *DeployConfig) GetDataDir() string {
-	if dc.GetRole() == ROLE_MDS_V2 || dc.GetRole() == ROLE_DINGODB_EXECUTOR || dc.GetRole() == ROLE_DINGODB_WEB || dc.GetRole() == ROLE_DINGODB_PROXY {
+	if dc.GetRole() == ROLE_DINGODB_EXECUTOR || dc.GetRole() == ROLE_DINGODB_WEB || dc.GetRole() == ROLE_DINGODB_PROXY {
+		return "-"
+	} else if dc.GetRole() == ROLE_MDS_V2 && dc.GetCtx().Lookup(CTX_KEY_MDS_VERSION) == CTX_VAL_MDS_V2 {
 		return "-"
 	}
+
 	return dc.getString(CONFIG_DATA_DIR)
 }
 func (dc *DeployConfig) GetSeqOffset() int           { return dc.getInt(CONFIG_SEQ_OFFSET) }
@@ -452,8 +456,20 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 			// dingo-store coordinator/store gflags config
 			sourcePath = fmt.Sprintf("%s/%s", serviceConfDir, item)
 		} else if role == ROLE_MDS_V2 {
-			sourcePath = fmt.Sprintf("%s/%s", confSrcDirV2, item)
-			targetPath = sourcePath
+			if dc.ctx.Lookup(CTX_KEY_MDS_VERSION) == CTX_VAL_MDS_V1 {
+				// remove "mds.template.conf"
+				if item == "mds.template.conf" {
+					continue
+				}
+			}
+			if dc.ctx.Lookup(CTX_KEY_MDS_VERSION) == CTX_VAL_MDS_V2 {
+				// remove "mds.conf"
+				if item == "mds.conf" {
+					continue
+				}
+				sourcePath = fmt.Sprintf("%s/%s", confSrcDirV2, item)
+				targetPath = sourcePath
+			}
 		}
 		serviceConfFiles = append(serviceConfFiles, ConfFile{
 			Name:       item,
@@ -506,8 +522,12 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 		serviceDataDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_INDEX_DATA_DIR
 		dingoStoreRaftDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_INDEX_RAFT_DIR
 		dingoStoreVectorDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_INDEX_VECTOR_DIR
-	case ROLE_MDS_V2, ROLE_DINGODB_EXECUTOR, ROLE_DINGODB_WEB, ROLE_DINGODB_PROXY:
+	case ROLE_DINGODB_EXECUTOR, ROLE_DINGODB_WEB, ROLE_DINGODB_PROXY:
 		serviceLogDir = serviceRootDir + LAYOUT_DINGO_LOG_DIR // /opt/dingo/log
+	case ROLE_MDS_V2:
+		if dc.GetCtx().Lookup(CTX_KEY_MDS_VERSION) == CTX_VAL_MDS_V2 {
+			serviceLogDir = serviceRootDir + LAYOUT_SERVICE_LOG_DIR
+		}
 	default:
 		// do nothing
 	}

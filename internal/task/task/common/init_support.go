@@ -61,7 +61,7 @@ func NewInitSupportTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*tas
 	 *     b0d56cfaad14-encrypted.tar.gz
 	 */
 	roles := topology.CURVEBS_ROLES
-	if kind == topology.KIND_CURVEFS || kind == topology.KIND_DINGOFS {
+	if kind == topology.KIND_DINGOFS {
 		roles = topology.DINGOFS_ROLES
 	}
 	secret := curveadm.MemStorage().Get(comm.KEY_SECRET).(string)

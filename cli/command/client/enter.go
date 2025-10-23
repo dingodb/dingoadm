@@ -68,7 +68,7 @@ func runEnter(dingoadm *cli.DingoAdm, options enterOptions) error {
 	// 2) attch remote container
 	client := clients[0]
 	home := "/curvebs/nebd"
-	if client.Kind == topology.KIND_CURVEFS || client.Kind == topology.KIND_DINGOFS {
+	if client.Kind == topology.KIND_DINGOFS {
 		home = "/dingofs/client"
 	}
 	return tools.AttachRemoteContainer(dingoadm, client.Host, client.ContainerId, home)
