@@ -35,7 +35,7 @@ import (
 var (
 	ROLES = []string{
 		topology.ROLE_ETCD,
-		topology.ROLE_MDS,
+		topology.ROLE_MDS_V2,
 		topology.ROLE_CHUNKSERVER,
 		topology.ROLE_SNAPSHOTCLONE,
 		topology.ROLE_METASERVER,

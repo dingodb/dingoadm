@@ -194,19 +194,11 @@ func (s *step2CheckServices) skip(role string) bool {
 		return true
 	}
 	// KIND_DINGOFS
-	if kind == topology.KIND_CURVEFS || kind == topology.KIND_DINGOFS {
+	if kind == topology.KIND_DINGOFS {
 		if role == ROLE_CHUNKSERVER || role == ROLE_SNAPSHOTCLONE {
 			return true
 		}
 		return false
-	}
-
-	// KIND_CURVEBS
-	skip := s.dingoadm.MemStorage().Get(comm.KEY_CHECK_SKIP_SNAPSHOECLONE).(bool)
-	if role == ROLE_METASERVER {
-		return true
-	} else if skip && role == ROLE_SNAPSHOTCLONE {
-		return true
 	}
 
 	// KIND_DINGOSTORE, KIND_DINGODB
@@ -227,7 +219,7 @@ func (s *step2CheckServices) Execute(ctx *context.Context) error {
 		err  *errno.ErrorCode
 	}{
 		{ROLE_ETCD, errno.ERR_ETCD_REQUIRES_3_SERVICES},
-		{ROLE_MDS, errno.ERR_MDS_REQUIRES_3_SERVICES},
+		{ROLE_MDS_V2, errno.ERR_MDS_REQUIRES_3_SERVICES},
 		{ROLE_CHUNKSERVER, errno.ERR_CHUNKSERVER_REQUIRES_3_SERVICES},
 		{ROLE_SNAPSHOTCLONE, errno.ERR_SNAPSHOTCLONE_REQUIRES_3_SERVICES}, // 0 OR >= 3
 		{ROLE_METASERVER, errno.ERR_METASERVER_REQUIRES_3_SERVICES},
@@ -258,7 +250,7 @@ func (s *step2CheckServices) Execute(ctx *context.Context) error {
 		err  *errno.ErrorCode
 	}{
 		{ROLE_ETCD, errno.ERR_ETCD_REQUIRES_3_HOSTS},
-		{ROLE_MDS, errno.ERR_MDS_REQUIRES_3_HOSTS},
+		{ROLE_MDS_V2, errno.ERR_MDS_REQUIRES_3_HOSTS},
 		{ROLE_CHUNKSERVER, errno.ERR_CHUNKSERVER_REQUIRES_3_HOSTS},
 		{ROLE_SNAPSHOTCLONE, errno.ERR_SNAPSHOTCLONE_REQUIRES_3_HOSTS}, // 0 OR >= 3
 		{ROLE_METASERVER, errno.ERR_METASERVER_REQUIRES_3_HOSTS},

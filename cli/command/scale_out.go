@@ -93,7 +93,7 @@ var (
 
 	SCALE_OUT_ROLE_STEPS = map[string][]int{
 		topology.ROLE_ETCD:          SCALE_OUT_ETCD_STEPS,
-		topology.ROLE_MDS:           SCALE_OUT_MDS_STEPS,
+		topology.ROLE_MDS_V2:        SCALE_OUT_MDS_STEPS,
 		topology.ROLE_CHUNKSERVER:   SCALE_OUT_CHUNKSERVER_STEPS,
 		topology.ROLE_SNAPSHOTCLONE: SCALE_OUT_SNAPSHOTCLONE_STEPS,
 		topology.ROLE_METASERVER:    SCALE_OUT_METASERVER_STEPS,
@@ -102,13 +102,13 @@ var (
 	SCALE_OUT_SCALE_OUT_FILTER_ROLE = map[int]string{
 		playbook.BACKUP_ETCD_DATA:     ROLE_ETCD,
 		playbook.START_ETCD:           ROLE_ETCD,
-		playbook.START_MDS:            ROLE_MDS,
+		playbook.START_MDS:            ROLE_MDS_V2,
 		playbook.START_CHUNKSERVER:    ROLE_CHUNKSERVER,
 		playbook.START_SNAPSHOTCLONE:  ROLE_SNAPSHOTCLONE,
 		playbook.START_METASERVER:     ROLE_METASERVER,
-		playbook.CREATE_PHYSICAL_POOL: ROLE_MDS,
-		playbook.CREATE_LOGICAL_POOL:  ROLE_MDS,
-		playbook.BALANCE_LEADER:       ROLE_MDS,
+		playbook.CREATE_PHYSICAL_POOL: ROLE_MDS_V2,
+		playbook.CREATE_LOGICAL_POOL:  ROLE_MDS_V2,
+		playbook.BALANCE_LEADER:       ROLE_MDS_V2,
 	}
 
 	LIMIT_SERVICE = map[int]int{
@@ -333,7 +333,7 @@ func genScaleOutPlaybook(curveadm *cli.DingoAdm,
 			config = curveadm.FilterDeployConfigByRole(dcs, topology.ROLE_ETCD)
 		case CREATE_PHYSICAL_POOL,
 			CREATE_LOGICAL_POOL:
-			config = curveadm.FilterDeployConfigByRole(dcs, topology.ROLE_MDS)[:1]
+			config = curveadm.FilterDeployConfigByRole(dcs, topology.ROLE_MDS_V2)[:1]
 		}
 
 		// options

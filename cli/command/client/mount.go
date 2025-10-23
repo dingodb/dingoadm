@@ -148,7 +148,7 @@ func runMount(dingoadm *cli.DingoAdm, options mountOptions) error {
 	cc, err := configure.ParseClientConfig(options.filename, options.mountFSType)
 	if err != nil {
 		return err
-	} else if cc.GetKind() != topology.KIND_CURVEFS && cc.GetKind() != topology.KIND_DINGOFS {
+	} else if cc.GetKind() != topology.KIND_DINGOFS {
 		return errno.ERR_REQUIRE_CURVEFS_KIND_CLIENT_CONFIGURE_FILE.
 			F("kind: %s", cc.GetKind())
 	}

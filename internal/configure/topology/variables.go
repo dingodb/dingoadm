@@ -110,7 +110,7 @@ var (
 		{name: "service_addr", lookup: true},
 		{name: "service_port"},
 		{name: "service_client_port", role: []string{ROLE_ETCD}},
-		{name: "service_dummy_port", role: []string{ROLE_SNAPSHOTCLONE, ROLE_MDS}},
+		{name: "service_dummy_port", role: []string{ROLE_SNAPSHOTCLONE, ROLE_MDS_V2}},
 		{name: "service_proxy_port", role: []string{ROLE_SNAPSHOTCLONE}},
 		{name: "service_external_addr", role: []string{ROLE_CHUNKSERVER, ROLE_METASERVER}, lookup: true},
 		{name: "service_external_port", role: []string{ROLE_METASERVER}},
@@ -127,12 +127,7 @@ var (
 		{name: "cluster_mds_addr"},
 		{name: "cluster_mds_dummy_addr"},
 		{name: "cluster_mds_dummy_port"},
-		{name: "cluster_chunkserver_addr", kind: []string{KIND_CURVEBS}},
-		{name: "cluster_snapshotclone_addr", kind: []string{KIND_CURVEBS}},
-		{name: "cluster_snapshotclone_proxy_addr", kind: []string{KIND_CURVEBS}},
-		{name: "cluster_snapshotclone_dummy_port", kind: []string{KIND_CURVEBS}},
-		{name: "cluster_snapshotclone_nginx_upstream", kind: []string{KIND_CURVEBS}},
-		{name: "cluster_metaserver_addr", kind: []string{KIND_CURVEFS, KIND_DINGOFS}},
+		{name: "cluster_metaserver_addr", kind: []string{KIND_DINGOFS}},
 		{name: "cluster_coor_srv_peers", kind: []string{KIND_DINGOSTORE, KIND_DINGOFS, KIND_DINGODB}},
 		{name: "cluster_coor_raft_peers", kind: []string{KIND_DINGOSTORE, KIND_DINGOFS, KIND_DINGODB}},
 		{name: "cluster_mdsv2_addr", kind: []string{KIND_DINGOFS}},
@@ -325,11 +320,11 @@ func getValue(name string, dcs []*DeployConfig, idx int) string {
 	case "cluster_etcd_addr":
 		return joinPeer(dcs, ROLE_ETCD, SELECT_LISTEN_CLIENT_PORT)
 	case "cluster_mds_addr":
-		return joinPeer(dcs, ROLE_MDS, SELECT_LISTEN_PORT)
+		return joinPeer(dcs, ROLE_MDS_V2, SELECT_LISTEN_PORT)
 	case "cluster_mds_dummy_addr":
-		return joinPeer(dcs, ROLE_MDS, SELECT_LISTEN_DUMMY_PORT)
+		return joinPeer(dcs, ROLE_MDS_V2, SELECT_LISTEN_DUMMY_PORT)
 	case "cluster_mds_dummy_port":
-		return joinDummyPort(dcs, ROLE_MDS)
+		return joinDummyPort(dcs, ROLE_MDS_V2)
 	case "cluster_chunkserver_addr":
 		return joinPeer(dcs, ROLE_CHUNKSERVER, SELECT_LISTEN_PORT)
 	case "cluster_snapshotclone_addr":

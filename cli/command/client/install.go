@@ -54,7 +54,7 @@ type installOptions struct {
 
 func checkInstallOptions(curveadm *cli.DingoAdm, options installOptions) error {
 	kind := options.kind
-	if kind != topology.KIND_CURVEBS && kind != topology.KIND_CURVEFS && kind != topology.KIND_DINGOFS {
+	if kind != topology.KIND_DINGOFS {
 		return errno.ERR_UNSUPPORT_CLIENT_KIND.F("kind: %s", kind)
 	} else if !utils.PathExist(options.filename) {
 		return errno.ERR_CLIENT_CONFIGURE_FILE_NOT_EXIST.

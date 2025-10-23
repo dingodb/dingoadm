@@ -155,7 +155,7 @@ func displayStatus(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options
 	}
 	excludeCols := []string{}
 	roles := dingoadm.GetRoles(dcs)
-	isMdsv2 := utils.Contains(roles, topology.ROLE_MDS_V2)
+	isMdsv2 := dcs[0].GetCtx().Lookup(topology.CTX_KEY_MDS_VERSION) == topology.CTX_VAL_MDS_V2
 	//if isMdsv2 {
 	//	excludeCols = []string{"Data Dir"}
 	//}

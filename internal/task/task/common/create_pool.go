@@ -53,7 +53,7 @@ type step2SetClusterPool struct {
 }
 
 func getPoolset(dingoadm *cli.DingoAdm, kind string) configure.Poolset {
-	if kind == configure.KIND_CURVEFS || kind == configure.KIND_DINGOFS {
+	if kind == configure.KIND_DINGOFS {
 		return configure.Poolset{}
 	}
 	return dingoadm.MemStorage().Get(comm.KEY_POOLSET).(configure.Poolset)
@@ -152,7 +152,7 @@ func checkChunkserverOnline(success *bool, out *string) step.LambdaType {
 func genCreatePoolCommand(dc *topology.DeployConfig, pooltype, poolJSONPath string) string {
 	layout := dc.GetProjectLayout()
 	toolsBinaryPath := layout.ToolsV2BinaryPath // v1: ToolsBinaryPath , v2: ToolsV2BinaryPath
-	if dc.GetKind() == topology.KIND_CURVEFS || dc.GetKind() == topology.KIND_DINGOFS {
+	if dc.GetKind() == topology.KIND_DINGOFS {
 		// for curvefs, the default topology json path is current directory's topology.json
 		return fmt.Sprintf("%s create topology --clustermap=%s", toolsBinaryPath, poolJSONPath)
 	}

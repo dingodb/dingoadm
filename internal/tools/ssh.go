@@ -161,10 +161,10 @@ func AttachRemoteContainer(dingoadm *cli.DingoAdm, host, containerId, home strin
 	return ssh(dingoadm, options)
 }
 
-func AttachLocalContainer(curveadm *cli.DingoAdm, containerId string) error {
+func AttachLocalContainer(dingoadm *cli.DingoAdm, containerId string) error {
 	data := map[string]interface{}{
 		"container_id": containerId,
-		"engine":       curveadm.Config().GetEngine(),
+		"engine":       dingoadm.Config().GetEngine(),
 	}
 	tmpl := template.Must(template.New("command").Parse(TEMPLATE_LOCAL_EXEC_CONTAINER))
 	buffer := bytes.NewBufferString("")
@@ -172,13 +172,13 @@ func AttachLocalContainer(curveadm *cli.DingoAdm, containerId string) error {
 		return errno.ERR_BUILD_TEMPLATE_FAILED.E(err)
 	}
 	command := buffer.String()
-	return runCommand(curveadm, command, map[string]interface{}{})
+	return runCommand(dingoadm, command, map[string]interface{}{})
 }
 
-func ExecCmdInRemoteContainer(curveadm *cli.DingoAdm, host, containerId, cmd string) error {
+func ExecCmdInRemoteContainer(dingoadm *cli.DingoAdm, host, containerId, cmd string) error {
 	data := map[string]interface{}{
-		"sudo":         curveadm.Config().GetSudoAlias(),
-		"engine":       curveadm.Config().GetEngine(),
+		"sudo":         dingoadm.Config().GetSudoAlias(),
+		"engine":       dingoadm.Config().GetEngine(),
 		"container_id": containerId,
 		"command":      cmd,
 	}
@@ -189,12 +189,12 @@ func ExecCmdInRemoteContainer(curveadm *cli.DingoAdm, host, containerId, cmd str
 	}
 	command := buffer.String()
 
-	options, err := prepareOptions(curveadm, host, true,
+	options, err := prepareOptions(dingoadm, host, true,
 		map[string]interface{}{"command": command})
 	if err != nil {
 		return err
 	}
-	return ssh(curveadm, options)
+	return ssh(dingoadm, options)
 }
 
 func Scp(dingoadm *cli.DingoAdm, host, source, target string) error {
@@ -209,11 +209,11 @@ func Scp(dingoadm *cli.DingoAdm, host, source, target string) error {
 	return scp(dingoadm, options)
 }
 
-func ExecuteRemoteCommand(curveadm *cli.DingoAdm, host, command string) (string, error) {
-	options, err := prepareOptions(curveadm, host, true,
+func ExecuteRemoteCommand(dingoadm *cli.DingoAdm, host, command string) (string, error) {
+	options, err := prepareOptions(dingoadm, host, true,
 		map[string]interface{}{"command": command})
 	if err != nil {
 		return "", err
 	}
-	return execute(curveadm, options)
+	return execute(dingoadm, options)
 }

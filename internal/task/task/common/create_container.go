@@ -195,11 +195,13 @@ func getContainerCMD(dc *topology.DeployConfig) string {
 	//}
 	switch dc.GetKind() {
 	case topology.KIND_DINGOFS:
-		if dc.GetRole() == topology.ROLE_MDS_V2 || dc.GetRole() == topology.ROLE_DINGODB_EXECUTOR {
+		if dc.GetRole() == topology.ROLE_DINGODB_EXECUTOR {
 			return ""
 		} else if dc.GetRole() == topology.ROLE_COORDINATOR || dc.GetRole() == topology.ROLE_STORE {
 			// coordinator and store use cleanstart
 			return cmd
+		} else if dc.GetRole() == topology.ROLE_MDS_V2 && dc.GetCtx().Lookup(topology.CTX_KEY_MDS_VERSION) == topology.CTX_VAL_MDS_V2 {
+			return ""
 		} else {
 			return fmt.Sprintf("--role %s --args='%s'", dc.GetRole(), getArguments(dc))
 		}
@@ -221,7 +223,9 @@ func GetEnvironments(dc *topology.DeployConfig) []string {
 		switch dc.GetRole() {
 		case topology.ROLE_MDS_V2,
 			topology.ROLE_MDSV2_CLI:
-			envs = configMdsv2ENV(envs, dc)
+			if dc.GetCtx().Lookup(topology.CTX_KEY_MDS_VERSION) == topology.CTX_VAL_MDS_V2 {
+				envs = configMdsv2ENV(envs, dc)
+			}
 		case topology.ROLE_COORDINATOR,
 			topology.ROLE_STORE:
 			envs = configDingoStoreENV(envs, dc)
@@ -297,8 +301,8 @@ func configExecutorENV(envs []string, dc *topology.DeployConfig) []string {
 
 func configMdsv2ENV(envs []string, dc *topology.DeployConfig) []string {
 	// envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_FLAGS_ROLE, dc.GetRole()))
-	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_FLAGS_ROLE, topology.ROLE_MDS)) // mds always (change mdsv2 name to mds)
-	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_FLAGS_CLEAN_LOG, "0"))          // do not clean log
+	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_FLAGS_ROLE, topology.ROLE_MDS_V2)) // mds always (change mdsv2 name to mds)
+	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOFS_V2_FLAGS_CLEAN_LOG, "0"))             // do not clean log
 	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGO_SERVER_LISTEN_HOST, dc.GetDingoServerListenHost()))
 	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGO_SERVER_HOST, dc.GetHostname()))
 	envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGO_SERVER_START_PORT, dc.GetDingoServerPort()))
@@ -420,8 +424,6 @@ func getMountVolumes(dc *topology.DeployConfig) []step.Volume {
 func getRestartPolicy(dc *topology.DeployConfig) string {
 	switch dc.GetRole() {
 	case topology.ROLE_ETCD:
-		return POLICY_ALWAYS_RESTART
-	case topology.ROLE_MDS:
 		return POLICY_ALWAYS_RESTART
 	case topology.ROLE_COORDINATOR, topology.ROLE_STORE, topology.ROLE_MDS_V2:
 		if restartPolicy := dc.GetServiceConfig()["restart_policy"]; restartPolicy != "" {

@@ -50,8 +50,8 @@ const (
 	DATA_DIR = "data_dir"
 	CORE_DIR = "core_dir"
 
-	ROLE_ETCD             = topology.ROLE_ETCD
-	ROLE_MDS              = topology.ROLE_MDS
+	ROLE_ETCD = topology.ROLE_ETCD
+	// ROLE_MDS_V1           = topology.ROLE_MDS_V1
 	ROLE_CHUNKSERVER      = topology.ROLE_CHUNKSERVER
 	ROLE_SNAPSHOTCLONE    = topology.ROLE_SNAPSHOTCLONE
 	ROLE_METASERVER       = topology.ROLE_METASERVER
@@ -69,10 +69,10 @@ const (
 var (
 	CONNECT = map[string][]string{
 		ROLE_ETCD:          {ROLE_ETCD},
-		ROLE_MDS:           {ROLE_MDS, ROLE_ETCD},
-		ROLE_CHUNKSERVER:   {ROLE_CHUNKSERVER, ROLE_MDS},
+		ROLE_MDS_V2:        {ROLE_MDS_V2, ROLE_ETCD},
+		ROLE_CHUNKSERVER:   {ROLE_CHUNKSERVER, ROLE_MDS_V2},
 		ROLE_SNAPSHOTCLONE: {ROLE_SNAPSHOTCLONE},
-		ROLE_METASERVER:    {ROLE_METASERVER, ROLE_MDS},
+		ROLE_METASERVER:    {ROLE_METASERVER, ROLE_MDS_V2},
 	}
 )
 
@@ -116,18 +116,6 @@ func getServiceListenAddresses(dc *topology.DeployConfig) []Address {
 			Role: ROLE_ETCD,
 			IP:   dc.GetListenIp(),
 			Port: dc.GetListenClientPort(),
-		})
-
-	case ROLE_MDS:
-		address = append(address, Address{
-			Role: ROLE_MDS,
-			IP:   dc.GetListenIp(),
-			Port: dc.GetListenPort(),
-		})
-		address = append(address, Address{
-			Role: ROLE_MDS,
-			IP:   dc.GetListenIp(),
-			Port: dc.GetListenDummyPort(),
 		})
 
 	case ROLE_CHUNKSERVER:
@@ -176,12 +164,25 @@ func getServiceListenAddresses(dc *topology.DeployConfig) []Address {
 		}
 
 	case ROLE_MDS_V2:
-		address = append(address, Address{
-			Role: ROLE_MDS_V2,
-			IP:   dc.GetListenIp(),
-			// Port: dc.GetListenPort(),
-			Port: dc.GetDingoServerPort(),
-		})
+		if dc.GetListenDummyPort() > 0 {
+			address = append(address, Address{
+				Role: ROLE_MDS_V2,
+				IP:   dc.GetListenIp(),
+				Port: dc.GetListenPort(),
+			})
+			address = append(address, Address{
+				Role: ROLE_MDS_V2,
+				IP:   dc.GetListenIp(),
+				Port: dc.GetListenDummyPort(),
+			})
+		} else {
+			address = append(address, Address{
+				Role: ROLE_MDS_V2,
+				IP:   dc.GetListenIp(),
+				// Port: dc.GetListenPort(),
+				Port: dc.GetDingoServerPort(),
+			})
+		}
 
 	case ROLE_COORDINATOR:
 		address = append(address, Address{
