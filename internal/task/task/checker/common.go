@@ -164,7 +164,7 @@ func getServiceListenAddresses(dc *topology.DeployConfig) []Address {
 		}
 
 	case ROLE_MDS_V2:
-		if dc.GetListenDummyPort() > 0 {
+		if dc.GetCtx().Lookup(topology.CTX_KEY_MDS_VERSION) == topology.CTX_VAL_MDS_V1 {
 			address = append(address, Address{
 				Role: ROLE_MDS_V2,
 				IP:   dc.GetListenIp(),
