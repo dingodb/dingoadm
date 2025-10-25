@@ -156,9 +156,7 @@ func displayStatus(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options
 	excludeCols := []string{}
 	roles := dingoadm.GetRoles(dcs)
 	isMdsv2 := dcs[0].GetCtx().Lookup(topology.CTX_KEY_MDS_VERSION) == topology.CTX_VAL_MDS_V2
-	//if isMdsv2 {
-	//	excludeCols = []string{"Data Dir"}
-	//}
+
 	output := ""
 	width := 0
 	if len(options.dir) == 0 {
@@ -191,7 +189,7 @@ func displayStatus(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options
 
 	switch dcs[0].GetKind() {
 	case topology.KIND_DINGOFS:
-		if utils.Contains(roles, topology.ROLE_MDS_V2) {
+		if isMdsv2 {
 			dingoadm.WriteOutln("cluster name     : %s", dingoadm.ClusterName())
 			dingoadm.WriteOutln("cluster kind     : %s", dcs[0].GetKind())
 			dingoadm.WriteOutln("mdsv2       addr : %s", getClusterMdsV2Addr(dcs))
