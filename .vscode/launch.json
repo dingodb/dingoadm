@@ -13,7 +13,7 @@
             "env": {
                 "CGO_ENABLED": "1",
                 "PATH": "/opt/rh/gcc-toolset-13/root/usr/bin:${env:PATH}",
-                "dingo_cluster": "v4.0"
+                "dingo_cluster": "mdsv2"
             },
             "args": [
                 "deploy",

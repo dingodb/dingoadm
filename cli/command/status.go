@@ -192,7 +192,7 @@ func displayStatus(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options
 		if isMdsv2 {
 			dingoadm.WriteOutln("cluster name     : %s", dingoadm.ClusterName())
 			dingoadm.WriteOutln("cluster kind     : %s", dcs[0].GetKind())
-			dingoadm.WriteOutln("mdsv2       addr : %s", getClusterMdsV2Addr(dcs))
+			dingoadm.WriteOutln("mds     addr     : %s", getClusterMdsV2Addr(dcs))
 			if len(roles) == 1 {
 				dingoadm.WriteOutln("coordinator addr : %s", dcs[0].GetDingoStoreCoordinatorAddr())
 			} else {
