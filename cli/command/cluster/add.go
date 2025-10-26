@@ -108,8 +108,12 @@ func genCheckTopologyPlaybook(dingoadm *cli.DingoAdm,
 
 	var skipRoles []string
 	if kind == topology.KIND_DINGOFS {
-		if !utils.Contains(roles, topology.ROLE_MDS_V2) {
-			skipRoles = append(skipRoles, topology.ROLE_COORDINATOR, topology.ROLE_STORE, topology.ROLE_MDS_V2)
+		if kind == topology.KIND_DINGOFS {
+			if !utils.Contains(roles, topology.ROLE_COORDINATOR) {
+				skipRoles = append(skipRoles, topology.ROLE_COORDINATOR, topology.ROLE_STORE, topology.ROLE_MDS_V2)
+			} else {
+				skipRoles = append(skipRoles, topology.ROLE_ETCD, topology.ROLE_METASERVER, topology.ROLE_MDS_V2)
+			}
 		}
 	}
 	pb := playbook.NewPlaybook(dingoadm)

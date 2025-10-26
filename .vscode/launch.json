@@ -433,6 +433,25 @@
             "showLog": true,
         },
         {
+            "name": "dingoadm cluster add fs-v5.0",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {
+                "CGO_ENABLED": "1",
+                "PATH": "/opt/rh/gcc-toolset-13/root/usr/bin:${env:PATH}"
+            },
+            "args": [
+                "cluster",
+                "add",
+                "temp-fs-v5.0",
+                "-f",
+                "/home/dongwei/deploy/dingofs/topology-mdsv2-v6-sync-java-opts.sh"
+            ],
+            "showLog": true,
+        },
+        {
             "name": "dingoadm monitor deploy -c monitor.yaml",
             "type": "go",
             "request": "launch",
