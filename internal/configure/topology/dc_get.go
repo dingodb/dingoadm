@@ -52,7 +52,8 @@ const (
 	LAYOUT_V2_CONF_SRC_DIR                   = "/conf" // change mdsv2 confv2 to conf
 	LAYOUT_SERVICE_BIN_DIR                   = "/sbin"
 	LAYOUT_SERVICE_CONF_DIR                  = "/conf"
-	LAYOUT_SERVICE_LOG_DIR                   = "/logs"
+	LAYOUT_SERVICE_LOGS_DIR                  = "/logs"
+	LAYOUT_SERVICE_LOG_DIR                   = "/log"
 	LAYOUT_SERVICE_DATA_DIR                  = "/data"
 	LAYOUT_TOOLS_DIR                         = "/tools"
 	LAYOUT_TOOLS_V2_DIR                      = "/tools-v2"
@@ -494,7 +495,7 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 	// format
 	chunkserverDataDir := fmt.Sprintf("%s/%s%s", root, ROLE_CHUNKSERVER, LAYOUT_SERVICE_DATA_DIR)
 
-	serviceLogDir := serviceRootDir + LAYOUT_SERVICE_LOG_DIR
+	serviceLogDir := serviceRootDir + LAYOUT_SERVICE_LOGS_DIR
 	serviceDataDir := serviceRootDir + LAYOUT_SERVICE_DATA_DIR
 	dingoStoreRaftDir := ""
 	dingoStoreDocumentDir := ""
