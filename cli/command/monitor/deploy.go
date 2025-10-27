@@ -58,7 +58,8 @@ var (
 )
 
 type deployOptions struct {
-	filename string
+	filename      string
+	useLocalImage bool
 }
 
 /*
@@ -87,12 +88,22 @@ func NewDeployCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 
 	flags := cmd.Flags()
 	flags.StringVarP(&options.filename, "conf", "c", "monitor.yaml", "Specify monitor configuration file")
+	flags.BoolVar(&options.useLocalImage, "local", false, "Use local image")
 	return cmd
 }
 
 func genDeployPlaybook(dingoadm *cli.DingoAdm,
-	mcs []*configure.MonitorConfig) (*playbook.Playbook, error) {
+	mcs []*configure.MonitorConfig, options deployOptions) (*playbook.Playbook, error) {
 	steps := MONITOR_DEPLOY_STEPS
+	if options.useLocalImage {
+		// remove PULL_MONITOR_IMAGE step
+		for i, item := range steps {
+			if item == playbook.PULL_MONITOR_IMAGE {
+				steps = append(steps[:i], steps[i+1:]...)
+				break
+			}
+		}
+	}
 	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
 		if step == playbook.CLEAN_CONFIG_CONTAINER {
@@ -163,7 +174,7 @@ func runDeploy(dingoadm *cli.DingoAdm, options deployOptions) error {
 	}
 
 	// 4) generate deploy playbook
-	pb, err := genDeployPlaybook(dingoadm, mcs)
+	pb, err := genDeployPlaybook(dingoadm, mcs, options)
 	if err != nil {
 		return err
 	}
