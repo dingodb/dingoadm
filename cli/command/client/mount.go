@@ -49,10 +49,16 @@ const (
 )
 
 var (
-	MOUNT_PLAYBOOK_STEPS = []int{
+	MOUNT_PLAYBOOK_S3_STEPS = []int{
 		// TODO(P0): create filesystem
 		playbook.CHECK_KERNEL_MODULE,
 		playbook.CHECK_CLIENT_S3,
+		playbook.MOUNT_FILESYSTEM,
+	}
+
+	MOUNT_PLAYBOOK_RADOS_STEPS = []int{
+		// TODO(P0): create filesystem
+		playbook.CHECK_KERNEL_MODULE,
 		playbook.MOUNT_FILESYSTEM,
 	}
 )
@@ -100,10 +106,10 @@ func NewMountCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	flags := cmd.Flags()
 	flags.StringVar(&options.host, "host", "localhost", "Specify target host")
 	flags.StringVarP(&options.filename, "conf", "c", "client.yaml", "Specify client configuration file")
-	flags.StringVar(&options.mountFSType, "fstype", "s3", "Specify fs data backend")
+	flags.StringVar(&options.mountFSType, "fstype", "vfs_v2", "Specify fs data backend")
 	flags.BoolVarP(&options.insecure, "insecure", "k", false, "Mount without precheck")
 	flags.BoolVar(&options.useLocalImage, "local", false, "Use local image to mount")
-	flags.BoolVar(&options.newDingo, "new-dingo", false, "support create rados type fs")
+	flags.BoolVar(&options.newDingo, "new-dingo", true, "support create rados type fs")
 
 	return cmd
 }
@@ -111,7 +117,10 @@ func NewMountCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 func genMountPlaybook(dingoadm *cli.DingoAdm,
 	ccs []*configure.ClientConfig,
 	options mountOptions) (*playbook.Playbook, error) {
-	steps := MOUNT_PLAYBOOK_STEPS
+	steps := MOUNT_PLAYBOOK_S3_STEPS
+	if ccs[0].GetStorageType() == configure.STORAGE_TYPE_RADOS {
+		steps = MOUNT_PLAYBOOK_RADOS_STEPS
+	}
 	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
 		if step == playbook.CHECK_KERNEL_MODULE &&
