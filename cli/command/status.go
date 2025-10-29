@@ -156,11 +156,16 @@ func displayStatus(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options
 	excludeCols := []string{}
 	roles := dingoadm.GetRoles(dcs)
 	isMdsv2 := dcs[0].GetCtx().Lookup(topology.CTX_KEY_MDS_VERSION) == topology.CTX_VAL_MDS_V2
+	isMdsv2Only := false
+	if utils.ContainsList(roles, []string{topology.ROLE_MDS_V2, topology.ROLE_MDSV2_CLI}) && len(roles) == 2 {
+		isMdsv2Only = true
+		excludeCols = append(excludeCols, "Data Dir")
+	}
 
 	output := ""
 	width := 0
 	if len(options.dir) == 0 {
-		output, width = tui.FormatStatus(dcs[0].GetKind(), statuses, options.verbose, options.showInstances, excludeCols, isMdsv2)
+		output, width = tui.FormatStatus(dcs[0].GetKind(), statuses, options.verbose, options.showInstances, excludeCols, isMdsv2, isMdsv2Only)
 	} else {
 		dirStrs := strings.Split(options.dir, ",")
 		onlyDirs := []string{}
@@ -193,7 +198,7 @@ func displayStatus(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options
 			dingoadm.WriteOutln("cluster name     : %s", dingoadm.ClusterName())
 			dingoadm.WriteOutln("cluster kind     : %s", dcs[0].GetKind())
 			dingoadm.WriteOutln("mds     addr     : %s", getClusterMdsV2Addr(dcs))
-			if len(roles) == 1 {
+			if utils.ContainsList(roles, []string{topology.ROLE_MDS_V2, topology.ROLE_MDSV2_CLI}) {
 				dingoadm.WriteOutln("coordinator addr : %s", dcs[0].GetDingoStoreCoordinatorAddr())
 			} else {
 				dingoadm.WriteOutln("coordinator addr : %s", getClusterCoorAddr(dcs))

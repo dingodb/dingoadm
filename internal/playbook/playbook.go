@@ -91,7 +91,7 @@ func (p *Playbook) run(steps []*PlaybookStep) error {
 		}
 
 		err = tasks.Execute(step.ExecOptions)
-		if err != nil {
+		if err != nil && step.Type != CHECK_PORT_IN_USE {
 			return err
 		}
 

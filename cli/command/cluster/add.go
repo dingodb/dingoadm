@@ -106,16 +106,7 @@ func genCheckTopologyPlaybook(dingoadm *cli.DingoAdm,
 	kind := dcs[0].GetKind()
 	roles := dingoadm.GetRoles(dcs)
 
-	var skipRoles []string
-	if kind == topology.KIND_DINGOFS {
-		if kind == topology.KIND_DINGOFS {
-			if !utils.Contains(roles, topology.ROLE_COORDINATOR) {
-				skipRoles = append(skipRoles, topology.ROLE_COORDINATOR, topology.ROLE_STORE, topology.ROLE_MDS_V2)
-			} else {
-				skipRoles = append(skipRoles, topology.ROLE_ETCD, topology.ROLE_METASERVER, topology.ROLE_MDS_V2)
-			}
-		}
-	}
+	skipRoles := topology.FetchSkipRoles(kind, dcs, roles)
 	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
 		pb.AddStep(&playbook.PlaybookStep{

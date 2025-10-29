@@ -17,13 +17,13 @@
             },
             "args": [
                 "deploy",
-                "-k",
-                "--local"
+                // "-k",
+                // "--local"
             ],
             "showLog": true,
             //"preLaunchTask": "enable-gcc-toolset"
         },
-                {
+        {
             "name": "dingoadm deploy dingo-store",
             "type": "go",
             "request": "launch",
@@ -33,6 +33,24 @@
                 "CGO_ENABLED": "1",
                 "PATH": "/opt/rh/gcc-toolset-13/root/usr/bin:${env:PATH}",
                 "dingo_cluster": "store"
+            },
+            "args": [
+                "deploy",
+                "-k",
+                "--local"
+            ],
+            "showLog": true,
+        },
+        {
+            "name": "dingoadm deploy mdsv2 only",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {
+                "CGO_ENABLED": "1",
+                "PATH": "/opt/rh/gcc-toolset-13/root/usr/bin:${env:PATH}",
+                "dingo_cluster": "mdsv2-only"
             },
             "args": [
                 "deploy",
@@ -170,6 +188,24 @@
                 "add",
                 "dingodb",
                 "-f=/home/dongwei/deploy/dingodb/topology-dingodb-v1.yaml",
+            ],
+            "showLog": true,
+        },
+        {
+            "name": "dingoadm cluster add mdsv2 only",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {
+                "CGO_ENABLED": "1",
+                "PATH": "/opt/rh/gcc-toolset-13/root/usr/bin:${env:PATH}"
+            },
+            "args": [
+                "cluster",
+                "add",
+                "mdsv2-only",
+                "-f=/home/dongwei/deploy/dingofs/topology-mdsv2-only.yaml",
             ],
             "showLog": true,
         },
@@ -324,7 +360,23 @@
             "args": [
                 "config",
                 "commit",
-                "/home/dongwei/deploy/dingofs/topology-mdsv2-v6-sync-java-opts.sh"
+                "/home/dongwei/deploy/dingofs/topology-mdsv2-v6-sync-java-opts.yaml"
+            ],
+            "showLog": true
+        },
+        {
+            "name": "dingoadm config commit mdsv2-only",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {
+                "dingo_cluster": "mdsv2-only"
+            },
+            "args": [
+                "config",
+                "commit",
+                "/home/dongwei/deploy/dingofs/topology-mdsv2-only.yaml"
             ],
             "showLog": true
         },

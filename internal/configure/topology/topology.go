@@ -93,6 +93,7 @@ var (
 	}
 	DINGOFS_MDSV2_ONLY_ROLES = []string{
 		ROLE_MDS_V2,
+		ROLE_MDSV2_CLI,
 	}
 	DINGOFS_MDSV2_FOLLOW_ROLES = []string{
 		ROLE_MDS_V2,
@@ -167,6 +168,9 @@ func ParseTopology(data string, ctx *Context) ([]*DeployConfig, error) {
 				roles = append(roles, ROLE_DINGODB_EXECUTOR)
 				ctx.Add(CTX_KEY_MDS_VERSION, CTX_VAL_MDS_V2)
 			}
+		} else if topology.EtcdServices.Deploy == nil {
+			roles = append(roles, DINGOFS_MDSV2_ONLY_ROLES...)
+			ctx.Add(CTX_KEY_MDS_VERSION, CTX_VAL_MDS_V2)
 		} else {
 			roles = append(roles, DINGOFS_ROLES...)
 			ctx.Add(CTX_KEY_MDS_VERSION, CTX_VAL_MDS_V1)
@@ -211,7 +215,7 @@ func ParseTopology(data string, ctx *Context) ([]*DeployConfig, error) {
 		case ROLE_MDSV2_CLI:
 			// create tables role, only used to create meta tables
 			// just keep one deploy config
-			tmpDeploy := topology.CoordinatorServices.Deploy[0]
+			tmpDeploy := topology.MdsServices.Deploy[0]
 			tmpDeploy.Replicas = 0
 			services = Service{
 				Config: newIfNil(topology.MdsServices.Config),
