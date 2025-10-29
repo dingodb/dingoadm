@@ -104,8 +104,7 @@ var (
 	DefaultCurveFSDeployConfig = &DeployConfig{kind: KIND_DINGOFS}
 
 	ServiceConfigs = map[string][]string{
-		ROLE_ETCD: {"etcd.conf"},
-		// ROLE_MDS_V1:           {"mds.conf"},
+		ROLE_ETCD:             {"etcd.conf"},
 		ROLE_CHUNKSERVER:      {"chunkserver.conf", "cs_client.conf", "s3.conf"},
 		ROLE_SNAPSHOTCLONE:    {"snapshotclone.conf", "snap_client.conf", "s3.conf", "nginx.conf"},
 		ROLE_METASERVER:       {"metaserver.conf"},

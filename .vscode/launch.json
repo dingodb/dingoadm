@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "dingoadm deploy -k --local",
+            "name": "dingoadm deploy dingofs",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -22,6 +22,24 @@
             ],
             "showLog": true,
             //"preLaunchTask": "enable-gcc-toolset"
+        },
+                {
+            "name": "dingoadm deploy dingo-store",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/dingoadm/main.go",
+            "env": {
+                "CGO_ENABLED": "1",
+                "PATH": "/opt/rh/gcc-toolset-13/root/usr/bin:${env:PATH}",
+                "dingo_cluster": "store"
+            },
+            "args": [
+                "deploy",
+                "-k",
+                "--local"
+            ],
+            "showLog": true,
         },
         {
             "name": "dingoadm -u",
