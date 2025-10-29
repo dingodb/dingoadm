@@ -54,6 +54,10 @@ const (
 	KEY_DINGOFS_LISTEN_MDSV2_ADDRS = "mds.addr"
 	KEY_CONTAINER_PID              = "container_pid"
 	KEY_ENVIRONMENT                = "env"
+	KEY_DISK_CACHE_CACHE_DIR       = "disk_cache.cache_dir"
+	KEY_STORAGE_TYPE               = "storage.type"
+	STORAGE_TYPE_S3                = "s3"
+	STORAGE_TYPE_RADOS             = "rados"
 
 	KEY_CLIENT_S3_ACCESS_KEY  = "s3.ak"
 	KEY_CLIENT_S3_SECRET_KEY  = "s3.sk"
@@ -115,7 +119,7 @@ func NewClientConfig(config map[string]interface{}, mountFSType string) (*Client
 	}
 
 	vars := variable.NewVariables()
-	vars.Register(variable.Variable{Name: "prefix", Value: "/curvebs/nebd"})
+	vars.Register(variable.Variable{Name: "prefix", Value: "/dingofs/client"})
 	err := vars.Build()
 	if err != nil {
 		log.Error("Build variables failed", log.Field("Error", err))
@@ -168,6 +172,7 @@ func ParseClientConfig(filename string, mountFSType string) (*ClientConfig, erro
 	parser := viper.NewWithOptions(viper.KeyDelimiter("::"))
 	parser.SetConfigFile(filename)
 	parser.SetConfigType("yaml")
+	parser.SetDefault(KEY_DISK_CACHE_CACHE_DIR, "")
 	err = parser.ReadInConfig()
 	if err != nil {
 		return nil, errno.ERR_PARSE_CLIENT_CONFIGURE_FAILED.E(err)
@@ -219,6 +224,7 @@ func (cc *ClientConfig) GetDataDir() string                  { return cc.getStri
 func (cc *ClientConfig) GetLogDir() string                   { return cc.getString(KEY_LOG_DIR) }
 func (cc *ClientConfig) GetCoreDir() string                  { return cc.getString(KEY_CORE_DIR) }
 func (cc *ClientConfig) GetMapperCacheDir() string           { return cc.getString(KEY_CACHE_DIR) }
+func (cc *ClientConfig) GetStorageType() string              { return cc.getString(KEY_STORAGE_TYPE) }
 func (cc *ClientConfig) GetS3AccessKey() string              { return cc.getString(KEY_CLIENT_S3_ACCESS_KEY) }
 func (cc *ClientConfig) GetS3SecretKey() string              { return cc.getString(KEY_CLIENT_S3_SECRET_KEY) }
 func (cc *ClientConfig) GetS3Address() string                { return cc.getString(KEY_CLIENT_S3_ADDRESS) }
