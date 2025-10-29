@@ -329,6 +329,15 @@ func Contains(list []string, str string) bool {
 	return false
 }
 
+func ContainsList(list []string, strs []string) bool {
+	for _, str := range strs {
+		if !Contains(list, str) {
+			return false
+		}
+	}
+	return true
+}
+
 func Filter(list []string, filterFunc func(string) bool) []string {
 	var result []string
 	for _, item := range list {

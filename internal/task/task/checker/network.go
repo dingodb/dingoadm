@@ -134,7 +134,10 @@ func NewCheckPortInUseTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*
 	if err != nil {
 		return nil, err
 	}
-
+	if dc.GetRole() == topology.ROLE_MDSV2_CLI || dc.GetRole() == topology.ROLE_DINGODB_EXECUTOR {
+		// no need to check port in use for mdsv2 cli
+		return nil, nil
+	}
 	addresses := getServiceListenAddresses(dc)
 	subname := fmt.Sprintf("host=%s role=%s ports={%s}",
 		dc.GetHost(), dc.GetRole(), joinPorts(dc, addresses))

@@ -80,6 +80,15 @@ const (
 	CTX_VAL_MDS_V2      = "v2"
 )
 
+var SKIP_ALL_ROLES = []string{
+	ROLE_COORDINATOR,
+	ROLE_STORE,
+	ROLE_MDS_V2,
+	ROLE_ETCD,
+	ROLE_METASERVER,
+	ROLE_DINGODB_EXECUTOR,
+}
+
 type (
 	DeployConfig struct {
 		kind              string // KIND_CURVEFS / KIND_CUVREBS
@@ -327,4 +336,18 @@ func (dc *DeployConfig) Build() error {
 		return err
 	}
 	return dc.convert()
+}
+
+func FetchSkipRoles(kind string, dcs []*DeployConfig, roles []string) []string {
+	var skipRoles []string
+	if kind == KIND_DINGOFS {
+		if dcs[0].GetCtx().Lookup(CTX_KEY_MDS_VERSION) == CTX_VAL_MDS_V1 {
+			skipRoles = append(skipRoles, ROLE_COORDINATOR, ROLE_STORE, ROLE_MDS_V2)
+		} else if utils.Contains(roles, ROLE_COORDINATOR) {
+			skipRoles = append(skipRoles, ROLE_ETCD, ROLE_METASERVER, ROLE_MDS_V2)
+		} else {
+			skipRoles = SKIP_ALL_ROLES
+		}
+	}
+	return skipRoles
 }

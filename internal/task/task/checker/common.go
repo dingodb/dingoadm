@@ -118,37 +118,6 @@ func getServiceListenAddresses(dc *topology.DeployConfig) []Address {
 			Port: dc.GetListenClientPort(),
 		})
 
-	case ROLE_CHUNKSERVER:
-		address = append(address, Address{
-			Role: ROLE_CHUNKSERVER,
-			IP:   dc.GetListenIp(),
-			Port: dc.GetListenPort(),
-		})
-		if dc.GetEnableExternalServer() {
-			address = append(address, Address{
-				Role: ROLE_CHUNKSERVER,
-				IP:   dc.GetListenExternalIp(),
-				Port: dc.GetListenExternalPort(),
-			})
-		}
-
-	case ROLE_SNAPSHOTCLONE:
-		address = append(address, Address{
-			Role: ROLE_SNAPSHOTCLONE,
-			IP:   dc.GetListenIp(),
-			Port: dc.GetListenPort(),
-		})
-		address = append(address, Address{
-			Role: ROLE_SNAPSHOTCLONE,
-			IP:   dc.GetListenIp(),
-			Port: dc.GetListenDummyPort(),
-		})
-		address = append(address, Address{
-			Role: ROLE_SNAPSHOTCLONE,
-			IP:   dc.GetListenIp(),
-			Port: dc.GetListenProxyPort(),
-		})
-
 	case ROLE_METASERVER:
 		address = append(address, Address{
 			Role: ROLE_METASERVER,

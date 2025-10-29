@@ -233,7 +233,7 @@ func mergeStatues(statuses []task.ServiceStatus) []task.ServiceStatus {
 	return ss
 }
 
-func FormatStatus(kind string, statuses []task.ServiceStatus, verbose, expand bool, excludeCols []string, isMdsv2 bool) (string, int) {
+func FormatStatus(kind string, statuses []task.ServiceStatus, verbose, expand bool, excludeCols []string, isMdsv2 bool, isMdsv2Only bool) (string, int) {
 	lines := [][]interface{}{}
 
 	// title
@@ -264,7 +264,9 @@ func FormatStatus(kind string, statuses []task.ServiceStatus, verbose, expand bo
 	}
 
 	if kind == topology.KIND_DINGOSTORE || isMdsv2 || kind == topology.KIND_DINGODB {
-		title = append(title, "Raft Dir")
+		if !isMdsv2Only {
+			title = append(title, "Raft Dir")
+		}
 	}
 	if kind == topology.KIND_DINGODB {
 		title = append(title, "Doc Dir", "Vector Dir")

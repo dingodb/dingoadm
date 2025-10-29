@@ -121,8 +121,10 @@ var (
 		CLEAN_PRECHECK_ENVIRONMENT,
 		PULL_IMAGE,
 		CREATE_CONTAINER,
-		// SYNC_MDSV2_CONFIG
-		// CREATE_META_TABLES,
+		CREATE_MDSV2_CLI_CONTAINER,
+		SYNC_CONFIG,
+		START_MDSV2_CLI_CONTAINER,
+		CREATE_META_TABLES,
 		START_MDSV2,
 	}
 
@@ -329,17 +331,14 @@ func genDeployPlaybook(dingoadm *cli.DingoAdm,
 	switch kind {
 	case topology.KIND_DINGOFS:
 		if utils.Contains(roles, topology.ROLE_COORDINATOR) {
-			if len(roles) == 1 {
-				// only mds v2, no coordinator/store
-				steps = DINGOFS_MDSV2_ONLY_DEPLOY_STEPS
-			} else {
-				// mds v2 with coordinator/store
-				steps = DINGOFS_MDSV2_FOLLOW_DEPLOY_STEPS
-				if !utils.Contains(roles, topology.ROLE_DINGODB_EXECUTOR) {
-					// remove executor reference step which is the last step
-					steps = steps[:len(steps)-1]
-				}
+			// mds v2 with coordinator/store
+			steps = DINGOFS_MDSV2_FOLLOW_DEPLOY_STEPS
+			if !utils.Contains(roles, topology.ROLE_DINGODB_EXECUTOR) {
+				// remove executor reference step which is the last step
+				steps = steps[:len(steps)-1]
 			}
+		} else if utils.ContainsList(roles, []string{topology.ROLE_MDS_V2, topology.ROLE_MDSV2_CLI}) {
+			steps = DINGOFS_MDSV2_ONLY_DEPLOY_STEPS
 		} else if !utils.Contains(roles, topology.ROLE_METASERVER) {
 			steps = DINGOFS_MDS_DEPLOY_STEPS
 		} else {

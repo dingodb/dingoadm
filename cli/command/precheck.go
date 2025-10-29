@@ -59,22 +59,6 @@ const (
 )
 
 var (
-	CURVEBS_PRECHECK_STEPS = []int{
-		playbook.CHECK_TOPOLOGY,             // topology
-		playbook.CHECK_SSH_CONNECT,          // ssh
-		playbook.CHECK_PERMISSION,           // permission
-		playbook.CHECK_KERNEL_VERSION,       // kernel
-		playbook.CLEAN_PRECHECK_ENVIRONMENT, // <none>
-		playbook.CHECK_PORT_IN_USE,          // network
-		playbook.CHECK_DESTINATION_REACHABLE,
-		playbook.START_HTTP_SERVER,
-		playbook.CHECK_NETWORK_FIREWALL,
-		playbook.GET_HOST_DATE, // date
-		playbook.CHECK_HOST_DATE,
-		playbook.CHECK_CHUNKFILE_POOL, // service
-		//playbook.CHECK_S3,
-	}
-
 	DINGOFS_PRECHECK_STEPS = []int{
 		playbook.CHECK_TOPOLOGY,             // topology
 		playbook.CHECK_SSH_CONNECT,          // ssh
@@ -188,17 +172,9 @@ func genPrecheckPlaybook(dingoadm *cli.DingoAdm,
 	options precheckOptions) (*playbook.Playbook, error) {
 	kind := dcs[0].GetKind()
 	steps := DINGOFS_PRECHECK_STEPS
-	if kind == topology.KIND_CURVEBS {
-		steps = CURVEBS_PRECHECK_STEPS
-	}
 
 	roles := dingoadm.GetRoles(dcs)
-	var skipRoles []string
-	if kind == topology.KIND_DINGOFS {
-		if !utils.Contains(roles, topology.ROLE_MDS_V2) {
-			skipRoles = append(skipRoles, topology.ROLE_COORDINATOR, topology.ROLE_STORE, topology.ROLE_MDS_V2)
-		}
-	}
+	skipRoles := topology.FetchSkipRoles(kind, dcs, roles)
 
 	steps = skipPrecheckSteps(steps, options)
 
