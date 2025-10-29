@@ -168,7 +168,7 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 		Lambda: CheckContainerExist(dc.GetHost(), dc.GetRole(), containerId, &out),
 	})
 
-	if dc.GetKind() == topology.KIND_DINGOFS || dc.GetKind() == topology.KIND_DINGODB {
+	if dc.GetKind() == topology.KIND_DINGOFS || dc.GetKind() == topology.KIND_DINGODB || dc.GetKind() == topology.KIND_DINGOSTORE {
 		for _, conf := range layout.ServiceConfFiles {
 			t.AddStep(&step.SyncFile{ // sync service config, e.g. mds.template.conf
 				ContainerSrcId:    &containerId,

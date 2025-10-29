@@ -35,8 +35,6 @@ import (
 	"time"
 
 	"github.com/dingodb/dingoadm/cli/cli"
-	comm "github.com/dingodb/dingoadm/internal/common"
-	"github.com/dingodb/dingoadm/internal/configure"
 	"github.com/dingodb/dingoadm/internal/configure/topology"
 	"github.com/dingodb/dingoadm/internal/errno"
 	"github.com/dingodb/dingoadm/internal/playbook"
@@ -97,21 +95,6 @@ const (
 )
 
 var (
-	CURVEBS_DEPLOY_STEPS = []int{
-		CLEAN_PRECHECK_ENVIRONMENT,
-		PULL_IMAGE,
-		CREATE_CONTAINER,
-		SYNC_CONFIG,
-		START_ETCD,
-		ENABLE_ETCD_AUTH,
-		START_MDS,
-		CREATE_PHYSICAL_POOL,
-		START_CHUNKSERVER,
-		CREATE_LOGICAL_POOL,
-		START_SNAPSHOTCLONE,
-		BALANCE_LEADER,
-	}
-
 	DINGOFS_DEPLOY_STEPS = []int{
 		CLEAN_PRECHECK_ENVIRONMENT,
 		PULL_IMAGE,
@@ -162,9 +145,11 @@ var (
 		CLEAN_PRECHECK_ENVIRONMENT,
 		PULL_IMAGE,
 		CREATE_CONTAINER,
-		//SYNC_CONFIG,
+		SYNC_CONFIG,
 		START_COORDINATOR,
 		START_STORE,
+		CHECK_STORE_HEALTH,
+		START_DINGODB_EXECUTOR,
 	}
 
 	DINGODB_DEPLOY_STEPS = []int{
@@ -378,11 +363,6 @@ func genDeployPlaybook(dingoadm *cli.DingoAdm,
 		}
 	}
 	steps = skipDeploySteps(dcs, steps, options) // not necessary
-	poolset := configure.Poolset{
-		Name: options.poolset,
-		Type: options.poolsetDiskType,
-	}
-	diskType := options.poolsetDiskType
 
 	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
@@ -400,16 +380,6 @@ func genDeployPlaybook(dingoadm *cli.DingoAdm,
 
 		// bs options
 		options := map[string]interface{}{}
-		if step == CREATE_PHYSICAL_POOL {
-			options[comm.KEY_CREATE_POOL_TYPE] = comm.POOL_TYPE_PHYSICAL
-			options[comm.KEY_POOLSET] = poolset
-			options[comm.KEY_NUMBER_OF_CHUNKSERVER] = calcNumOfChunkserver(dingoadm, dcs)
-		} else if step == CREATE_LOGICAL_POOL {
-			options[comm.KEY_CREATE_POOL_TYPE] = comm.POOL_TYPE_LOGICAL
-			options[comm.POOLSET] = poolset
-			options[comm.POOLSET_DISK_TYPE] = diskType
-			options[comm.KEY_NUMBER_OF_CHUNKSERVER] = calcNumOfChunkserver(dingoadm, dcs)
-		}
 
 		pb.AddStep(&playbook.PlaybookStep{
 			Type:    step,
@@ -432,16 +402,11 @@ func serviceStats(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig) string {
 	count := statistics(dcs)
 	netcd := count[topology.ROLE_ETCD]
 	nmds := count[topology.ROLE_MDS_V2]
-	nchunkserevr := count[topology.ROLE_METASERVER]
-	nsnapshotclone := count[topology.ROLE_SNAPSHOTCLONE]
 	nmetaserver := count[topology.ROLE_METASERVER]
 
 	var serviceStats string
 	kind := dcs[0].GetKind()
-	if kind == topology.KIND_CURVEBS { // KIND_CURVEBS
-		serviceStats = fmt.Sprintf("etcd*%d, mds*%d, chunkserver*%d, snapshotclone*%d",
-			netcd, nmds, nchunkserevr, nsnapshotclone)
-	} else if kind == topology.KIND_DINGOFS {
+	if kind == topology.KIND_DINGOFS {
 		roles := dingoadm.GetRoles(dcs)
 		if utils.Contains(roles, topology.ROLE_MDS_V2) {
 			// mds v2
@@ -457,7 +422,8 @@ func serviceStats(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig) string {
 	} else if kind == topology.KIND_DINGOSTORE {
 		ncoordinator := count[topology.ROLE_COORDINATOR]
 		nstore := count[topology.ROLE_STORE]
-		serviceStats = fmt.Sprintf("coordinator*%d, store*%d", ncoordinator, nstore)
+		nexecutor := count[topology.ROLE_DINGODB_EXECUTOR]
+		serviceStats = fmt.Sprintf("coordinator*%d, store*%d, executor*%d", ncoordinator, nstore, nexecutor)
 	} else if kind == topology.KIND_DINGODB {
 		ncoordinator := count[topology.ROLE_COORDINATOR]
 		nstore := count[topology.ROLE_STORE]

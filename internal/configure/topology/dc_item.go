@@ -117,8 +117,6 @@ var (
 		func(dc *DeployConfig) interface{} {
 			root_dir := LAYOUT_DINGO_ROOT_DIR
 			switch dc.GetKind() {
-			case KIND_CURVEBS:
-				root_dir = path.Join(LAYOUT_CURVEBS_ROOT_DIR, dc.GetRole())
 			case KIND_DINGOFS:
 				if dc.GetRole() == ROLE_MDS_V2 {
 					if dc.GetCtx().Lookup(CTX_KEY_MDS_VERSION) == CTX_VAL_MDS_V2 {
@@ -134,11 +132,13 @@ var (
 					root_dir = path.Join(LAYOUT_DINGOFS_ROOT_DIR, dc.GetRole())
 				}
 			case KIND_DINGOSTORE:
-				// Deprecated, need modify dingo-store's docker-dingo-store.sh to support
-				//return path.Join(LAYOUT_DINGOSTORE_ROOT_DIR, fmt.Sprintf("%s%d", dc.GetRole(), dc.GetHostSequence()+1))
-				// TODO
-				//return path.Join(LAYOUT_DINGOSTORE_ROOT_DIR, dc.GetRole())
-				root_dir = LAYOUT_DINGOSTORE_DIST_DIR
+				if dc.GetRole() == ROLE_COORDINATOR || dc.GetRole() == ROLE_STORE {
+					root_dir = LAYOUT_DINGOSTORE_ROOT_DIR
+				} else if dc.GetRole() == ROLE_DINGODB_EXECUTOR {
+					root_dir = LAYOUT_DINGDB_DINGO_ROOT_DIR
+				} else {
+					root_dir = LAYOUT_DINGOSTORE_DIST_DIR
+				}
 			case KIND_DINGODB:
 				dc_role := dc.GetRole()
 				switch dc_role {
