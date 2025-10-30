@@ -530,7 +530,7 @@ func NewCreateMdsv2CliContainerTask(dingoadm *cli.DingoAdm, dc *topology.DeployC
 
 	// new task
 	subname := fmt.Sprintf("host=%s role=%s", dc.GetHost(), dc.GetRole())
-	t := task.NewTask("Create mdsv2 client Container", subname, hc.GetSSHConfig())
+	t := task.NewTask("Create mds client Container", subname, hc.GetSSHConfig())
 
 	// add step to task
 	var oldContainerId, containerId string
