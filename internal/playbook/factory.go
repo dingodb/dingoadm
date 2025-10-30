@@ -30,6 +30,7 @@ package playbook
 
 import (
 	"github.com/dingodb/dingoadm/internal/configure"
+	"github.com/dingodb/dingoadm/internal/configure/topology"
 	"github.com/dingodb/dingoadm/internal/errno"
 	"github.com/dingodb/dingoadm/internal/task/task"
 	"github.com/dingodb/dingoadm/internal/task/task/bs"
@@ -219,16 +220,28 @@ func (p *Playbook) createTasks(step *PlaybookStep) (*tasks.Tasks, error) {
 		case CHECK_SSH_CONNECT:
 			t, err = checker.NewCheckSSHConnectTask(dingoadm, config.GetDC(i))
 		case CHECK_PERMISSION:
+			if config.GetDC(i).GetRole() == topology.ROLE_MDSV2_CLI {
+				continue
+			}
 			t, err = checker.NewCheckPermissionTask(dingoadm, config.GetDC(i))
 		case CHECK_KERNEL_VERSION:
 			t, err = checker.NewCheckKernelVersionTask(dingoadm, config.GetDC(i))
 		case CHECK_KERNEL_MODULE:
 			t, err = checker.NewCheckKernelModuleTask(dingoadm, config.GetCC(i))
 		case CHECK_PORT_IN_USE:
+			if config.GetDC(i).GetRole() == topology.ROLE_MDSV2_CLI {
+				continue
+			}
 			t, err = checker.NewCheckPortInUseTask(dingoadm, config.GetDC(i))
 		case CHECK_DESTINATION_REACHABLE:
+			if config.GetDC(i).GetRole() == topology.ROLE_MDSV2_CLI {
+				continue
+			}
 			t, err = checker.NewCheckDestinationReachableTask(dingoadm, config.GetDC(i))
 		case START_HTTP_SERVER:
+			if config.GetDC(i).GetRole() == topology.ROLE_MDSV2_CLI {
+				continue
+			}
 			t, err = checker.NewStartHTTPServerTask(dingoadm, config.GetDC(i))
 		case CHECK_NETWORK_FIREWALL:
 			t, err = checker.NewCheckNetworkFirewallTask(dingoadm, config.GetDC(i))
@@ -245,6 +258,9 @@ func (p *Playbook) createTasks(step *PlaybookStep) (*tasks.Tasks, error) {
 		case CHECK_STORE_HEALTH:
 			t, err = comm.NewCheckStoreHealthTask(dingoadm, config.GetDC(i))
 		case CLEAN_PRECHECK_ENVIRONMENT:
+			if config.GetDC(i).GetRole() == topology.ROLE_MDSV2_CLI {
+				continue
+			}
 			t, err = checker.NewCleanEnvironmentTask(dingoadm, config.GetDC(i))
 		// common
 		case PULL_IMAGE:

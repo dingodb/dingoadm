@@ -37,6 +37,11 @@ import (
 	"github.com/dingodb/dingoadm/internal/task/task/common"
 )
 
+const (
+	ENGINE_DOCKER = "docker"
+	ENGINE_PODMAN = "podman"
+)
+
 func getEntrypoint(cfg *configure.MonitorConfig) string {
 	role := cfg.GetRole()
 	if role == ROLE_MONITOR_SYNC {
@@ -184,7 +189,7 @@ func NewCreateContainerTask(dingoadm *cli.DingoAdm, cfg *configure.MonitorConfig
 		AddHost:     []string{fmt.Sprintf("%s:127.0.0.1", hostname)},
 		Envs:        getEnvironments(cfg),
 		Hostname:    hostname,
-		Init:        true,
+		Init:        dingoadm.Engine() == ENGINE_DOCKER,
 		Name:        hostname,
 		Privileged:  true,
 		User:        "0:0",
