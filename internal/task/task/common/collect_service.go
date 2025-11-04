@@ -105,7 +105,7 @@ func NewCollectServiceTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*
 	var out string
 	secret := dingoadm.MemStorage().Get(comm.KEY_SECRET).(string)
 	urlFormat := dingoadm.MemStorage().Get(comm.KEY_SUPPORT_UPLOAD_URL_FORMAT).(string)
-	baseDir := TEMP_DIR
+	baseDir := dingoadm.TempDir()
 	vname := utils.NewVariantName(fmt.Sprintf("%s_%s", serviceId, utils.RandString(5)))
 	remoteSaveDir := fmt.Sprintf("%s/%s", baseDir, vname.Name)                // /tmp/7b510fb63730_ox1fe
 	remoteTarbllPath := path.Join(baseDir, vname.CompressName)                // /tmp/7b510fb63730_ox1fe.tar.gz

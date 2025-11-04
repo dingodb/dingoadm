@@ -190,7 +190,7 @@ func NewCleanServiceTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*ta
 	clean := utils.Slice2Map(only)
 	files := getCleanFiles(clean, dc, recycle) // directorys which need cleaned
 	recyleScript := scripts.RECYCLE
-	recyleScriptPath := utils.RandFilename(TEMP_DIR)
+	recyleScriptPath := utils.RandFilename(dingoadm.TempDir())
 
 	if dc.GetKind() == topology.KIND_CURVEBS {
 		t.AddStep((&step.InstallFile{

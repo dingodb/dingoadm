@@ -41,9 +41,9 @@ import (
 	"github.com/dingodb/dingoadm/internal/utils"
 )
 
-func NewCollectClientTask(curveadm *cli.DingoAdm, v interface{}) (*task.Task, error) {
+func NewCollectClientTask(dingoadm *cli.DingoAdm, v interface{}) (*task.Task, error) {
 	client := v.(storage.Client)
-	hc, err := curveadm.GetHost(client.Host)
+	hc, err := dingoadm.GetHost(client.Host)
 	if err != nil {
 		return nil, err
 	}
@@ -57,9 +57,9 @@ func NewCollectClientTask(curveadm *cli.DingoAdm, v interface{}) (*task.Task, er
 	// add step to task
 	var out string
 	clientId := client.Id
-	secret := curveadm.MemStorage().Get(comm.KEY_SECRET).(string)
-	urlFormat := curveadm.MemStorage().Get(comm.KEY_SUPPORT_UPLOAD_URL_FORMAT).(string)
-	baseDir := TEMP_DIR
+	secret := dingoadm.MemStorage().Get(comm.KEY_SECRET).(string)
+	urlFormat := dingoadm.MemStorage().Get(comm.KEY_SUPPORT_UPLOAD_URL_FORMAT).(string)
+	baseDir := dingoadm.TempDir()
 	vname := utils.NewVariantName(fmt.Sprintf("%s_%s", clientId, utils.RandString(5)))
 	remoteSaveDir := fmt.Sprintf("/%s/%s", baseDir, vname.Name)               // /tmp/7b510fb63730_ox1fe
 	remoteTarbllPath := path.Join(baseDir, vname.CompressName)                // /tmp/7b510fb63730_ox1fe.tar.gz
@@ -70,33 +70,33 @@ func NewCollectClientTask(curveadm *cli.DingoAdm, v interface{}) (*task.Task, er
 		"/curvebs/nebd/logs", "/dingofs/client/logs")
 	containerConfDir := utils.Choose(client.Kind == topology.KIND_CURVEBS,
 		"/curvebs/nebd/conf", "/dingofs/client/conf")
-	localOptions := curveadm.ExecOptions()
+	localOptions := dingoadm.ExecOptions()
 	localOptions.ExecInLocal = true
 	t.AddStep(&step.CreateDirectory{
 		Paths:       []string{remoteSaveDir},
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&Step2CopyFilesFromContainer{ // copy logs directory
 		ContainerId: containerId,
 		Files:       &[]string{containerLogDir},
 		HostDestDir: remoteSaveDir,
-		Dingoadm:    curveadm,
+		Dingoadm:    dingoadm,
 	})
 	t.AddStep(&Step2CopyFilesFromContainer{ // copy conf directory
 		ContainerId: containerId,
 		Files:       &[]string{containerConfDir},
 		HostDestDir: remoteSaveDir,
-		Dingoadm:    curveadm,
+		Dingoadm:    dingoadm,
 	})
 	t.AddStep(&step.ContainerLogs{
 		ContainerId: containerId,
 		Out:         &out,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.InstallFile{
 		Content:      &out,
 		HostDestPath: fmt.Sprintf("%s/docker.log", path.Join(remoteSaveDir, "logs")),
-		ExecOptions:  curveadm.ExecOptions(),
+		ExecOptions:  dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.Tar{
 		File:        remoteSaveDir,
@@ -104,12 +104,12 @@ func NewCollectClientTask(curveadm *cli.DingoAdm, v interface{}) (*task.Task, er
 		Create:      true,
 		Gzip:        true,
 		Verbose:     true,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.DownloadFile{
 		RemotePath:  remoteTarbllPath,
 		LocalPath:   localTarballPath,
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step2EncryptFile{
 		source: localTarballPath,
@@ -123,7 +123,7 @@ func NewCollectClientTask(curveadm *cli.DingoAdm, v interface{}) (*task.Task, er
 	})
 	t.AddPostStep(&step.RemoveFile{
 		Files:       []string{remoteSaveDir, remoteTarbllPath},
-		ExecOptions: curveadm.ExecOptions(),
+		ExecOptions: dingoadm.ExecOptions(),
 	})
 	t.AddPostStep(&step.RemoveFile{
 		Files:       []string{localTarballPath, localEncryptdTarballPath},
