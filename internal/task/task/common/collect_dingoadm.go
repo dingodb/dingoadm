@@ -38,25 +38,25 @@ import (
 	"github.com/dingodb/dingoadm/internal/utils"
 )
 
-func NewCollectCurveAdmTask(curveadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
+func NewCollectCurveAdmTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
 	// NOTE: we think it's not a good idae to collect curveadm's datbase file...
 	// new task
 	kind := dc.GetKind()
 	subname := fmt.Sprintf("cluster=%s kind=%s",
-		curveadm.ClusterName(), kind)
+		dingoadm.ClusterName(), kind)
 	t := task.NewTask("Collect CurveAdm", subname, nil)
 
 	// add step to task
-	dbPath := curveadm.Config().GetDBPath()
-	secret := curveadm.MemStorage().Get(comm.KEY_SECRET).(string)
-	urlFormat := curveadm.MemStorage().Get(comm.KEY_SUPPORT_UPLOAD_URL_FORMAT).(string)
-	baseDir := TEMP_DIR
+	dbPath := dingoadm.Config().GetDBPath()
+	secret := dingoadm.MemStorage().Get(comm.KEY_SECRET).(string)
+	urlFormat := dingoadm.MemStorage().Get(comm.KEY_SUPPORT_UPLOAD_URL_FORMAT).(string)
+	baseDir := dingoadm.TempDir()
 	vname := utils.NewVariantName(fmt.Sprintf("curveadm_%s", utils.RandString(5)))
 	localPath := path.Join(baseDir, vname.Name)                // /tmp/curveadm_is90x
 	localTarballPath := path.Join(baseDir, vname.CompressName) // /tmp/curveadm_is90x.tar.gz
 	localEncryptdTarballPath := path.Join(baseDir, vname.EncryptCompressName)
 	httpSavePath := path.Join("/", encodeSecret(secret), "data")
-	options := curveadm.ExecOptions()
+	options := dingoadm.ExecOptions()
 	options.ExecWithSudo = false
 	options.ExecInLocal = true
 

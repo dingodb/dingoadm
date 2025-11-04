@@ -224,9 +224,9 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 			// sync executor java opts config /opt/dingo/bin/start-executor.sh
 			syncJavaOptsScript := scripts.SYNC_JAVA_OPTS
 			// containerSyncJavaOptsScriptPath := fmt.Sprintf("%s/%s", layout.DingoExecutorBinDir, topology.SCRIPT_SYNC_JAVA_OPTS)
-			hostSyncJavaOptsScriptPath := fmt.Sprintf("%s/%s", TEMP_DIR, topology.SCRIPT_SYNC_JAVA_OPTS)
+			hostSyncJavaOptsScriptPath := fmt.Sprintf("%s/%s", dingoadm.TempDir(), topology.SCRIPT_SYNC_JAVA_OPTS)
 			containerStartExecutorPath := fmt.Sprintf("%s/%s", layout.DingoExecutorBinDir, topology.SCRIPT_START_EXECUTOR)
-			hostStartExecutorPath := fmt.Sprintf("%s/%s", TEMP_DIR, topology.SCRIPT_START_EXECUTOR)
+			hostStartExecutorPath := fmt.Sprintf("%s/%s", dingoadm.TempDir(), topology.SCRIPT_START_EXECUTOR)
 			t.AddStep(&step.InstallFile{ // install sync_java_opts.sh on local script
 				HostDestPath: hostSyncJavaOptsScriptPath,
 				Content:      &syncJavaOptsScript,
