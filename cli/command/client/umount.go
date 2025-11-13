@@ -51,7 +51,7 @@ type umountOptions struct {
 	mountPoint string
 }
 
-func checkUmountOptions(curveadm *cli.DingoAdm, options umountOptions) error {
+func checkUmountOptions(dingoadm *cli.DingoAdm, options umountOptions) error {
 	if !strings.HasPrefix(options.mountPoint, "/") {
 		return errno.ERR_FS_MOUNTPOINT_REQUIRE_ABSOLUTE_PATH.
 			F("mount point: %s", options.mountPoint)
@@ -59,7 +59,7 @@ func checkUmountOptions(curveadm *cli.DingoAdm, options umountOptions) error {
 	return nil
 }
 
-func NewUmountCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewUmountCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options umountOptions
 
 	cmd := &cobra.Command{
@@ -68,11 +68,11 @@ func NewUmountCommand(curveadm *cli.DingoAdm) *cobra.Command {
 		Args:  cliutil.ExactArgs(1),
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			options.mountPoint = args[0]
-			return checkUmountOptions(curveadm, options)
+			return checkUmountOptions(dingoadm, options)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			options.mountPoint = args[0]
-			return runUmount(curveadm, options)
+			return runUmount(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -83,11 +83,11 @@ func NewUmountCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	return cmd
 }
 
-func genUnmountPlaybook(curveadm *cli.DingoAdm,
+func genUnmountPlaybook(dingoadm *cli.DingoAdm,
 	ccs []*configure.ClientConfig,
 	options umountOptions) (*playbook.Playbook, error) {
 	steps := UMOUNT_PLAYBOOK_STEPS
-	pb := playbook.NewPlaybook(curveadm)
+	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
 		pb.AddStep(&playbook.PlaybookStep{
 			Type:    step,
@@ -103,9 +103,9 @@ func genUnmountPlaybook(curveadm *cli.DingoAdm,
 	return pb, nil
 }
 
-func runUmount(curveadm *cli.DingoAdm, options umountOptions) error {
+func runUmount(dingoadm *cli.DingoAdm, options umountOptions) error {
 	// 1) generate unmap playbook
-	pb, err := genUnmountPlaybook(curveadm, nil, options)
+	pb, err := genUnmountPlaybook(dingoadm, nil, options)
 	if err != nil {
 		return err
 	}

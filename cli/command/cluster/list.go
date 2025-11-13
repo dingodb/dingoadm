@@ -41,7 +41,7 @@ type listOptions struct {
 	verbose bool
 }
 
-func NewListCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewListCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options listOptions
 
 	cmd := &cobra.Command{
@@ -50,7 +50,7 @@ func NewListCommand(curveadm *cli.DingoAdm) *cobra.Command {
 		Short:   "List clusters",
 		Args:    cliutil.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runList(curveadm, options)
+			return runList(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -61,9 +61,9 @@ func NewListCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	return cmd
 }
 
-func runList(curveadm *cli.DingoAdm, options listOptions) error {
+func runList(dingoadm *cli.DingoAdm, options listOptions) error {
 	// 1) get all clusters
-	storage := curveadm.Storage()
+	storage := dingoadm.Storage()
 	clusters, err := storage.GetClusters("%")
 	if err != nil {
 		log.Error("Get clusters failed",
@@ -73,6 +73,6 @@ func runList(curveadm *cli.DingoAdm, options listOptions) error {
 
 	// 2) display clusters
 	output := tui.FormatClusters(clusters, options.verbose)
-	curveadm.WriteOut(output)
+	dingoadm.WriteOut(output)
 	return nil
 }

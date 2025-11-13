@@ -53,7 +53,7 @@ type restartOptions struct {
 	force bool
 }
 
-func NewRestartCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewRestartCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options restartOptions
 
 	cmd := &cobra.Command{
@@ -61,10 +61,10 @@ func NewRestartCommand(curveadm *cli.DingoAdm) *cobra.Command {
 		Short: "Restart service",
 		Args:  cliutil.NoArgs,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return checkCommonOptions(curveadm, options.id, options.role, options.host)
+			return checkCommonOptions(dingoadm, options.id, options.role, options.host)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runRestart(curveadm, options)
+			return runRestart(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -78,10 +78,10 @@ func NewRestartCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	return cmd
 }
 
-func genRestartPlaybook(curveadm *cli.DingoAdm,
+func genRestartPlaybook(dingoadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options restartOptions) (*playbook.Playbook, error) {
-	dcs = curveadm.FilterDeployConfig(dcs, topology.FilterOption{
+	dcs = dingoadm.FilterDeployConfig(dcs, topology.FilterOption{
 		Id:   options.id,
 		Role: options.role,
 		Host: options.host,
@@ -91,7 +91,7 @@ func genRestartPlaybook(curveadm *cli.DingoAdm,
 	}
 
 	steps := RESTART_PLAYBOOK_STEPS
-	pb := playbook.NewPlaybook(curveadm)
+	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
 		pb.AddStep(&playbook.PlaybookStep{
 			Type:    step,
@@ -101,15 +101,15 @@ func genRestartPlaybook(curveadm *cli.DingoAdm,
 	return pb, nil
 }
 
-func runRestart(curveadm *cli.DingoAdm, options restartOptions) error {
+func runRestart(dingoadm *cli.DingoAdm, options restartOptions) error {
 	// 1) parse cluster topology
-	dcs, err := curveadm.ParseTopology()
+	dcs, err := dingoadm.ParseTopology()
 	if err != nil {
 		return err
 	}
 
 	// 2) generate restart playbook
-	pb, err := genRestartPlaybook(curveadm, dcs, options)
+	pb, err := genRestartPlaybook(dingoadm, dcs, options)
 	if err != nil {
 		return err
 	}
@@ -122,7 +122,7 @@ func runRestart(curveadm *cli.DingoAdm, options restartOptions) error {
 
 	// 3) confirm by user
 	if pass := tui.ConfirmYes(tui.PromptRestartService(options.id, options.role, options.host)); !pass {
-		curveadm.WriteOut(tui.PromptCancelOpetation("restart service"))
+		dingoadm.WriteOut(tui.PromptCancelOpetation("restart service"))
 		return errno.ERR_CANCEL_OPERATION
 	}
 

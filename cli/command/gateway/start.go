@@ -50,7 +50,7 @@ var (
 	}
 )
 
-func NewStartGatewayCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewStartGatewayCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options startOptions
 
 	cmd := &cobra.Command{
@@ -62,7 +62,7 @@ func NewStartGatewayCommand(curveadm *cli.DingoAdm) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			options.name = args[0]
 			options.mountPoint = args[1]
-			return runStart(curveadm, options)
+			return runStart(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -74,10 +74,10 @@ func NewStartGatewayCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	return cmd
 }
 
-func runStart(curveadm *cli.DingoAdm, options startOptions) error {
+func runStart(dingoadm *cli.DingoAdm, options startOptions) error {
 
 	// 1) generate mount playbook
-	pb, err := genStartPlaybook(curveadm, options)
+	pb, err := genStartPlaybook(dingoadm, options)
 	if err != nil {
 		return err
 	}
@@ -95,9 +95,9 @@ func runStart(curveadm *cli.DingoAdm, options startOptions) error {
 	return nil
 }
 
-func genStartPlaybook(curveadm *cli.DingoAdm, options startOptions) (*playbook.Playbook, error) {
+func genStartPlaybook(dingoadm *cli.DingoAdm, options startOptions) (*playbook.Playbook, error) {
 	steps := START_GATEWAY_PLAYBOOK_STEPS
-	pb := playbook.NewPlaybook(curveadm)
+	pb := playbook.NewPlaybook(dingoadm)
 
 	// parse client configure
 	gc, err := configure.ParseGatewayConfig(options.fileName)

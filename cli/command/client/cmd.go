@@ -32,21 +32,21 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewClientCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewClientCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "client",
 		Short: "Manage client",
 		Args:  cliutil.NoArgs,
-		RunE:  cliutil.ShowHelp(curveadm.Err()),
+		RunE:  cliutil.ShowHelp(dingoadm.Err()),
 	}
 
 	cmd.AddCommand(
-		NewMapCommand(curveadm),
-		NewUnmapCommand(curveadm),
-		NewMountCommand(curveadm),
-		NewUmountCommand(curveadm),
-		NewStatusCommand(curveadm),
-		NewEnterCommand(curveadm),
+		NewMapCommand(dingoadm),
+		NewUnmapCommand(dingoadm),
+		NewMountCommand(dingoadm),
+		NewUmountCommand(dingoadm),
+		NewStatusCommand(dingoadm),
+		NewEnterCommand(dingoadm),
 		// NewInstallCommand(curveadm),
 		// NewUninstallCommand(curveadm),
 	)
