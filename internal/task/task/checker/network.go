@@ -92,7 +92,7 @@ type step2CheckPortStatus struct {
 	containerId *string
 	success     *bool
 	dc          *topology.DeployConfig
-	curveadm    *cli.DingoAdm
+	dingoadm    *cli.DingoAdm
 	port        int
 }
 
@@ -114,7 +114,7 @@ func (s *step2CheckPortStatus) Execute(ctx *context.Context) error {
 		Command:     command,
 		Success:     s.success,
 		Out:         &out,
-		ExecOptions: s.curveadm.ExecOptions(),
+		ExecOptions: s.dingoadm.ExecOptions(),
 	})
 	steps = append(steps, &step.Lambda{
 		Lambda: checkPortInUse(s.success, &out, s.dc.GetHost(), s.port),
@@ -170,7 +170,7 @@ func NewCheckPortInUseTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*
 			containerId: &containerId,
 			success:     &success,
 			dc:          dc,
-			curveadm:    dingoadm,
+			dingoadm:    dingoadm,
 			port:        address.Port,
 		})
 	}
@@ -364,7 +364,7 @@ func NewCheckNetworkFirewallTask(dingoadm *cli.DingoAdm, dc *topology.DeployConf
 type step2StopContainer struct {
 	containerId *string
 	dc          *topology.DeployConfig
-	curveadm    *cli.DingoAdm
+	dingoadm    *cli.DingoAdm
 }
 
 func (s *step2StopContainer) Execute(ctx *context.Context) error {
@@ -377,12 +377,13 @@ func (s *step2StopContainer) Execute(ctx *context.Context) error {
 	steps = append(steps, &step.StopContainer{
 		ContainerId: *s.containerId,
 		Time:        1,
-		ExecOptions: s.curveadm.ExecOptions(),
+		Out:         s.containerId,
+		ExecOptions: s.dingoadm.ExecOptions(),
 	})
 	steps = append(steps, &step.RemoveContainer{
 		Success:     &success, // FIXME(P1): rmeove iff container exist
 		ContainerId: *s.containerId,
-		ExecOptions: s.curveadm.ExecOptions(),
+		ExecOptions: s.dingoadm.ExecOptions(),
 	})
 
 	for _, step := range steps {
@@ -416,7 +417,7 @@ func NewCleanEnvironmentTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) 
 	t.AddStep(&step2StopContainer{
 		containerId: &out,
 		dc:          dc,
-		curveadm:    dingoadm,
+		dingoadm:    dingoadm,
 	})
 	t.AddStep(&step.ListContainers{
 		ShowAll:     true,
@@ -428,7 +429,7 @@ func NewCleanEnvironmentTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) 
 	t.AddStep(&step2StopContainer{
 		containerId: &out,
 		dc:          dc,
-		curveadm:    dingoadm,
+		dingoadm:    dingoadm,
 	})
 
 	return t, nil

@@ -7,7 +7,7 @@ import (
 )
 
 func TestMountConfig(t *testing.T) {
-	curveadm, err := cli.NewDingoAdm()
+	dingoadm, err := cli.NewDingoAdm()
 	if err != nil {
 		t.Errorf("Error: %v", err)
 	}
@@ -20,7 +20,7 @@ func TestMountConfig(t *testing.T) {
 		filename:    "{client_path}",
 	}
 
-	err = runMount(curveadm, options)
+	err = runMount(dingoadm, options)
 	if err != nil {
 		t.Errorf("Error: %v", err)
 	}

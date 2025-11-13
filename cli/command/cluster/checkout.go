@@ -40,7 +40,7 @@ type checkoutOptions struct {
 	clusterName string
 }
 
-func NewCheckoutCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewCheckoutCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options checkoutOptions
 
 	cmd := &cobra.Command{
@@ -49,7 +49,7 @@ func NewCheckoutCommand(curveadm *cli.DingoAdm) *cobra.Command {
 		Args:  cliutil.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			options.clusterName = args[0]
-			return runCheckout(curveadm, options)
+			return runCheckout(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}

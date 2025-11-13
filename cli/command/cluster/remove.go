@@ -43,7 +43,7 @@ type removeOptions struct {
 	force       bool
 }
 
-func NewRemoveCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewRemoveCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options removeOptions
 
 	cmd := &cobra.Command{
@@ -53,7 +53,7 @@ func NewRemoveCommand(curveadm *cli.DingoAdm) *cobra.Command {
 		Args:    cliutil.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			options.clusterName = args[0]
-			return runRemove(curveadm, options)
+			return runRemove(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -64,12 +64,12 @@ func NewRemoveCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	return cmd
 }
 
-func checkAllServicesRemoved(curveadm *cli.DingoAdm, options removeOptions, clusterId int) error {
+func checkAllServicesRemoved(dingoadm *cli.DingoAdm, options removeOptions, clusterId int) error {
 	if options.force {
 		return nil
 	}
 
-	services, err := curveadm.Storage().GetServices(clusterId)
+	services, err := dingoadm.Storage().GetServices(clusterId)
 	if err != nil {
 		return errno.ERR_GET_ALL_SERVICES_CONTAINER_ID_FAILED.E(err)
 	}
@@ -84,9 +84,9 @@ func checkAllServicesRemoved(curveadm *cli.DingoAdm, options removeOptions, clus
 	return nil
 }
 
-func runRemove(curveadm *cli.DingoAdm, options removeOptions) error {
+func runRemove(dingoadm *cli.DingoAdm, options removeOptions) error {
 	// 1) get cluster by name
-	storage := curveadm.Storage()
+	storage := dingoadm.Storage()
 	clusterName := options.clusterName
 	clusters, err := storage.GetClusters(clusterName) // Get all clusters
 	if err != nil {
@@ -102,22 +102,22 @@ func runRemove(curveadm *cli.DingoAdm, options removeOptions) error {
 	//   2.1): check wether all services removed (ignore by force)
 	//   2.2): confirm by user
 	//   2.3): delete cluster in database
-	if err := checkAllServicesRemoved(curveadm, options, clusters[0].Id); err != nil {
+	if err := checkAllServicesRemoved(dingoadm, options, clusters[0].Id); err != nil {
 		return err
 	}
 	// force stop
 	if !options.force && !tui.ConfirmYes(tui.PromptRemoveCluster(clusterName)) {
-		curveadm.WriteOut(tui.PromptCancelOpetation("remove cluster"))
+		dingoadm.WriteOut(tui.PromptCancelOpetation("remove cluster"))
 		return errno.ERR_CANCEL_OPERATION
 	} else {
-		curveadm.WriteOut(tui.PromptRemoveCluster(clusterName))
+		dingoadm.WriteOut(tui.PromptRemoveCluster(clusterName))
 	}
 
-	if err := curveadm.Storage().DeleteCluster(clusterName); err != nil {
+	if err := dingoadm.Storage().DeleteCluster(clusterName); err != nil {
 		return errno.ERR_DELETE_CLUSTER_FAILED.E(err)
 	}
 
 	// 3) print success prompt
-	curveadm.WriteOutln("Deleted cluster '%s'", clusterName)
+	dingoadm.WriteOutln("Deleted cluster '%s'", clusterName)
 	return nil
 }

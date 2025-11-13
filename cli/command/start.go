@@ -53,14 +53,14 @@ type startOptions struct {
 	force bool
 }
 
-func checkCommonOptions(curveadm *cli.DingoAdm, id, role, host string) error {
+func checkCommonOptions(dingoadm *cli.DingoAdm, id, role, host string) error {
 	items := []struct {
 		key      string
 		callback func(string) error
 	}{
-		{id, curveadm.CheckId},
-		{role, curveadm.CheckRole},
-		{host, curveadm.CheckHost},
+		{id, dingoadm.CheckId},
+		{role, dingoadm.CheckRole},
+		{host, dingoadm.CheckHost},
 	}
 
 	for _, item := range items {
@@ -75,7 +75,7 @@ func checkCommonOptions(curveadm *cli.DingoAdm, id, role, host string) error {
 	return nil
 }
 
-func NewStartCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewStartCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options startOptions
 
 	cmd := &cobra.Command{
@@ -83,10 +83,10 @@ func NewStartCommand(curveadm *cli.DingoAdm) *cobra.Command {
 		Short: "Start service",
 		Args:  cliutil.NoArgs,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return checkCommonOptions(curveadm, options.id, options.role, options.host)
+			return checkCommonOptions(dingoadm, options.id, options.role, options.host)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runStart(curveadm, options)
+			return runStart(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -100,10 +100,10 @@ func NewStartCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	return cmd
 }
 
-func genStartPlaybook(curveadm *cli.DingoAdm,
+func genStartPlaybook(dingoadm *cli.DingoAdm,
 	dcs []*topology.DeployConfig,
 	options startOptions) (*playbook.Playbook, error) {
-	dcs = curveadm.FilterDeployConfig(dcs, topology.FilterOption{
+	dcs = dingoadm.FilterDeployConfig(dcs, topology.FilterOption{
 		Id:   options.id,
 		Role: options.role,
 		Host: options.host,
@@ -113,7 +113,7 @@ func genStartPlaybook(curveadm *cli.DingoAdm,
 	}
 
 	steps := START_PLAYBOOK_STEPS
-	pb := playbook.NewPlaybook(curveadm)
+	pb := playbook.NewPlaybook(dingoadm)
 	for _, step := range steps {
 		pb.AddStep(&playbook.PlaybookStep{
 			Type:    step,
@@ -123,15 +123,15 @@ func genStartPlaybook(curveadm *cli.DingoAdm,
 	return pb, nil
 }
 
-func runStart(curveadm *cli.DingoAdm, options startOptions) error {
+func runStart(dingoadm *cli.DingoAdm, options startOptions) error {
 	// 1) parse cluster topology
-	dcs, err := curveadm.ParseTopology()
+	dcs, err := dingoadm.ParseTopology()
 	if err != nil {
 		return err
 	}
 
 	// 2) generate start playbook
-	pb, err := genStartPlaybook(curveadm, dcs, options)
+	pb, err := genStartPlaybook(dingoadm, dcs, options)
 	if err != nil {
 		return err
 	}
@@ -144,7 +144,7 @@ func runStart(curveadm *cli.DingoAdm, options startOptions) error {
 
 	// 3) confirm by user
 	if pass := tui.ConfirmYes(tui.PromptStartService(options.id, options.role, options.host)); !pass {
-		curveadm.WriteOut(tui.PromptCancelOpetation("start service"))
+		dingoadm.WriteOut(tui.PromptCancelOpetation("start service"))
 		return errno.ERR_CANCEL_OPERATION
 	}
 
