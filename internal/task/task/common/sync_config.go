@@ -67,7 +67,7 @@ func NewMutate(dc *topology.DeployConfig, delimiter string, forceRender bool) st
 			if strings.HasPrefix(key, comm.STORE_GFLAGS_PREFIX) {
 				muteKey = fmt.Sprintf("gflags.%s", strings.TrimPrefix(key, comm.STORE_GFLAGS_PREFIX))
 			}
-		} else if dc.GetRole() == topology.ROLE_MDS_V2 {
+		} else if dc.GetRole() == topology.ROLE_FS_MDS {
 			// key is like --xxx , trim '--'
 			if strings.HasPrefix(key, comm.MDSV2_CONFIG_PREFIX) {
 				muteKey = strings.TrimPrefix(key, comm.MDSV2_CONFIG_PREFIX)
@@ -80,10 +80,15 @@ func NewMutate(dc *topology.DeployConfig, delimiter string, forceRender bool) st
 			value = v
 		}
 
-		// replace variable
-		value, err = dc.GetVariables().Rendering(value)
-		if err != nil {
-			return
+		if muteKey == "mdsAddr" {
+			// special handle for mdsAddr config
+			value, err = dc.GetVariables().Get("cluster_mdsv2_addr")
+		} else {
+			// replace variable
+			value, err = dc.GetVariables().Rendering(value)
+			if err != nil {
+				return
+			}
 		}
 
 		out = fmt.Sprintf("%s%s%s", key, delimiter, value)
@@ -122,7 +127,7 @@ func syncJavaOpts(java_opts map[string]interface{}, hostSyncJavaOptsScriptPath, 
 }
 
 func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task.Task, error) {
-	if dc.GetRole() == topology.ROLE_MDSV2_CLI {
+	if dc.GetRole() == topology.ROLE_FS_MDS_CLI {
 		skipTmp := dingoadm.MemStorage().Get(comm.KEY_SKIP_MDSV2_CLI)
 		if skipTmp != nil && skipTmp.(bool) {
 			return nil, nil
@@ -203,10 +208,10 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 			})
 
 			return t, nil
-		} else if dc.GetRole() == topology.ROLE_MDSV2_CLI {
+		} else if dc.GetRole() == topology.ROLE_FS_MDS_CLI {
 			// sync create_mdsv2_tables.sh
 			createTablesScript := scripts.CREATE_MDSV2_TABLES
-			createTablesScriptPath := fmt.Sprintf("%s/%s", layout.MdsV2CliBinDir, topology.SCRIPT_CREATE_MDSV2_TABLES) // /dingofs/mds-client/sbin
+			createTablesScriptPath := fmt.Sprintf("%s/%s", layout.FSMdsCliBinDir, topology.SCRIPT_CREATE_MDSV2_TABLES) // /dingofs/mds-client/sbin
 			// createTablesScriptPath := fmt.Sprintf("%s/create_mdsv2_tables.sh", STORE_BUILD_BIN_DIR) // /opt/dingo-store/build/bin
 			t.AddStep(&step.InstallFile{ // install create_mdsv2_tables.sh script
 				ContainerId:       &containerId,
@@ -254,15 +259,12 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 			})
 
 		} else {
-			containerToolsSrcPath := layout.ToolsV2ConfSrcPath
-			if dc.GetRole() == topology.ROLE_MDS_V2 {
-				containerToolsSrcPath = layout.ToolsV2ConfSrcPath2
-			}
-			t.AddStep(&step.TrySyncFile{ // sync tools-v2 config
+			containerToolsSrcPath := layout.FSToolsConfSrcPath
+			t.AddStep(&step.TrySyncFile{ // sync dingofs-tools config
 				ContainerSrcId:    &containerId,
 				ContainerSrcPath:  containerToolsSrcPath,
 				ContainerDestId:   &containerId,
-				ContainerDestPath: layout.ToolsV2ConfSystemPath,
+				ContainerDestPath: layout.FSToolsConfSystemPath,
 				KVFieldSplit:      CONFIG_DELIMITER_COLON,
 				Mutate:            NewMutate(dc, CONFIG_DELIMITER_COLON, false),
 				ExecOptions:       dingoadm.ExecOptions(),
@@ -270,7 +272,7 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*task
 
 			// install report script and crontab file
 			reportScript := scripts.REPORT
-			reportScriptPath := fmt.Sprintf("%s/report.sh", layout.ToolsV2BinDir) // v1: ToolsBinDir, v2: ToolsV2BinDir
+			reportScriptPath := fmt.Sprintf("%s/report.sh", layout.FSToolsBinDir) // v1: ToolsBinDir, v2: ToolsV2BinDir
 			crontab := newCrontab(dingoadm.ClusterUUId(), dc, reportScriptPath)
 			t.AddStep(&step.InstallFile{ // install report script
 				ContainerId:       &containerId,

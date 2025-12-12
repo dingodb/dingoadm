@@ -1,0 +1,47 @@
+kind: dingofs
+global:
+  container_image: harbor.zetyun.cn/dingofs/dingofs:latest
+  data_dir: /home/dingofs/deploy/data/${service_role}${service_replica_sequence}
+  log_dir: /home/dingofs/deploy/logs/${service_role}${service_replica_sequence}
+  raft_dir: /home/dingofs/deploy/raft/${service_role}${service_replica_sequence}
+  default_replica_num: 1
+  variable:
+    home: /tmp/dingofs
+    target: server-host
+
+coordinator_services:
+  config:
+    container_image: dingodatabase/dingo-store:latest
+    server.port: 650${service_replica_sequence}
+    raft.port: 750${service_replica_sequence}
+  deploy:
+    - host: ${target}
+      replicas: 3
+
+store_services:
+  config:
+    container_image: dingodatabase/dingo-store:latest
+    server.port: 660${service_replica_sequence}
+    raft.port: 760${service_replica_sequence}
+  deploy:
+    - host: ${target}
+      replicas: 3
+
+mds_services:
+  config:
+    server.port: 690${service_replica_sequence}
+  deploy:
+    - host: ${target}
+      replicas: 3
+
+executor_services:
+  config:
+    container_image: dingodatabase/dingo:latest
+    port: 18765
+    mysqlPort: 13307
+    java.Xms: 1g
+    java.Xmx: 1g
+    java.SoftMaxHeapSize: 512m
+    java.MaxDirectMemorySize: 256m
+  deploy:
+    - host: ${target}

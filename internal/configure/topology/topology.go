@@ -79,7 +79,7 @@ type (
 var (
 	CURVEBS_ROLES = []string{
 		ROLE_ETCD,
-		ROLE_MDS_V2,
+		ROLE_FS_MDS,
 		ROLE_CHUNKSERVER,
 		ROLE_SNAPSHOTCLONE,
 	}
@@ -88,18 +88,18 @@ var (
 		ROLE_METASERVER,
 		ROLE_COORDINATOR,
 		ROLE_STORE,
-		ROLE_MDS_V2,
+		ROLE_FS_MDS,
 		ROLE_DINGODB_EXECUTOR,
 	}
 	DINGOFS_MDSV2_ONLY_ROLES = []string{
-		ROLE_MDS_V2,
-		ROLE_MDSV2_CLI,
+		ROLE_FS_MDS,
+		ROLE_FS_MDS_CLI,
 	}
 	DINGOFS_MDSV2_FOLLOW_ROLES = []string{
-		ROLE_MDS_V2,
+		ROLE_FS_MDS,
 		ROLE_COORDINATOR,
 		ROLE_STORE,
-		ROLE_MDSV2_CLI,
+		ROLE_FS_MDS_CLI,
 	}
 	DINGOSTORE_ROLES = []string{
 		ROLE_COORDINATOR,
@@ -198,7 +198,7 @@ func ParseTopology(data string, ctx *Context) ([]*DeployConfig, error) {
 			services = topology.SnapshotcloneServices
 		case ROLE_METASERVER:
 			services = topology.MetaserverServices
-		case ROLE_MDS_V2:
+		case ROLE_FS_MDS:
 			services = topology.MdsServices
 		case ROLE_COORDINATOR:
 			services = topology.CoordinatorServices
@@ -212,7 +212,7 @@ func ParseTopology(data string, ctx *Context) ([]*DeployConfig, error) {
 			services = topology.DiskannServices
 		case ROLE_DINGODB_EXECUTOR:
 			services = topology.ExecutorServices
-		case ROLE_MDSV2_CLI:
+		case ROLE_FS_MDS_CLI:
 			// create tables role, only used to create meta tables
 			// just keep one deploy config
 			tmpDeploy := topology.MdsServices.Deploy[0]

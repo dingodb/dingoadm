@@ -64,7 +64,7 @@ const (
 	DEFAULT_METASERVER_LISTN_PORT           = 6800
 	DEFAULT_METASERVER_LISTN_EXTARNAL_PORT  = 7800
 	DEFAULT_DINGO_SERVER_LISTEN_HOST        = "0.0.0.0"
-	DEFAULT_MDS_V2_LISTEN_PORT              = 6900
+	DEFAULT_FS_MDS_LISTEN_PORT              = 6900
 	DEFAULT_ENABLE_EXTERNAL_SERVER          = false
 	DEFAULT_CHUNKSERVER_COPYSETS            = 100 // copysets per chunkserver
 	DEFAULT_METASERVER_COPYSETS             = 100 // copysets per metaserver
@@ -118,9 +118,9 @@ var (
 			root_dir := LAYOUT_DINGO_ROOT_DIR
 			switch dc.GetKind() {
 			case KIND_DINGOFS:
-				if dc.GetRole() == ROLE_MDS_V2 {
+				if dc.GetRole() == ROLE_FS_MDS {
 					if dc.GetCtx().Lookup(CTX_KEY_MDS_VERSION) == CTX_VAL_MDS_V2 {
-						root_dir = path.Join(LAYOUT_DINGOFS_ROOT_DIR, "dist", ROLE_MDS_V2) // change root dir from mdsv2 (dc.GetRole()) to mds
+						root_dir = path.Join(LAYOUT_DINGOFS_ROOT_DIR, "dist", ROLE_FS_MDS) // change root dir from mdsv2 (dc.GetRole()) to mds
 					} else {
 						root_dir = path.Join(LAYOUT_DINGOFS_ROOT_DIR, dc.GetRole())
 					}
@@ -250,9 +250,9 @@ var (
 				return DEFAULT_SNAPSHOTCLONE_LISTEN_PORT
 			case ROLE_METASERVER:
 				return DEFAULT_METASERVER_LISTN_PORT
-			case ROLE_MDS_V2,
-				ROLE_MDSV2_CLI:
-				return DEFAULT_MDS_V2_LISTEN_PORT
+			case ROLE_FS_MDS,
+				ROLE_FS_MDS_CLI:
+				return DEFAULT_FS_MDS_LISTEN_PORT
 			case ROLE_COORDINATOR:
 				return DEFAULT_COORDINATOR_SERVER_PORT
 			case ROLE_STORE:
@@ -279,7 +279,7 @@ var (
 		true,
 		func(dc *DeployConfig) interface{} {
 			switch dc.GetRole() {
-			case ROLE_MDS_V2:
+			case ROLE_FS_MDS:
 				return DEFAULT_MDS_LISTEN_DUMMY_PORT
 			case ROLE_SNAPSHOTCLONE:
 				return DEFAULT_SNAPSHOTCLONE_LISTEN_DUMMY_PORT
@@ -447,8 +447,8 @@ var (
 				return DEFAULT_COORDINATOR_SERVER_PORT
 			case ROLE_STORE:
 				return DEFAULT_STORE_SERVER_PORT
-			case ROLE_MDS_V2:
-				return DEFAULT_MDS_V2_LISTEN_PORT
+			case ROLE_FS_MDS:
+				return DEFAULT_FS_MDS_LISTEN_PORT
 			case ROLE_DINGODB_DOCUMENT:
 				return DEFAULT_DOCUMENT_SERVER_PORT
 			case ROLE_DINGODB_INDEX:

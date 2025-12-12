@@ -49,14 +49,13 @@ const (
 	LAYOUT_CURVEBS_ROOT_DIR                  = "/curvebs"
 	LAYOUT_PLAYGROUND_ROOT_DIR               = "playground"
 	LAYOUT_CONF_SRC_DIR                      = "/conf"
-	LAYOUT_V2_CONF_SRC_DIR                   = "/conf" // change mdsv2 confv2 to conf
 	LAYOUT_SERVICE_BIN_DIR                   = "/sbin"
 	LAYOUT_SERVICE_CONF_DIR                  = "/conf"
 	LAYOUT_SERVICE_LOGS_DIR                  = "/logs"
 	LAYOUT_SERVICE_LOG_DIR                   = "/log"
 	LAYOUT_SERVICE_DATA_DIR                  = "/data"
 	LAYOUT_TOOLS_DIR                         = "/tools"
-	LAYOUT_TOOLS_V2_DIR                      = "/tools-v2"
+	LAYOUT_FS_TOOLS_DIR                      = "/tools"
 	LAYOUT_MDSV2_CLIENT_DIR                  = "/mds-client" // change mdsv2-client to mds-client
 	LAYOUT_CURVEBS_CHUNKFILE_POOL_DIR        = "chunkfilepool"
 	LAYOUT_CURVEBS_COPYSETS_DIR              = "copysets"
@@ -93,8 +92,8 @@ const (
 	BINARY_CURVEBS_TOOL     = "curvebs-tool"
 	BINARY_CURVEBS_FORMAT   = "curve_format"
 	BINARY_CURVEFS_TOOL     = "dingo-tool"
-	BINARY_DINGO_TOOL_V2    = "dingo"
-	BINARY_MDSV2_CLIENT     = "dingo-mds-client"
+	BINARY_DINGOFS_TOOLS    = "dingo"
+	BINARY_FS_MDS_CLIENT    = "dingo-mds-client"
 	METAFILE_CHUNKFILE_POOL = "chunkfilepool.meta"
 	METAFILE_CHUNKSERVER_ID = "chunkserver.dat"
 )
@@ -110,7 +109,7 @@ var (
 		ROLE_METASERVER:       {"metaserver.conf"},
 		ROLE_COORDINATOR:      {"coordinator-gflags.conf "},
 		ROLE_STORE:            {"store-gflags.conf"},
-		ROLE_MDS_V2:           {"mds.conf", "mds.template.conf"}, // change dingo-mdsv2.template.conf to mds.template.conf
+		ROLE_FS_MDS:           {"mds.conf", "mds.template.conf"}, // change dingo-mdsv2.template.conf to mds.template.conf
 		ROLE_DINGODB_EXECUTOR: {"executor.yaml"},
 		ROLE_DINGODB_WEB:      {"application-web-dev.yaml"},
 		ROLE_DINGODB_PROXY:    {"application-proxy-dev.yaml"},
@@ -198,7 +197,7 @@ func (dc *DeployConfig) GetLogDir() string         { return dc.getString(CONFIG_
 func (dc *DeployConfig) GetDataDir() string {
 	if dc.GetRole() == ROLE_DINGODB_EXECUTOR || dc.GetRole() == ROLE_DINGODB_WEB || dc.GetRole() == ROLE_DINGODB_PROXY {
 		return "-"
-	} else if dc.GetRole() == ROLE_MDS_V2 && dc.GetCtx().Lookup(CTX_KEY_MDS_VERSION) == CTX_VAL_MDS_V2 {
+	} else if dc.GetRole() == ROLE_FS_MDS && dc.GetCtx().Lookup(CTX_KEY_MDS_VERSION) == CTX_VAL_MDS_V2 {
 		return "-"
 	}
 
@@ -386,20 +385,19 @@ type (
 		ToolsConfSystemPath string // /etc/dingofs/tools.conf
 		ToolsBinaryPath     string // /curvebs/tools/sbin/curvebs-tool
 
-		// tools-v2
-		ToolsV2BinDir         string // /dingofs/tools-v2/sbin
-		ToolsV2ConfDir        string // /dingofs/tools-v2/conf
-		ToolsV2ConfSrcPath    string // /dingofs/conf/dingo.yaml
-		ToolsV2ConfSrcPath2   string // /dingofs/confv2/dingo.yaml
-		ToolsV2ConfSystemPath string // /etc/dingo/dingo.yaml
-		ToolsV2BinaryPath     string // /curvebs/tools-v2/sbin/curve
+		// dingofs-tools
+		FSToolsBinDir         string // /dingofs/tools/sbin
+		FSToolsConfDir        string // /dingofs/tools/conf
+		FSToolsConfSrcPath    string // /dingofs/conf/dingo.yaml
+		FSToolsConfSystemPath string // /etc/dingo/dingo.yaml
+		FSToolsBinaryPath     string // /dingofs/tools/sbin/dingo
 
-		// mdsv2 client
-		MdsV2RootDir        string // /dingofs/mds-client
-		MdsV2CliBinDir      string // /dingofs/mds-client/sbin
-		MdsV2CliConfDir     string // /dingofs/mds-client/conf
-		MdsV2CliConfSrcPath string // /dingofs/mds-client/conf/coor_list
-		MdsV2CliBinaryPath  string // /dingofs/mds-client/sbin/dingo-mds-client
+		// dingofs mds client
+		FSMdsRootDir        string // /dingofs/mds-client
+		FSMdsCliBinDir      string // /dingofs/mds-client/sbin
+		FSMdsCliConfDir     string // /dingofs/mds-client/conf
+		FSMdsCliConfSrcPath string // /dingofs/mds-client/conf/coor_list
+		FSMdsCliBinaryPath  string // /dingofs/mds-client/sbin/dingo-mds-client
 
 		// dingo-store coordinator.template.yaml
 		CoordinatorConfSrcPath string // /opt/dingo-store/conf/coordinator.template.yaml
@@ -434,11 +432,10 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 	kind := dc.GetKind()
 	role := dc.GetRole()
 	// project
-	root := utils.Choose(kind == KIND_CURVEBS, LAYOUT_CURVEBS_ROOT_DIR, LAYOUT_DINGOFS_ROOT_DIR)
+	root := LAYOUT_DINGOFS_ROOT_DIR
 
 	// service
 	confSrcDir := root + LAYOUT_CONF_SRC_DIR
-	confSrcDirV2 := root + LAYOUT_V2_CONF_SRC_DIR
 	serviceRootDir := dc.GetPrefix()
 	serviceConfDir := fmt.Sprintf("%s/conf", serviceRootDir)
 	serviceConfFiles := []ConfFile{}
@@ -455,7 +452,7 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 			role == ROLE_DINGODB_EXECUTOR {
 			// dingo-store coordinator/store gflags config
 			sourcePath = fmt.Sprintf("%s/%s", serviceConfDir, item)
-		} else if role == ROLE_MDS_V2 {
+		} else if role == ROLE_FS_MDS {
 			if dc.ctx.Lookup(CTX_KEY_MDS_VERSION) == CTX_VAL_MDS_V1 {
 				// remove "mds.template.conf"
 				if item == "mds.template.conf" {
@@ -467,7 +464,7 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 				if item == "mds.conf" {
 					continue
 				}
-				sourcePath = fmt.Sprintf("%s/%s", confSrcDirV2, item)
+				sourcePath = fmt.Sprintf("%s/%s", confSrcDir, item)
 				targetPath = sourcePath
 			}
 		}
@@ -485,11 +482,11 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 	toolsBinaryName := utils.Choose(kind == KIND_CURVEBS, BINARY_CURVEBS_TOOL, BINARY_CURVEFS_TOOL)
 	toolsConfSystemPath := LAYOUT_CURVEFS_TOOLS_CONFIG_SYSTEM_PATH
 
-	// tools-v2
-	toolsV2RootDir := root + LAYOUT_TOOLS_V2_DIR
-	toolsV2BinDir := toolsV2RootDir + LAYOUT_SERVICE_BIN_DIR
-	toolsV2BinaryName := BINARY_DINGO_TOOL_V2
-	toolsV2ConfSystemPath := LAYOUT_CURVE_TOOLS_V2_CONFIG_SYSTEM_PATH
+	// dingofs-tools
+	fsToolsRootDir := root + LAYOUT_FS_TOOLS_DIR
+	fsToolsBinDir := fsToolsRootDir + LAYOUT_SERVICE_BIN_DIR
+	fsToolsBinaryName := BINARY_DINGOFS_TOOLS
+	fsToolsConfSystemPath := LAYOUT_CURVE_TOOLS_V2_CONFIG_SYSTEM_PATH
 
 	// format
 	chunkserverDataDir := fmt.Sprintf("%s/%s%s", root, ROLE_CHUNKSERVER, LAYOUT_SERVICE_DATA_DIR)
@@ -524,7 +521,7 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 		dingoStoreVectorDir = LAYOUT_DINGOSTORE_DIST_DIR + LAYOUT_DINGO_INDEX_VECTOR_DIR
 	case ROLE_DINGODB_EXECUTOR, ROLE_DINGODB_WEB, ROLE_DINGODB_PROXY:
 		serviceLogDir = serviceRootDir + LAYOUT_DINGO_LOG_DIR // /opt/dingo/log
-	case ROLE_MDS_V2:
+	case ROLE_FS_MDS:
 		if dc.GetCtx().Lookup(CTX_KEY_MDS_VERSION) == CTX_VAL_MDS_V2 {
 			serviceLogDir = serviceRootDir + LAYOUT_SERVICE_LOG_DIR
 		}
@@ -560,19 +557,18 @@ func (dc *DeployConfig) GetProjectLayout() Layout {
 		ToolsBinaryPath:     fmt.Sprintf("%s/%s", toolsBinDir, toolsBinaryName),
 
 		// toolsv2
-		ToolsV2BinDir:         toolsV2RootDir + LAYOUT_SERVICE_BIN_DIR,
-		ToolsV2ConfDir:        toolsV2RootDir + LAYOUT_SERVICE_CONF_DIR,
-		ToolsV2ConfSrcPath:    fmt.Sprintf("%s/dingo.yaml", confSrcDir),
-		ToolsV2ConfSrcPath2:   fmt.Sprintf("%s/dingo.yaml", confSrcDirV2),
-		ToolsV2ConfSystemPath: toolsV2ConfSystemPath,
-		ToolsV2BinaryPath:     fmt.Sprintf("%s/%s", toolsV2BinDir, toolsV2BinaryName),
+		FSToolsBinDir:         fsToolsRootDir + LAYOUT_SERVICE_BIN_DIR,
+		FSToolsConfDir:        fsToolsRootDir + LAYOUT_SERVICE_CONF_DIR,
+		FSToolsConfSrcPath:    fmt.Sprintf("%s/dingo.yaml", confSrcDir),
+		FSToolsConfSystemPath: fsToolsConfSystemPath,
+		FSToolsBinaryPath:     fmt.Sprintf("%s/%s", fsToolsBinDir, fsToolsBinaryName),
 
 		// mdsv2 client
-		MdsV2RootDir:        root + LAYOUT_MDSV2_CLIENT_DIR,
-		MdsV2CliBinDir:      root + LAYOUT_MDSV2_CLIENT_DIR + LAYOUT_SERVICE_BIN_DIR,
-		MdsV2CliConfDir:     root + LAYOUT_MDSV2_CLIENT_DIR + LAYOUT_SERVICE_CONF_DIR,
-		MdsV2CliConfSrcPath: fmt.Sprintf("%s/coor_list", root+LAYOUT_MDSV2_CLIENT_DIR+LAYOUT_SERVICE_CONF_DIR), // /dingofs/mds-client/conf/coor_list
-		MdsV2CliBinaryPath:  fmt.Sprintf("%s/%s", root+LAYOUT_MDSV2_CLIENT_DIR+LAYOUT_SERVICE_BIN_DIR, BINARY_MDSV2_CLIENT),
+		FSMdsRootDir:        root + LAYOUT_MDSV2_CLIENT_DIR,
+		FSMdsCliBinDir:      root + LAYOUT_MDSV2_CLIENT_DIR + LAYOUT_SERVICE_BIN_DIR,
+		FSMdsCliConfDir:     root + LAYOUT_MDSV2_CLIENT_DIR + LAYOUT_SERVICE_CONF_DIR,
+		FSMdsCliConfSrcPath: fmt.Sprintf("%s/coor_list", root+LAYOUT_MDSV2_CLIENT_DIR+LAYOUT_SERVICE_CONF_DIR), // /dingofs/mds-client/conf/coor_list
+		FSMdsCliBinaryPath:  fmt.Sprintf("%s/%s", root+LAYOUT_MDSV2_CLIENT_DIR+LAYOUT_SERVICE_BIN_DIR, BINARY_FS_MDS_CLIENT),
 
 		// format
 		FormatBinaryPath:      fmt.Sprintf("%s/%s", toolsBinDir, BINARY_CURVEBS_FORMAT),

@@ -23,10 +23,6 @@
  * Project: dingoadm
  * Author: dongwei (jackblack369)
  */
-/*
-* Project: dingoadm
-* Author: dongwei (jackblack369)
- */
 
 package command
 
@@ -59,7 +55,7 @@ const (
 	START_SNAPSHOTCLONE        = playbook.START_SNAPSHOTCLONE
 	START_METASERVER           = playbook.START_METASERVER
 	BALANCE_LEADER             = playbook.BALANCE_LEADER
-	START_MDSV2                = playbook.START_MDS_V2
+	START_MDSV2                = playbook.START_FS_MDS
 	START_COORDINATOR          = playbook.START_COORDINATOR
 	START_STORE                = playbook.START_STORE
 	START_MDSV2_CLI_CONTAINER  = playbook.START_MDSV2_CLI_CONTAINER
@@ -82,13 +78,13 @@ const (
 	ROLE_CHUNKSERVER      = topology.ROLE_CHUNKSERVER
 	ROLE_SNAPSHOTCLONE    = topology.ROLE_SNAPSHOTCLONE
 	ROLE_METASERVER       = topology.ROLE_METASERVER
-	ROLE_MDS_V2           = topology.ROLE_MDS_V2
+	ROLE_FS_MDS           = topology.ROLE_FS_MDS
 	ROLE_COORDINATOR      = topology.ROLE_COORDINATOR
 	ROLE_STORE            = topology.ROLE_STORE
 	ROLE_DINGODB_DOCUMENT = topology.ROLE_DINGODB_DOCUMENT
 	ROLE_DINGODB_INDEX    = topology.ROLE_DINGODB_INDEX
 	ROLE_DINGODB_DISKANN  = topology.ROLE_DINGODB_DISKANN
-	ROLE_MDSV2_CLI        = topology.ROLE_MDSV2_CLI
+	ROLE_MDSV2_CLI        = topology.ROLE_FS_MDS_CLI
 	ROLE_DINGODB_EXECUTOR = topology.ROLE_DINGODB_EXECUTOR
 	ROLE_DINGODB_WEB      = topology.ROLE_DINGODB_WEB
 	ROLE_DINGODB_PROXY    = topology.ROLE_DINGODB_PROXY
@@ -173,14 +169,14 @@ var (
 	DEPLOY_FILTER_ROLE = map[int]string{
 		START_ETCD:                 ROLE_ETCD,
 		ENABLE_ETCD_AUTH:           ROLE_ETCD,
-		START_MDS:                  ROLE_MDS_V2,
+		START_MDS:                  ROLE_FS_MDS,
 		START_CHUNKSERVER:          ROLE_CHUNKSERVER,
 		START_SNAPSHOTCLONE:        ROLE_SNAPSHOTCLONE,
 		START_METASERVER:           ROLE_METASERVER,
-		CREATE_PHYSICAL_POOL:       ROLE_MDS_V2,
-		CREATE_LOGICAL_POOL:        ROLE_MDS_V2,
-		BALANCE_LEADER:             ROLE_MDS_V2,
-		START_MDSV2:                ROLE_MDS_V2,
+		CREATE_PHYSICAL_POOL:       ROLE_FS_MDS,
+		CREATE_LOGICAL_POOL:        ROLE_FS_MDS,
+		BALANCE_LEADER:             ROLE_FS_MDS,
+		START_MDSV2:                ROLE_FS_MDS,
 		START_COORDINATOR:          ROLE_COORDINATOR,
 		START_STORE:                ROLE_STORE,
 		START_DINGODB_DOCUMENT:     ROLE_DINGODB_DOCUMENT,
@@ -337,7 +333,7 @@ func genDeployPlaybook(dingoadm *cli.DingoAdm,
 				// remove executor reference step which is the last step
 				steps = steps[:len(steps)-1]
 			}
-		} else if utils.ContainsList(roles, []string{topology.ROLE_MDS_V2, topology.ROLE_MDSV2_CLI}) {
+		} else if utils.ContainsList(roles, []string{topology.ROLE_FS_MDS, topology.ROLE_FS_MDS_CLI}) {
 			steps = DINGOFS_MDSV2_ONLY_DEPLOY_STEPS
 		} else if !utils.Contains(roles, topology.ROLE_METASERVER) {
 			steps = DINGOFS_MDS_DEPLOY_STEPS
@@ -400,18 +396,18 @@ func statistics(dcs []*topology.DeployConfig) map[string]int {
 func serviceStats(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig) string {
 	count := statistics(dcs)
 	netcd := count[topology.ROLE_ETCD]
-	nmds := count[topology.ROLE_MDS_V2]
+	nmds := count[topology.ROLE_FS_MDS]
 	nmetaserver := count[topology.ROLE_METASERVER]
 
 	var serviceStats string
 	kind := dcs[0].GetKind()
 	if kind == topology.KIND_DINGOFS {
 		roles := dingoadm.GetRoles(dcs)
-		if utils.Contains(roles, topology.ROLE_MDS_V2) {
+		if utils.Contains(roles, topology.ROLE_FS_MDS) {
 			// mds v2
 			ncoordinator := count[topology.ROLE_COORDINATOR]
 			nstore := count[topology.ROLE_STORE]
-			nmdsv2 := count[topology.ROLE_MDS_V2]
+			nmdsv2 := count[topology.ROLE_FS_MDS]
 			nexecutor := count[topology.ROLE_DINGODB_EXECUTOR]
 			serviceStats = fmt.Sprintf("coordinator*%d, store*%d, mds*%d, executor*%d", ncoordinator, nstore, nmdsv2, nexecutor)
 		} else {

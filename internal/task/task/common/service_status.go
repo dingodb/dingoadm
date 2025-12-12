@@ -202,7 +202,7 @@ func (s *step2GetLeader) Execute(ctx *context.Context) error {
 	dc := s.dc
 	if !strings.HasPrefix(*s.status, "Up") {
 		return nil
-	} else if dc.GetRole() != topology.ROLE_MDS_V2 {
+	} else if dc.GetRole() != topology.ROLE_FS_MDS {
 		return nil
 	}
 

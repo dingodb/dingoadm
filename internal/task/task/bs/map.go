@@ -125,7 +125,7 @@ func NewMapTask(curveadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.Task,
 		ContainerDestPath: scriptPath,
 		ExecOptions:       curveadm.ExecOptions(),
 	})
-	t.AddStep(&step.TrySyncFile{ // sync tools-v2 config
+	t.AddStep(&step.TrySyncFile{ // sync dingofs-tools config
 		ContainerSrcId:    &containerId,
 		ContainerSrcPath:  TOOLS_V2_CONFIG_SRC_PATH,
 		ContainerDestId:   &containerId,

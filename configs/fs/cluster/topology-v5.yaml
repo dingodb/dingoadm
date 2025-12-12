@@ -1,0 +1,65 @@
+kind: dingofs
+global:
+  container_image: dingodatabase/dingofs:latest
+  data_dir: /mnt/vdb/lv${service_replica_sequence}/dingofs-v5/data/${service_role}
+  log_dir: /mnt/vdb/lv${service_replica_sequence}/dingofs-v5/logs/${service_role}
+  raft_dir: /mnt/vdb/lv${service_replica_sequence}/dingofs-v5/raft/${service_role}
+  default_replica_num: 3
+  #source_core_dir: /mnt/vdb/lv0/core
+  #target_core_dir: /mnt/vdb/lv0/core
+  #restart_policy: no
+  variable:
+    home: /tmp
+    machine1: server-host1
+    machine2: server-host2
+    machine3: server-host3
+
+coordinator_services:
+  config:
+    container_image: dingodatabase/dingo-store:latest
+    server.port: 6500
+    raft.port: 7500
+    gflags.dingo_log_switch_scalar_speed_up_detail: false
+  deploy:
+    - host: ${machine1}
+    - host: ${machine2}
+    - host: ${machine3}
+
+store_services:
+  config:
+    container_image: dingodatabase/dingo-store:latest
+    server.port: 6600
+    raft.port: 7600
+    gflags.dingo_log_switch_txn_detail: true
+  deploy:
+    - host: ${machine1}
+    - host: ${machine2}
+    - host: ${machine3}
+
+mds_services:
+  config:
+    server.port: 690${service_replica_sequence}
+    mds_log_level: DEBUG
+    mds_gc_delfile_enable: false
+    mds_gc_delslice_enable: false
+    mds_gc_filesession_enable: false
+    mds_compact_chunk_threshold_num: 100000
+  deploy:
+    - host: ${machine1}
+      replicas: 3
+    - host: ${machine2}
+      replicas: 3
+    - host: ${machine3}
+      replicas: 3
+
+executor_services:
+  config:
+    container_image: dingodatabase/dingo:latest
+    port: 18765
+    mysqlPort: 13307
+    java.Xms: 1g
+    java.Xmx: 1g
+    java.SoftMaxHeapSize: 512m
+    java.MaxDirectMemorySize: 256m
+  deploy:
+    - host: ${machine1}

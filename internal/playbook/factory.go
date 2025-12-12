@@ -72,7 +72,7 @@ const (
 	START_CHUNKSERVER
 	START_SNAPSHOTCLONE
 	START_METASERVER
-	START_MDS_V2
+	START_FS_MDS
 	START_COORDINATOR
 	START_STORE
 	START_MDSV2_CLI_CONTAINER
@@ -220,7 +220,7 @@ func (p *Playbook) createTasks(step *PlaybookStep) (*tasks.Tasks, error) {
 		case CHECK_SSH_CONNECT:
 			t, err = checker.NewCheckSSHConnectTask(dingoadm, config.GetDC(i))
 		case CHECK_PERMISSION:
-			if config.GetDC(i).GetRole() == topology.ROLE_MDSV2_CLI {
+			if config.GetDC(i).GetRole() == topology.ROLE_FS_MDS_CLI {
 				continue
 			}
 			t, err = checker.NewCheckPermissionTask(dingoadm, config.GetDC(i))
@@ -229,17 +229,17 @@ func (p *Playbook) createTasks(step *PlaybookStep) (*tasks.Tasks, error) {
 		case CHECK_KERNEL_MODULE:
 			t, err = checker.NewCheckKernelModuleTask(dingoadm, config.GetCC(i))
 		case CHECK_PORT_IN_USE:
-			if config.GetDC(i).GetRole() == topology.ROLE_MDSV2_CLI {
+			if config.GetDC(i).GetRole() == topology.ROLE_FS_MDS_CLI {
 				continue
 			}
 			t, err = checker.NewCheckPortInUseTask(dingoadm, config.GetDC(i))
 		case CHECK_DESTINATION_REACHABLE:
-			if config.GetDC(i).GetRole() == topology.ROLE_MDSV2_CLI {
+			if config.GetDC(i).GetRole() == topology.ROLE_FS_MDS_CLI {
 				continue
 			}
 			t, err = checker.NewCheckDestinationReachableTask(dingoadm, config.GetDC(i))
 		case START_HTTP_SERVER:
-			if config.GetDC(i).GetRole() == topology.ROLE_MDSV2_CLI {
+			if config.GetDC(i).GetRole() == topology.ROLE_FS_MDS_CLI {
 				continue
 			}
 			t, err = checker.NewStartHTTPServerTask(dingoadm, config.GetDC(i))
@@ -258,7 +258,7 @@ func (p *Playbook) createTasks(step *PlaybookStep) (*tasks.Tasks, error) {
 		case CHECK_STORE_HEALTH:
 			t, err = comm.NewCheckStoreHealthTask(dingoadm, config.GetDC(i))
 		case CLEAN_PRECHECK_ENVIRONMENT:
-			if config.GetDC(i).GetRole() == topology.ROLE_MDSV2_CLI {
+			if config.GetDC(i).GetRole() == topology.ROLE_FS_MDS_CLI {
 				continue
 			}
 			t, err = checker.NewCleanEnvironmentTask(dingoadm, config.GetDC(i))
@@ -277,7 +277,7 @@ func (p *Playbook) createTasks(step *PlaybookStep) (*tasks.Tasks, error) {
 			START_CHUNKSERVER,
 			START_SNAPSHOTCLONE,
 			START_METASERVER,
-			START_MDS_V2,
+			START_FS_MDS,
 			START_COORDINATOR,
 			START_STORE,
 			START_DINGODB_DOCUMENT,
