@@ -110,7 +110,7 @@ var (
 		{name: "service_addr", lookup: true},
 		{name: "service_port"},
 		{name: "service_client_port", role: []string{ROLE_ETCD}},
-		{name: "service_dummy_port", role: []string{ROLE_SNAPSHOTCLONE, ROLE_MDS_V2}},
+		{name: "service_dummy_port", role: []string{ROLE_SNAPSHOTCLONE, ROLE_FS_MDS}},
 		{name: "service_proxy_port", role: []string{ROLE_SNAPSHOTCLONE}},
 		{name: "service_external_addr", role: []string{ROLE_CHUNKSERVER, ROLE_METASERVER}, lookup: true},
 		{name: "service_external_port", role: []string{ROLE_METASERVER}},
@@ -320,11 +320,11 @@ func getValue(name string, dcs []*DeployConfig, idx int) string {
 	case "cluster_etcd_addr":
 		return joinPeer(dcs, ROLE_ETCD, SELECT_LISTEN_CLIENT_PORT)
 	case "cluster_mds_addr":
-		return joinPeer(dcs, ROLE_MDS_V2, SELECT_LISTEN_PORT)
+		return joinPeer(dcs, ROLE_FS_MDS, SELECT_LISTEN_PORT)
 	case "cluster_mds_dummy_addr":
-		return joinPeer(dcs, ROLE_MDS_V2, SELECT_LISTEN_DUMMY_PORT)
+		return joinPeer(dcs, ROLE_FS_MDS, SELECT_LISTEN_DUMMY_PORT)
 	case "cluster_mds_dummy_port":
-		return joinDummyPort(dcs, ROLE_MDS_V2)
+		return joinDummyPort(dcs, ROLE_FS_MDS)
 	case "cluster_chunkserver_addr":
 		return joinPeer(dcs, ROLE_CHUNKSERVER, SELECT_LISTEN_PORT)
 	case "cluster_snapshotclone_addr":
@@ -343,7 +343,7 @@ func getValue(name string, dcs []*DeployConfig, idx int) string {
 	case "cluster_coor_raft_peers":
 		return joinPeer(dcs, ROLE_COORDINATOR, SELECT_LISTEN_COOR_RAFT_PORT)
 	case "cluster_mdsv2_addr":
-		return joinPeer(dcs, ROLE_MDS_V2, SELECT_SERVER_PORT)
+		return joinPeer(dcs, ROLE_FS_MDS, SELECT_SERVER_PORT)
 	case "diskann_server_start_port":
 		return strconv.Itoa(locateDiskannPort(dcs))
 	}

@@ -55,7 +55,7 @@ const (
 	ROLE_CHUNKSERVER      = topology.ROLE_CHUNKSERVER
 	ROLE_SNAPSHOTCLONE    = topology.ROLE_SNAPSHOTCLONE
 	ROLE_METASERVER       = topology.ROLE_METASERVER
-	ROLE_MDS_V2           = topology.ROLE_MDS_V2
+	ROLE_FS_MDS           = topology.ROLE_FS_MDS
 	ROLE_COORDINATOR      = topology.ROLE_COORDINATOR
 	ROLE_STORE            = topology.ROLE_STORE
 	ROLE_DINGODB_DOCUMENT = topology.ROLE_DINGODB_DOCUMENT
@@ -69,10 +69,10 @@ const (
 var (
 	CONNECT = map[string][]string{
 		ROLE_ETCD:          {ROLE_ETCD},
-		ROLE_MDS_V2:        {ROLE_MDS_V2, ROLE_ETCD},
-		ROLE_CHUNKSERVER:   {ROLE_CHUNKSERVER, ROLE_MDS_V2},
+		ROLE_FS_MDS:        {ROLE_FS_MDS, ROLE_ETCD},
+		ROLE_CHUNKSERVER:   {ROLE_CHUNKSERVER, ROLE_FS_MDS},
 		ROLE_SNAPSHOTCLONE: {ROLE_SNAPSHOTCLONE},
-		ROLE_METASERVER:    {ROLE_METASERVER, ROLE_MDS_V2},
+		ROLE_METASERVER:    {ROLE_METASERVER, ROLE_FS_MDS},
 	}
 )
 
@@ -132,21 +132,21 @@ func getServiceListenAddresses(dc *topology.DeployConfig) []Address {
 			})
 		}
 
-	case ROLE_MDS_V2:
+	case ROLE_FS_MDS:
 		if dc.GetCtx().Lookup(topology.CTX_KEY_MDS_VERSION) == topology.CTX_VAL_MDS_V1 {
 			address = append(address, Address{
-				Role: ROLE_MDS_V2,
+				Role: ROLE_FS_MDS,
 				IP:   dc.GetListenIp(),
 				Port: dc.GetListenPort(),
 			})
 			address = append(address, Address{
-				Role: ROLE_MDS_V2,
+				Role: ROLE_FS_MDS,
 				IP:   dc.GetListenIp(),
 				Port: dc.GetListenDummyPort(),
 			})
 		} else {
 			address = append(address, Address{
-				Role: ROLE_MDS_V2,
+				Role: ROLE_FS_MDS,
 				IP:   dc.GetListenIp(),
 				// Port: dc.GetListenPort(),
 				Port: dc.GetDingoServerPort(),

@@ -264,7 +264,7 @@ func parsePrometheusTarget(dcs []*topology.DeployConfig) (string, error) {
 			item = fmt.Sprintf("%s:%d", ip, dc.GetListenPort())
 		case topology.ROLE_SNAPSHOTCLONE:
 			item = fmt.Sprintf("%s:%d", ip, dc.GetListenDummyPort())
-		case topology.ROLE_MDS_V2,
+		case topology.ROLE_FS_MDS,
 			topology.ROLE_COORDINATOR,
 			topology.ROLE_STORE:
 			item = fmt.Sprintf("%s:%d", ip, dc.GetDingoServerPort())

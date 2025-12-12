@@ -52,7 +52,7 @@ var (
 		playbook.START_SERVICE,
 	}
 
-	UPGRADE_STORE_MDSV2_STEPS = []int{
+	UPGRADE_STORE_FS_STEPS = []int{
 		playbook.PULL_IMAGE,
 		playbook.STOP_SERVICE,
 		playbook.CLEAN_SERVICE,
@@ -61,7 +61,7 @@ var (
 		playbook.START_COORDINATOR,
 		playbook.START_STORE,
 		playbook.CHECK_STORE_HEALTH,
-		playbook.START_MDS_V2,
+		playbook.START_FS_MDS,
 		playbook.START_DINGODB_EXECUTOR,
 	}
 )
@@ -113,9 +113,9 @@ func genUpgradePlaybook(dingoadm *cli.DingoAdm,
 	}
 	steps := UPGRADE_PLAYBOOK_STEPS
 	roles := dingoadm.GetRoles(dcs)
-	if utils.Contains(roles, topology.ROLE_MDS_V2) {
+	if utils.Contains(roles, topology.ROLE_FS_MDS) {
 		// upgrade mds v2
-		steps = UPGRADE_STORE_MDSV2_STEPS
+		steps = UPGRADE_STORE_FS_STEPS
 	}
 
 	if options.useLocalImage {

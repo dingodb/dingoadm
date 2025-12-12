@@ -52,9 +52,9 @@ const (
 	ROLE_SNAPSHOTCLONE = "snapshotclone"
 	ROLE_METASERVER    = "metaserver"
 
-	// dingofs mdsv2
-	ROLE_MDS_V2    = "mds"
-	ROLE_MDSV2_CLI = "mds-client" // tmp role: e.g. create meta tables
+	// dingofs mds
+	ROLE_FS_MDS     = "mds"
+	ROLE_FS_MDS_CLI = "mds-client" // tmp role: e.g. create meta tables
 
 	// dingo-store
 	ROLE_COORDINATOR      = "coordinator"
@@ -83,7 +83,7 @@ const (
 var SKIP_ALL_ROLES = []string{
 	ROLE_COORDINATOR,
 	ROLE_STORE,
-	ROLE_MDS_V2,
+	ROLE_FS_MDS,
 	ROLE_ETCD,
 	ROLE_METASERVER,
 	ROLE_DINGODB_EXECUTOR,
@@ -342,9 +342,9 @@ func FetchSkipRoles(kind string, dcs []*DeployConfig, roles []string) []string {
 	var skipRoles []string
 	if kind == KIND_DINGOFS {
 		if dcs[0].GetCtx().Lookup(CTX_KEY_MDS_VERSION) == CTX_VAL_MDS_V1 {
-			skipRoles = append(skipRoles, ROLE_COORDINATOR, ROLE_STORE, ROLE_MDS_V2)
+			skipRoles = append(skipRoles, ROLE_COORDINATOR, ROLE_STORE, ROLE_FS_MDS)
 		} else if utils.Contains(roles, ROLE_COORDINATOR) {
-			skipRoles = append(skipRoles, ROLE_ETCD, ROLE_METASERVER, ROLE_MDS_V2)
+			skipRoles = append(skipRoles, ROLE_ETCD, ROLE_METASERVER, ROLE_FS_MDS)
 		} else {
 			skipRoles = SKIP_ALL_ROLES
 		}

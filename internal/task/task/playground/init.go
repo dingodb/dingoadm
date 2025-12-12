@@ -46,9 +46,9 @@ import (
 )
 
 const (
-	DEFAULT_CONFIG_DELIMITER  = "="
-	ETCD_CONFIG_DELIMITER     = ": "
-	TOOLS_V2_CONFIG_DELIMITER = ": "
+	DEFAULT_CONFIG_DELIMITER       = "="
+	ETCD_CONFIG_DELIMITER          = ": "
+	DINGOFS_TOOLS_CONFIG_DELIMITER = ": "
 )
 
 func newMutate(cfg interface{}, delimiter string) step.Mutate {
@@ -159,13 +159,13 @@ func NewInitPlaygroundTask(dingoadm *cli.DingoAdm, cfg *configure.PlaygroundConf
 		//	Mutate:            newMutate(dc, DEFAULT_CONFIG_DELIMITER),
 		//	ExecOptions:       execOptions(curveadm),
 		//})
-		t.AddStep(&step.TrySyncFile{ // sync tools-v2 config
+		t.AddStep(&step.TrySyncFile{ // sync dingofs-tools config
 			ContainerSrcId:    &containerId,
-			ContainerSrcPath:  layout.ToolsV2ConfSrcPath,
+			ContainerSrcPath:  layout.FSToolsConfSrcPath,
 			ContainerDestId:   &containerId,
-			ContainerDestPath: layout.ToolsV2ConfSystemPath,
-			KVFieldSplit:      TOOLS_V2_CONFIG_DELIMITER,
-			Mutate:            common.NewMutate(dc, TOOLS_V2_CONFIG_DELIMITER, false),
+			ContainerDestPath: layout.FSToolsConfSystemPath,
+			KVFieldSplit:      DINGOFS_TOOLS_CONFIG_DELIMITER,
+			Mutate:            common.NewMutate(dc, DINGOFS_TOOLS_CONFIG_DELIMITER, false),
 			ExecOptions:       dingoadm.ExecOptions(),
 		})
 	}

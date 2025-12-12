@@ -156,8 +156,8 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*t
 	// confServiceId = dingoadm.GetServiceId(fmt.Sprintf("%s_%s", ROLE_MONITOR_SYNC, cfg.GetHost()))
 	// confContainerId, err := dingoadm.GetContainerId(serviceId)
 
-	if role == ROLE_PROMETHEUS {
-
+	switch role {
+	case ROLE_PROMETHEUS:
 		// replace prometheus/prometheus.yml port info
 		sedCMD := fmt.Sprintf(`sed -i 's/localhost:[0-9]*/localhost:%d/g' %s/prometheus.yml`, cfg.GetListenPort(), cfg.GetConfDir())
 		t.AddStep(&step.Command{
@@ -184,7 +184,7 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*t
 			ExecOptions: dingoadm.ExecOptions(),
 		})
 
-	} else if role == ROLE_GRAFANA {
+	case ROLE_GRAFANA:
 
 		// replace grafana/provisioning/datasources/all.yml port info
 		sedPortCMD := fmt.Sprintf(`sed -i 's/localhost:[0-9]*/localhost:%d/g' %s/datasources/all.yml`, cfg.GetPrometheusListenPort(), cfg.GetProvisionDir())
@@ -194,7 +194,7 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*t
 			ExecOptions: dingoadm.ExecOptions(),
 		})
 
-	} else if role == ROLE_MONITOR_SYNC {
+	case ROLE_MONITOR_SYNC:
 
 		confID := cfg.GetServiceConfig()[configure.KEY_ORIGIN_CONFIG_ID].(string)
 		confServiceId := dingoadm.GetServiceId(confID)
@@ -203,7 +203,7 @@ func NewSyncConfigTask(dingoadm *cli.DingoAdm, cfg *configure.MonitorConfig) (*t
 			return nil, err
 		}
 
-		t.AddStep(&step.TrySyncFile{ // sync tools-v2 config
+		t.AddStep(&step.TrySyncFile{ // sync dingofs-tools config
 			ContainerSrcId:    &confContainerId,
 			ContainerSrcPath:  DINGO_TOOL_DEST_PATH,
 			ContainerDestId:   &containerId,

@@ -234,7 +234,7 @@ func newToolsMutate(cc *configure.ClientConfig, delimiter string) step.Mutate {
 	}
 }
 
-func newToolsV2Mutate(cc *configure.ClientConfig, delimiter string, fstype string) step.Mutate {
+func newFSToolsMutate(cc *configure.ClientConfig, delimiter string, fstype string) step.Mutate {
 	clientConfig := cc.GetServiceConfig()
 	mdsAddrKey := "mdsOpt.rpcRetryOpt.addrs"
 	if fstype == configure.FS_TYPE_VKS_V2 {
@@ -443,13 +443,13 @@ func NewMountFSTask(dingoadm *cli.DingoAdm, cc *configure.ClientConfig) (*task.T
 	//	Mutate:            newToolsMutate(cc, comm.CLIENT_CONFIG_DELIMITER),
 	//	ExecOptions:       curveadm.ExecOptions(),
 	//})
-	t.AddStep(&step.TrySyncFile{ // sync tools-v2 config
+	t.AddStep(&step.TrySyncFile{ // sync dingofs-tools config
 		ContainerSrcId:    &containerId,
 		ContainerSrcPath:  fetchDingoConfigPath(useNewDingo, root),
 		ContainerDestId:   &containerId,
-		ContainerDestPath: topology.GetDingoFSProjectLayout().ToolsV2ConfSystemPath,
+		ContainerDestPath: topology.GetDingoFSProjectLayout().FSToolsConfSystemPath,
 		KVFieldSplit:      comm.TOOLS_V2_CONFIG_DELIMITER,
-		Mutate:            newToolsV2Mutate(cc, comm.TOOLS_V2_CONFIG_DELIMITER, fstype),
+		Mutate:            newFSToolsMutate(cc, comm.TOOLS_V2_CONFIG_DELIMITER, fstype),
 		ExecOptions:       dingoadm.ExecOptions(),
 	})
 	t.AddStep(&step.InstallFile{ // install client.sh shell

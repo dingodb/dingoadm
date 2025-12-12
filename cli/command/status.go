@@ -157,7 +157,7 @@ func displayStatus(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options
 	roles := dingoadm.GetRoles(dcs)
 	isMdsv2 := dcs[0].GetCtx().Lookup(topology.CTX_KEY_MDS_VERSION) == topology.CTX_VAL_MDS_V2
 	isMdsv2Only := false
-	if utils.ContainsList(roles, []string{topology.ROLE_MDS_V2, topology.ROLE_MDSV2_CLI}) && len(roles) == 2 {
+	if utils.ContainsList(roles, []string{topology.ROLE_FS_MDS, topology.ROLE_FS_MDS_CLI}) && len(roles) == 2 {
 		isMdsv2Only = true
 		excludeCols = append(excludeCols, "Data Dir")
 	}
@@ -198,7 +198,7 @@ func displayStatus(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig, options
 			dingoadm.WriteOutln("cluster name     : %s", dingoadm.ClusterName())
 			dingoadm.WriteOutln("cluster kind     : %s", dcs[0].GetKind())
 			dingoadm.WriteOutln("mds     addr     : %s", getClusterMdsV2Addr(dcs))
-			if utils.ContainsList(roles, []string{topology.ROLE_MDS_V2, topology.ROLE_MDSV2_CLI}) {
+			if utils.ContainsList(roles, []string{topology.ROLE_FS_MDS, topology.ROLE_FS_MDS_CLI}) {
 				dingoadm.WriteOutln("coordinator addr : %s", dcs[0].GetDingoStoreCoordinatorAddr())
 			} else {
 				dingoadm.WriteOutln("coordinator addr : %s", getClusterCoorAddr(dcs))
@@ -237,7 +237,7 @@ func genStatusPlaybook(dingoadm *cli.DingoAdm,
 
 	// skip ROLE_TMP dc
 	for i := 0; i < len(dcs); i++ {
-		if dcs[i].GetRole() == topology.ROLE_MDSV2_CLI {
+		if dcs[i].GetRole() == topology.ROLE_FS_MDS_CLI {
 			dcs = append(dcs[:i], dcs[i+1:]...)
 			i-- // adjust index after removal
 		}

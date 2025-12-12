@@ -151,7 +151,7 @@ func checkChunkserverOnline(success *bool, out *string) step.LambdaType {
 
 func genCreatePoolCommand(dc *topology.DeployConfig, pooltype, poolJSONPath string) string {
 	layout := dc.GetProjectLayout()
-	toolsBinaryPath := layout.ToolsV2BinaryPath // v1: ToolsBinaryPath , v2: ToolsV2BinaryPath
+	toolsBinaryPath := layout.FSToolsBinaryPath // v1: ToolsBinaryPath , v2: ToolsV2BinaryPath
 	if dc.GetKind() == topology.KIND_DINGOFS {
 		// for curvefs, the default topology json path is current directory's topology.json
 		return fmt.Sprintf("%s create topology --clustermap=%s", toolsBinaryPath, poolJSONPath)
@@ -211,9 +211,9 @@ func NewCreateTopologyTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (*
 	var out string
 	host, role := dc.GetHost(), dc.GetRole()
 	layout := dc.GetProjectLayout()
-	poolJSONPath := fmt.Sprintf("%s/topology.json", layout.ToolsV2ConfDir) // v1: ToolsConfDir , v2: ToolsV2ConfDir
+	poolJSONPath := fmt.Sprintf("%s/topology.json", layout.FSToolsConfDir) // v1: ToolsConfDir , v2: ToolsV2ConfDir
 	waitScript := scripts.WAIT
-	waitScriptPath := fmt.Sprintf("%s/wait.sh", layout.ToolsV2BinDir) // v1: ToolsBinDir, v2: ToolsV2BinDir
+	waitScriptPath := fmt.Sprintf("%s/wait.sh", layout.FSToolsBinDir) // v1: ToolsBinDir, v2: ToolsV2BinDir
 	clusterPoolJson, clusterMDSAddrs, err := prepare(dingoadm, dc)
 	if err != nil {
 		return nil, err
