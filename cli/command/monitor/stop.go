@@ -95,7 +95,7 @@ func genStopPlaybook(dingoadm *cli.DingoAdm,
 
 func runStop(dingoadm *cli.DingoAdm, options stopOptions) error {
 	// 1) parse monitor config
-	mcs, err := parseMonitorConfig(dingoadm)
+	mcs, err := configure.ParseMonitor(dingoadm)
 	if err != nil {
 		return err
 	}

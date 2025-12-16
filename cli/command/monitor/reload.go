@@ -105,7 +105,7 @@ func genReloadPlaybook(dingoadm *cli.DingoAdm,
 
 func runReload(dingoadm *cli.DingoAdm, options reloadOptions) error {
 	// 1) parse monitor configure
-	mcs, err := parseMonitorConfig(dingoadm)
+	mcs, err := configure.ParseMonitor(dingoadm)
 	if err != nil {
 		return err
 	}

@@ -33,10 +33,11 @@ import (
 
 	"github.com/dingodb/dingoadm/cli/cli"
 	"github.com/dingodb/dingoadm/internal/common"
-	"github.com/dingodb/dingoadm/internal/configure/hosts"
+	confHost "github.com/dingodb/dingoadm/internal/configure/hosts"
 	"github.com/dingodb/dingoadm/internal/configure/topology"
 	"github.com/dingodb/dingoadm/internal/errno"
 	"github.com/dingodb/dingoadm/pkg/variable"
+	"github.com/mitchellh/hashstructure/v2"
 	"github.com/spf13/viper"
 )
 
@@ -61,6 +62,9 @@ const (
 	KEY_PROMETHEUS_PORT  = "prometheus_listen_port"
 
 	KEY_ORIGIN_CONFIG_ID = "origin_config_id"
+
+	INFO_TYPE_FILE = "file"
+	INFO_TYPE_DATA = "data"
 )
 
 type (
@@ -73,7 +77,7 @@ type (
 		Deploy []deploy               `mapstructure:"deploy"`
 	}
 
-	monitor struct {
+	Monitor struct {
 		Global       map[string]interface{} `mapstructure:"global"`
 		NodeExporter service                `mapstructure:"node_exporter"`
 		Prometheus   service                `mapstructure:"prometheus"`
@@ -103,7 +107,16 @@ type (
 		Role string
 		Host string
 	}
+
+	MonitorDiff struct {
+		DiffType      int
+		MonitorConfig *MonitorConfig
+	}
 )
+
+func (m *MonitorConfig) getConfig() map[string]interface{} {
+	return m.config
+}
 
 func (m *MonitorConfig) getString(data *map[string]interface{}, key string) string {
 	v := (*data)[strings.ToLower(key)]
@@ -223,7 +236,7 @@ func (m *MonitorConfig) GetContext() *topology.Context {
 	return m.ctx
 }
 
-func getHost(c *monitor, role string) []string {
+func getHost(c *Monitor, role string) []string {
 	hosts := []string{}
 	for _, d := range c.NodeExporter.Deploy {
 		hosts = append(hosts, d.Host)
@@ -290,32 +303,69 @@ func parsePrometheusTarget(dcs []*topology.DeployConfig) (string, error) {
 	return string(target), nil
 }
 
-func ParseMonitorConfig(dingoadm *cli.DingoAdm, filename string, data string, hs []string,
-	hostIps []string, dcs []*topology.DeployConfig) (
-	[]*MonitorConfig, error) {
+func parseHosts(dingoadm *cli.DingoAdm) ([]string, []string, []*topology.DeployConfig, error) {
+	dcs, err := dingoadm.ParseTopology()
+	if err != nil || len(dcs) == 0 {
+		return nil, nil, nil, err
+	}
+	hosts := []string{}
+	hostIps := []string{}
+	thostMap := make(map[string]bool)
+	thostIpMap := make(map[string]bool)
+	for _, dc := range dcs {
+		thostMap[dc.GetHost()] = true
+		thostIpMap[dc.GetListenIp()] = true
+	}
+	for key := range thostMap {
+		hosts = append(hosts, key)
+	}
+	for key := range thostIpMap {
+		hostIps = append(hostIps, key)
+	}
+	return hosts, hostIps, dcs, nil
+}
+
+func ParseMonitor(dingoadm *cli.DingoAdm) ([]*MonitorConfig, error) {
+	return ParseMonitorInfo(dingoadm, dingoadm.Monitor().Monitor, INFO_TYPE_DATA)
+}
+
+// ParseMonitorFile parses monitor configuration from a file or from existing monitor data. infoType can be "file" or "data".
+func ParseMonitorInfo(dingoadm *cli.DingoAdm, info string, infoType string) ([]*MonitorConfig, error) {
+	hosts, hostIps, dcs, err := parseHosts(dingoadm)
+	if err != nil {
+		return nil, err
+	}
+
+	// parse monitor configure
 	parser := viper.NewWithOptions(viper.KeyDelimiter("::"))
 	parser.SetConfigType("yaml")
-	if len(data) != 0 && data != common.CLEANED_MONITOR_CONF {
-		if err := parser.ReadConfig(bytes.NewBuffer([]byte(data))); err != nil {
-			return nil, errno.ERR_PARSE_MONITOR_CONFIGURE_FAILED.E(err)
-		}
-	} else if len(filename) != 0 {
-		parser.SetConfigFile(filename)
+
+	switch infoType {
+	case INFO_TYPE_FILE:
+		parser.SetConfigFile(info)
 		if err := parser.ReadInConfig(); err != nil {
 			return nil, errno.ERR_PARSE_MONITOR_CONFIGURE_FAILED.E(err)
 		}
-	} else {
-		return nil, errno.ERR_PARSE_MONITOR_CONFIGURE_FAILED
+	case INFO_TYPE_DATA:
+		if len(info) != 0 && info != common.CLEANED_MONITOR_CONF {
+			if err := parser.ReadConfig(bytes.NewBuffer([]byte(info))); err != nil {
+				return nil, errno.ERR_PARSE_MONITOR_CONFIGURE_FAILED.E(err)
+			}
+		} else {
+			return nil, errno.ERR_PARSE_MONITOR_CONFIGURE_FAILED
+		}
+	default:
+		return nil, errno.ERR_PARSE_MONITOR_CONFIGURE_FAILED.F("invalid info type: %s", infoType)
 	}
 
-	config := monitor{}
+	config := Monitor{}
 	if err := parser.Unmarshal(&config); err != nil {
 		return nil, errno.ERR_PARSE_MONITOR_CONFIGURE_FAILED.E(err)
 	}
 
 	// get host -> hostname(ip)
 	ctx := topology.NewContext()
-	hcs, err := hosts.ParseHosts(dingoadm.Hosts())
+	hcs, err := confHost.ParseHosts(dingoadm.Hosts())
 	if err != nil {
 		return nil, err
 	}
@@ -386,7 +436,7 @@ func ParseMonitorConfig(dingoadm *cli.DingoAdm, filename string, data string, hs
 			},
 			)
 		case ROLE_NODE_EXPORTER:
-			for hostSequence, h := range hs {
+			for hostSequence, h := range hosts {
 				ret = append(ret, &MonitorConfig{
 					kind:         mkind,
 					id:           fmt.Sprintf("%s_%s", role, h),
@@ -430,4 +480,117 @@ func FilterMonitorConfig(dingoadm *cli.DingoAdm, mcs []*MonitorConfig,
 		}
 	}
 	return ret
+}
+
+// DiffMonitor compares two monitor configuration data and returns the differences.
+// data1: existing monitor configuration, data2: new monitor configuration.
+func DiffMonitor(dingoadm *cli.DingoAdm, data1, data2 string) ([]MonitorDiff, error) {
+	if len(data1) == 0 {
+		return nil, errno.ERR_EMPTY_CLUSTER_TOPOLOGY
+	}
+
+	mcs, err := ParseMonitorInfo(dingoadm, data1, INFO_TYPE_DATA)
+	if err != nil {
+		return nil, err // err is error code
+	}
+	if len(mcs) == 0 {
+		return nil, errno.ERR_NO_SERVICES_IN_TOPOLOGY
+	}
+	return diffMonitor(dingoadm, data1, data2)
+}
+
+// return ids which belong to ids1, but not belong to ids2
+func difference(ids1, ids2 map[string]*MonitorConfig) map[string]*MonitorConfig {
+	ids := map[string]*MonitorConfig{}
+	for k, v := range ids1 {
+		if _, ok := ids2[k]; !ok {
+			ids[k] = v
+		}
+	}
+
+	return ids
+}
+
+func hash(mc *MonitorConfig) (uint64, error) {
+	return hashstructure.Hash(mc.getConfig(), hashstructure.FormatV2, nil)
+}
+
+func same(mc1, mc2 *MonitorConfig) (bool, error) {
+	hash1, err := hash(mc1)
+	if err != nil {
+		return false, errno.ERR_CREATE_HASH_FOR_TOPOLOGY_FAILED.E(err)
+	}
+
+	hash2, err := hash(mc2)
+	if err != nil {
+		return false, errno.ERR_CREATE_HASH_FOR_TOPOLOGY_FAILED.E(err)
+	}
+
+	return hash1 == hash2, nil
+}
+
+func diffMonitor(dingoadm *cli.DingoAdm, data1, data2 string) ([]MonitorDiff, error) {
+	var mcs1, mcs2 []*MonitorConfig
+	var err error
+
+	mcs1, err = ParseMonitorInfo(dingoadm, data1, INFO_TYPE_DATA)
+	if err != nil {
+		return nil, err
+	}
+
+	mcs2, err = ParseMonitorInfo(dingoadm, data2, INFO_TYPE_DATA)
+	if err != nil {
+		return nil, err
+	}
+
+	ids1 := map[string]*MonitorConfig{}
+	for _, dc := range mcs1 {
+		ids1[dc.GetId()] = dc
+	}
+
+	ids2 := map[string]*MonitorConfig{}
+	for _, dc := range mcs2 {
+		ids2[dc.GetId()] = dc
+	}
+
+	diffs := []MonitorDiff{}
+
+	// DELETE
+	deleteIds := difference(ids1, ids2)
+	for _, mc := range deleteIds {
+		diffs = append(diffs, MonitorDiff{
+			DiffType:      topology.DIFF_DELETE,
+			MonitorConfig: mc,
+		})
+	}
+
+	// ADD
+	addIds := difference(ids2, ids1)
+	for _, mc := range addIds {
+		diffs = append(diffs, MonitorDiff{
+			DiffType:      topology.DIFF_ADD,
+			MonitorConfig: mc,
+		})
+	}
+
+	// CHANGE
+	for id, mc := range ids2 {
+		if _, ok := deleteIds[id]; ok {
+			continue
+		} else if _, ok := addIds[id]; ok {
+			continue
+		}
+
+		ok, err := same(ids1[id], mc)
+		if err != nil {
+			return nil, err
+		} else if !ok {
+			diffs = append(diffs, MonitorDiff{
+				DiffType:      topology.DIFF_CHANGE,
+				MonitorConfig: mc,
+			})
+		}
+	}
+
+	return diffs, nil
 }

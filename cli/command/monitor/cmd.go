@@ -28,6 +28,7 @@ package monitor
 
 import (
 	"github.com/dingodb/dingoadm/cli/cli"
+	"github.com/dingodb/dingoadm/cli/command/monitor/config"
 	cliutil "github.com/dingodb/dingoadm/internal/utils"
 	"github.com/spf13/cobra"
 )
@@ -48,6 +49,8 @@ func NewMonitorCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 		NewCleanCommand(dingoadm),
 		NewRestartCommand(dingoadm),
 		NewReloadCommand(dingoadm),
+		NewUpgradeCommand(dingoadm),
+		config.NewConfigCommand(dingoadm),
 	)
 	return cmd
 }

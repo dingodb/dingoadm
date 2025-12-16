@@ -74,19 +74,6 @@ func NewStatusCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	return cmd
 }
 
-func parseMonitorConfig(dingoadm *cli.DingoAdm) ([]*configure.MonitorConfig, error) {
-	if dingoadm.ClusterId() == -1 {
-		return nil, errno.ERR_NO_CLUSTER_SPECIFIED
-	}
-	hosts, hostIps, dcs, err := parseTopology(dingoadm)
-	if err != nil {
-		return nil, err
-	}
-
-	monitor := dingoadm.Monitor()
-	return configure.ParseMonitorConfig(dingoadm, "", monitor.Monitor, hosts, hostIps, dcs)
-}
-
 func genStatusPlaybook(dingoadm *cli.DingoAdm,
 	mcs []*configure.MonitorConfig,
 	options statusOptions) (*playbook.Playbook, error) {
@@ -147,7 +134,7 @@ func displayStatus(dingoadm *cli.DingoAdm, mcs []*configure.MonitorConfig, optio
 
 func runStatus(dingoadm *cli.DingoAdm, options statusOptions) error {
 	// 1) parse monitor config
-	mcs, err := parseMonitorConfig(dingoadm)
+	mcs, err := configure.ParseMonitor(dingoadm)
 	if err != nil {
 		return err
 	}

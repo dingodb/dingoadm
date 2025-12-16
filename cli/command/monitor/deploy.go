@@ -29,7 +29,6 @@ package monitor
 import (
 	"github.com/dingodb/dingoadm/cli/cli"
 	"github.com/dingodb/dingoadm/internal/configure"
-	"github.com/dingodb/dingoadm/internal/configure/topology"
 	"github.com/dingodb/dingoadm/internal/errno"
 	"github.com/dingodb/dingoadm/internal/playbook"
 	"github.com/dingodb/dingoadm/internal/storage"
@@ -125,42 +124,14 @@ func genDeployPlaybook(dingoadm *cli.DingoAdm,
 	return pb, nil
 }
 
-func parseTopology(dingoadm *cli.DingoAdm) ([]string, []string, []*topology.DeployConfig, error) {
-	dcs, err := dingoadm.ParseTopology()
-	if err != nil || len(dcs) == 0 {
-		return nil, nil, nil, err
-	}
-	hosts := []string{}
-	hostIps := []string{}
-	thostMap := make(map[string]bool)
-	thostIpMap := make(map[string]bool)
-	for _, dc := range dcs {
-		thostMap[dc.GetHost()] = true
-		thostIpMap[dc.GetListenIp()] = true
-	}
-	for key := range thostMap {
-		hosts = append(hosts, key)
-	}
-	for key := range thostIpMap {
-		hostIps = append(hostIps, key)
-	}
-	return hosts, hostIps, dcs, nil
-}
-
 func runDeploy(dingoadm *cli.DingoAdm, options deployOptions) error {
 	// 1) parse cluster topology and get services' hosts
-	hosts, hostIps, dcs, err := parseTopology(dingoadm)
+	mcs, err := configure.ParseMonitorInfo(dingoadm, options.filename, configure.INFO_TYPE_FILE)
 	if err != nil {
 		return err
 	}
 
-	// 2) parse monitor configure
-	mcs, err := configure.ParseMonitorConfig(dingoadm, options.filename, "", hosts, hostIps, dcs)
-	if err != nil {
-		return err
-	}
-
-	// 3) save monitor data
+	// 2) save monitor data
 	data, err := utils.ReadFile(options.filename)
 	if err != nil {
 		return errno.ERR_READ_MONITOR_FILE_FAILED.E(err)
