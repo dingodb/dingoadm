@@ -180,6 +180,15 @@ func PromptRestartService(id, role, host string) string {
 	return prompt.Build()
 }
 
+func PromptUpgradeService(id, role, host string) string {
+	prompt := NewPrompt(color.YellowString(PROMPT_COMMON_WARNING) + DEFAULT_CONFIRM_PROMPT)
+	prompt.data["warning"] = "WARNING: service items which matched will upgrade"
+	prompt.data["id"] = id
+	prompt.data["role"] = role
+	prompt.data["host"] = host
+	return prompt.Build()
+}
+
 func PromptReloadService(id, role, host string) string {
 	prompt := NewPrompt(color.YellowString(PROMPT_COMMON_WARNING) + DEFAULT_CONFIRM_PROMPT)
 	prompt.data["warning"] = "WARNING: service items which matched will reload"

@@ -1,6 +1,5 @@
 /*
- *  Copyright (c) 2021 NetEase Inc.
- * 	Copyright (c) 2024 dingodb.com Inc.
+ * 	Copyright (c) 2025 dingodb.com Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,15 +15,10 @@
  */
 
 /*
- * Project: CurveAdm
- * Created Date: 2021-10-15
- * Author: Jingli Chen (Wine93)
  *
  * Project: dingoadm
  * Author: dongwei (jackblack369)
  */
-
-// __SIGN_BY_WINE93__
 
 package config
 
@@ -44,7 +38,6 @@ func NewConfigCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 
 	cmd.AddCommand(
 		NewShowCommand(dingoadm),
-		NewDiffCommand(dingoadm),
 		NewCommitCommand(dingoadm),
 	)
 	return cmd

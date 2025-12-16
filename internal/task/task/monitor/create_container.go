@@ -136,7 +136,7 @@ func getEnvironments(cfg *configure.MonitorConfig) []string {
 	role := cfg.GetRole()
 	if role == ROLE_GRAFANA {
 		return []string{
-			"GF_INSTALL_PLUGINS=grafana-piechart-panel",
+			// "GF_INSTALL_PLUGINS=grafana-piechart-panel",
 			fmt.Sprintf("GF_SECURITY_ADMIN_USER=%s", cfg.GetGrafanaUser()),
 			fmt.Sprintf("GF_SECURITY_ADMIN_PASSWORD=%s", cfg.GetGrafanaPassword()),
 			fmt.Sprintf("GF_SERVER_HTTP_PORT=%d", cfg.GetListenPort()),
@@ -173,9 +173,10 @@ func NewCreateContainerTask(dingoadm *cli.DingoAdm, cfg *configure.MonitorConfig
 		Storage:     dingoadm.Storage(),
 	})
 	paths := []string{cfg.GetDataDir()}
-	if role == ROLE_GRAFANA {
+	switch role {
+	case ROLE_GRAFANA:
 		paths = append(paths, cfg.GetConfDir(), cfg.GetProvisionDir()+"/datasources")
-	} else if role == ROLE_PROMETHEUS {
+	case ROLE_PROMETHEUS:
 		paths = append(paths, cfg.GetConfDir())
 	}
 	t.AddStep(&step.CreateDirectory{

@@ -127,7 +127,7 @@ const (
 	STOP_MONITOR_SERVICE
 	INIT_MONITOR_STATUS
 	GET_MONITOR_STATUS
-	CLEAN_MONITOR
+	CLEAN_MONITOR_SERVICE
 	SYNC_GRAFANA_DASHBOARD
 
 	// bs/target
@@ -401,7 +401,7 @@ func (p *Playbook) createTasks(step *PlaybookStep) (*tasks.Tasks, error) {
 			t, err = monitor.NewInitMonitorStatusTask(dingoadm, config.GetMC(i))
 		case GET_MONITOR_STATUS:
 			t, err = monitor.NewGetMonitorStatusTask(dingoadm, config.GetMC(i))
-		case CLEAN_MONITOR:
+		case CLEAN_MONITOR_SERVICE:
 			t, err = monitor.NewCleanMonitorTask(dingoadm, config.GetMC(i))
 		case START_GATEWAY:
 			t, err = gateway.NewStartGatewayTask(dingoadm, config.GetGC())

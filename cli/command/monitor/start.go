@@ -93,7 +93,7 @@ func genStartPlaybook(dingoadm *cli.DingoAdm,
 
 func runStart(dingoadm *cli.DingoAdm, options startOptions) error {
 	// 1) parse monitor configure
-	mcs, err := parseMonitorConfig(dingoadm)
+	mcs, err := configure.ParseMonitor(dingoadm)
 	if err != nil {
 		return err
 	}

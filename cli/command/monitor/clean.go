@@ -47,7 +47,7 @@ const (
 
 var (
 	CLEAN_PLAYBOOK_STEPS = []int{
-		playbook.CLEAN_MONITOR,
+		playbook.CLEAN_MONITOR_SERVICE,
 	}
 
 	CLEAN_ITEMS = []string{
@@ -119,7 +119,7 @@ func genCleanPlaybook(dingoadm *cli.DingoAdm,
 
 func runClean(dingoadm *cli.DingoAdm, options cleanOptions) error {
 	// 1) parse monitor config
-	mcs, err := parseMonitorConfig(dingoadm)
+	mcs, err := configure.ParseMonitor(dingoadm)
 	if err != nil {
 		return err
 	}

@@ -65,7 +65,7 @@ func NewCleanMonitorTask(dingoadm *cli.DingoAdm, cfg *configure.MonitorConfig) (
 	if err != nil {
 		return nil, err
 	}
-	if cfg.GetRole() == ROLE_MONITOR_CONF &&
+	if cfg.GetRole() == ROLE_MONITOR_SYNC &&
 		(len(containerId) == 0 || containerId == comm.CLEANED_CONTAINER_ID) {
 		return nil, nil
 	}
