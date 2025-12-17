@@ -34,20 +34,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewHostsCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewHostsCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "hosts",
 		Short: "Manage hosts",
 		Args:  cliutil.NoArgs,
-		RunE:  cliutil.ShowHelp(curveadm.Err()),
+		RunE:  cliutil.ShowHelp(dingoadm.Err()),
 	}
 
 	cmd.AddCommand(
-		NewCommitCommand(curveadm),
-		NewShowCommand(curveadm),
-		NewListCommand(curveadm),
-		NewSSHCommand(curveadm),
-		NewPlaybookCommand(curveadm),
+		NewCommitCommand(dingoadm),
+		NewShowCommand(dingoadm),
+		NewListCommand(dingoadm),
+		NewSSHCommand(dingoadm),
+		NewPlaybookCommand(dingoadm),
 	)
 	return cmd
 }

@@ -36,7 +36,7 @@ import (
 
 type showOptions struct{}
 
-func NewShowCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewShowCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options showOptions
 
 	cmd := &cobra.Command{
@@ -44,7 +44,7 @@ func NewShowCommand(curveadm *cli.DingoAdm) *cobra.Command {
 		Short: "Show hosts",
 		Args:  cliutil.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runShow(curveadm, options)
+			return runShow(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -52,12 +52,12 @@ func NewShowCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	return cmd
 }
 
-func runShow(curveadm *cli.DingoAdm, options showOptions) error {
-	hosts := curveadm.Hosts()
+func runShow(dingoadm *cli.DingoAdm, options showOptions) error {
+	hosts := dingoadm.Hosts()
 	if len(hosts) == 0 {
-		curveadm.WriteOutln("<empty hosts>")
+		dingoadm.WriteOutln("<empty hosts>")
 	} else {
-		curveadm.WriteOut(hosts)
+		dingoadm.WriteOut(hosts)
 	}
 	return nil
 }
