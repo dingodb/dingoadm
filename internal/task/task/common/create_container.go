@@ -402,6 +402,16 @@ func getMountVolumes(dc *topology.DeployConfig) []step.Volume {
 			HostPath:      dc.GetDingoRaftDir(),
 			ContainerPath: layout.DingoStoreRaftDir,
 		})
+		// config store dingodb_br nas volume
+		if dc.GetRole() == topology.ROLE_STORE {
+			storeConfig := dc.GetServiceConfig()
+			if nasVolume, ok := storeConfig["mount.volumes"]; ok {
+				volumes = append(volumes, step.Volume{
+					HostPath:      nasVolume,
+					ContainerPath: nasVolume,
+				})
+			}
+		}
 	}
 	if dc.GetRole() == topology.ROLE_DINGODB_DOCUMENT {
 		// mount document dir

@@ -40,7 +40,7 @@ type sshOptions struct {
 	become bool
 }
 
-func NewSSHCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewSSHCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options sshOptions
 
 	cmd := &cobra.Command{
@@ -49,7 +49,7 @@ func NewSSHCommand(curveadm *cli.DingoAdm) *cobra.Command {
 		Args:  cliutil.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			options.host = args[0]
-			return runSSH(curveadm, options)
+			return runSSH(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -60,6 +60,6 @@ func NewSSHCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	return cmd
 }
 
-func runSSH(curveadm *cli.DingoAdm, options sshOptions) error {
-	return tools.AttachRemoteHost(curveadm, options.host, options.become)
+func runSSH(dingoadm *cli.DingoAdm, options sshOptions) error {
+	return tools.AttachRemoteHost(dingoadm, options.host, options.become)
 }

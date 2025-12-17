@@ -49,7 +49,7 @@ type commitOptions struct {
 	force    bool
 }
 
-func NewCommitCommand(curveadm *cli.DingoAdm) *cobra.Command {
+func NewCommitCommand(dingoadm *cli.DingoAdm) *cobra.Command {
 	var options commitOptions
 
 	cmd := &cobra.Command{
@@ -59,7 +59,7 @@ func NewCommitCommand(curveadm *cli.DingoAdm) *cobra.Command {
 		Example: COMMIT_EXAMPLE,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			options.filename = args[0]
-			return runCommit(curveadm, options)
+			return runCommit(dingoadm, options)
 		},
 		DisableFlagsInUseLine: true,
 	}
@@ -71,7 +71,7 @@ func NewCommitCommand(curveadm *cli.DingoAdm) *cobra.Command {
 	return cmd
 }
 
-func readAndCheckHosts(curveadm *cli.DingoAdm, options commitOptions) (string, error) {
+func readAndCheckHosts(dingoadm *cli.DingoAdm, options commitOptions) (string, error) {
 	// 1) read hosts from file
 	if !utils.PathExist(options.filename) {
 		return "", errno.ERR_HOSTS_FILE_NOT_FOUND.
@@ -83,10 +83,10 @@ func readAndCheckHosts(curveadm *cli.DingoAdm, options commitOptions) (string, e
 	}
 
 	// 2) display difference
-	oldData := curveadm.Hosts()
+	oldData := dingoadm.Hosts()
 	if !options.slient {
 		diff := utils.Diff(oldData, data)
-		curveadm.WriteOutln(diff)
+		dingoadm.WriteOutln(diff)
 	}
 
 	// 3) check hosts data
@@ -94,9 +94,9 @@ func readAndCheckHosts(curveadm *cli.DingoAdm, options commitOptions) (string, e
 	return data, err
 }
 
-func runCommit(curveadm *cli.DingoAdm, options commitOptions) error {
+func runCommit(dingoadm *cli.DingoAdm, options commitOptions) error {
 	// 1) read and check hosts
-	data, err := readAndCheckHosts(curveadm, options)
+	data, err := readAndCheckHosts(dingoadm, options)
 	if err != nil {
 		return err
 	}
@@ -105,18 +105,18 @@ func runCommit(curveadm *cli.DingoAdm, options commitOptions) error {
 	if !options.force {
 		pass := tui.ConfirmYes("Do you want to continue?")
 		if !pass {
-			curveadm.WriteOut(tui.PromptCancelOpetation("commit hosts"))
+			dingoadm.WriteOut(tui.PromptCancelOpetation("commit hosts"))
 			return errno.ERR_CANCEL_OPERATION
 		}
 	}
 
 	// 3) update hosts in database
-	err = curveadm.Storage().SetHosts(data)
+	err = dingoadm.Storage().SetHosts(data)
 	if err != nil {
 		return errno.ERR_UPDATE_HOSTS_FAILED.E(err)
 	}
 
 	// 4) print success prompt
-	curveadm.WriteOutln(color.GreenString("Hosts updated"))
+	dingoadm.WriteOutln(color.GreenString("Hosts updated"))
 	return nil
 }
