@@ -113,7 +113,7 @@ func genUpgradePlaybook(dingoadm *cli.DingoAdm,
 	}
 	steps := UPGRADE_PLAYBOOK_STEPS
 	roles := dingoadm.GetRoles(dcs)
-	if utils.Contains(roles, topology.ROLE_FS_MDS) {
+	if utils.Contains(roles, topology.ROLE_FS_MDS_CLI) {
 		// upgrade mds v2
 		steps = UPGRADE_STORE_FS_STEPS
 	}

@@ -401,25 +401,26 @@ func serviceStats(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig) string {
 
 	var serviceStats string
 	kind := dcs[0].GetKind()
-	if kind == topology.KIND_DINGOFS {
+	switch kind {
+	case topology.KIND_DINGOFS:
 		roles := dingoadm.GetRoles(dcs)
-		if utils.Contains(roles, topology.ROLE_FS_MDS) {
+		if utils.Contains(roles, topology.ROLE_FS_MDS_CLI) {
 			// mds v2
 			ncoordinator := count[topology.ROLE_COORDINATOR]
 			nstore := count[topology.ROLE_STORE]
-			nmdsv2 := count[topology.ROLE_FS_MDS]
+			nmds = count[topology.ROLE_FS_MDS]
 			nexecutor := count[topology.ROLE_DINGODB_EXECUTOR]
-			serviceStats = fmt.Sprintf("coordinator*%d, store*%d, mds*%d, executor*%d", ncoordinator, nstore, nmdsv2, nexecutor)
+			serviceStats = fmt.Sprintf("coordinator*%d, store*%d, mds*%d, executor*%d", ncoordinator, nstore, nmds, nexecutor)
 		} else {
 			// mds v1
 			serviceStats = fmt.Sprintf("etcd*%d, mds*%d, metaserver*%d", netcd, nmds, nmetaserver)
 		}
-	} else if kind == topology.KIND_DINGOSTORE {
+	case topology.KIND_DINGOSTORE:
 		ncoordinator := count[topology.ROLE_COORDINATOR]
 		nstore := count[topology.ROLE_STORE]
 		nexecutor := count[topology.ROLE_DINGODB_EXECUTOR]
 		serviceStats = fmt.Sprintf("coordinator*%d, store*%d, executor*%d", ncoordinator, nstore, nexecutor)
-	} else if kind == topology.KIND_DINGODB {
+	case topology.KIND_DINGODB:
 		ncoordinator := count[topology.ROLE_COORDINATOR]
 		nstore := count[topology.ROLE_STORE]
 		ndocument := count[topology.ROLE_DINGODB_DOCUMENT]
@@ -430,7 +431,7 @@ func serviceStats(dingoadm *cli.DingoAdm, dcs []*topology.DeployConfig) string {
 		nexecutor := count[topology.ROLE_DINGODB_EXECUTOR]
 		serviceStats = fmt.Sprintf("coordinator*%d, store*%d, document*%d, diskann*%d, index*%d, executor*%d",
 			ncoordinator, nstore, ndocument, ndiskann, nindex, nexecutor)
-	} else {
+	default:
 		serviceStats = "unknown"
 	}
 
