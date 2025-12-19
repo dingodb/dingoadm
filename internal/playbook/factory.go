@@ -121,6 +121,7 @@ const (
 	CREATE_MONITOR_CONTAINER
 	SYNC_MONITOR_ORIGIN_CONFIG
 	SYNC_MONITOR_ALT_CONFIG
+	SYNC_HOSTS_MAPPING
 	CLEAN_CONFIG_CONTAINER
 	START_MONITOR_SERVICE
 	RESTART_MONITOR_SERVICE
@@ -389,6 +390,8 @@ func (p *Playbook) createTasks(step *PlaybookStep) (*tasks.Tasks, error) {
 			t, err = monitor.NewCreateContainerTask(dingoadm, config.GetMC(i))
 		case SYNC_MONITOR_ORIGIN_CONFIG, SYNC_MONITOR_ALT_CONFIG:
 			t, err = monitor.NewSyncConfigTask(dingoadm, config.GetMC(i))
+		case SYNC_HOSTS_MAPPING:
+			t, err = monitor.NewSyncHostsMappingTask(dingoadm, config.GetMC(i))
 		case CLEAN_CONFIG_CONTAINER:
 			t, err = monitor.NewCleanConfigContainerTask(dingoadm, config.GetMC(i))
 		case START_MONITOR_SERVICE:

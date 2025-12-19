@@ -590,7 +590,8 @@
                 "monitor",
                 "upgrade",
                 "--id",
-                "4777fc586cb8",
+                "cbf828661e45",
+                "-f"
             ],
             "showLog": true,
         },

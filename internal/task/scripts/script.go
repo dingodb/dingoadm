@@ -89,4 +89,8 @@ var (
 	// Grafana dashboard
 	//go:embed shell/server_metric_zh.json
 	GRAFANA_SERVER_METRIC string
+
+	// Extract /etc/hosts mapping
+	//go:embed shell/extract_hosts.sh
+	EXTRACT_HOSTS string
 )
