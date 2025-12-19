@@ -41,6 +41,7 @@ var (
 		playbook.CLEAN_MONITOR_SERVICE,
 		playbook.CREATE_MONITOR_CONTAINER,
 		playbook.START_MONITOR_SERVICE,
+		playbook.SYNC_HOSTS_MAPPING,
 	}
 )
 
