@@ -248,9 +248,6 @@ func (cc *ClientConfig) GetContainerImage() string {
 }
 
 func (cc *ClientConfig) GetClusterMDSAddr(mountFSType string) string {
-	if cc.GetKind() == topology.KIND_CURVEBS {
-		return cc.getString(KEY_CURVEBS_LISTEN_MDS_ADDRS)
-	}
 	if mountFSType == FS_TYPE_VKS_V2 {
 		return cc.getString(KEY_DINGOFS_LISTEN_MDSV2_ADDRS)
 	}
@@ -271,9 +268,6 @@ func GetFSClientPrefix() string {
 }
 
 func GetFSClientConfPath() string {
-	//if useNewDingo {
-	//	return fmt.Sprintf("%s/client/confv2/client.conf", LAYOUT_DINGOFS_ROOT_DIR)
-	//}
 	return fmt.Sprintf("%s/client/conf/client.conf", LAYOUT_DINGOFS_ROOT_DIR)
 }
 

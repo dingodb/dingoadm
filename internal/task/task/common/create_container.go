@@ -360,7 +360,7 @@ func configDingoVectorENV(envs []string, dc *topology.DeployConfig) []string {
 	return envs
 }
 
-func getUlimits(dc *topology.DeployConfig) []string {
+func getUlimits() []string {
 	return []string{"nofile=1048576:1048576", "core=-1"}
 }
 
@@ -513,7 +513,7 @@ func NewCreateContainerTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) (
 		Restart:    getRestartPolicy(dc), // POLICY_ALWAYS_RESTART
 		//--ulimit core=-1: Sets the core dump file size limit to -1, meaning there’s no restriction on the core dump size.
 		//--ulimit nofile=65535:65535: Sets both the soft and hard limits for the number of open files to 65535.
-		Ulimits:     getUlimits(dc),
+		Ulimits:     getUlimits(),
 		Volumes:     getMountVolumes(dc),
 		Out:         &containerId,
 		ExecOptions: dingoadm.ExecOptions(),
