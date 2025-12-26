@@ -78,6 +78,7 @@ const (
 	ENV_DINGOFS_V2_FLAGS_SERVER_NUM  = "FLAGS_server_num"
 	ENV_DINGOSTORE_COORDINATOR_ADDR  = "COORDINATOR_ADDR"
 	ENV_DINGOFS_V2_INSTANCE_START_ID = "MDS_INSTANCE_START_ID"
+	ENV_DINGOFS_V2_CLUSTER_ID        = "CLUSTER_ID"
 
 	// dingodb executor
 	ENV_DINGODB_EXECUTOR_ROLE         = "DINGO_ROLE"
@@ -312,6 +313,7 @@ func configMdsv2ENV(envs []string, dc *topology.DeployConfig) []string {
 	}
 	envs = append(envs, fmt.Sprintf("%s=%s", ENV_DINGOSTORE_COORDINATOR_ADDR, coordinator_addr))
 	envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOFS_V2_INSTANCE_START_ID, dc.GetDingoInstanceId()))
+	envs = append(envs, fmt.Sprintf("%s=%d", ENV_DINGOFS_V2_CLUSTER_ID, dc.GetDingoClusterId()))
 	return envs
 }
 

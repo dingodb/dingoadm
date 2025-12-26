@@ -302,6 +302,10 @@ func (dc *DeployConfig) GetDingoStoreReplicaNum() int {
 	return dc.getInt(CONFIG_DINGO_STORE_REPLICA_NUM)
 }
 
+func (dc *DeployConfig) GetDingoClusterId() int {
+	return dc.getInt(CONFIG_DINGO_MDS_CLUSTER_ID)
+}
+
 func (dc *DeployConfig) GetDingoInstanceId() int {
 	return dc.getInt(CONFIG_INSTANCE_START_ID)
 }
