@@ -12,7 +12,7 @@ require (
 	github.com/jpillora/longestcommon v0.0.0-20161227235612-adb9d91ee629
 	github.com/kpango/glg v1.6.14
 	github.com/mattn/go-sqlite3 v1.14.16
-	github.com/melbahja/goph v1.3.0
+	github.com/melbahja/goph v1.4.0
 	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/moby/term v0.0.0-20221205130635-1aeaba878587
 	github.com/pingcap/log v1.1.0
@@ -95,4 +95,4 @@ require (
 	gotest.tools/v3 v3.0.3 // indirect
 )
 
-replace github.com/melbahja/goph v1.3.0 => github.com/Wine93/goph v0.0.0-20220907033045-3b286d827fb3
+// replace github.com/melbahja/goph v1.3.0 => github.com/Wine93/goph v0.0.0-20220907033045-3b286d827fb3
