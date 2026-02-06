@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-# Usage: create_mdsv2_tables MdsV2BinPath MdsV2ConfPath
+# Usage: create_mdsv2_tables MdsV2BinPath MdsClusterId
 
 g_mdsv2_client=$1
+g_cluster_id=$2 
 
 # Log function with timestamp
 function log() {
@@ -35,7 +36,7 @@ function create_tables() {
 
     # create tables
     echo "Creating MDSv2 tables..."
-    $g_mdsv2_client --cmd=CreateAllTable --coor_addr=list://$COORDINATOR_ADDR
+    $g_mdsv2_client --cmd=CreateAllTable --coor_addr=list://$COORDINATOR_ADDR --cluster_id=$g_cluster_id
     local ret=$?
     if [ $ret -ne 0 ]; then
       error_exit "Failed to create MDSv2 tables (return code: $ret)"

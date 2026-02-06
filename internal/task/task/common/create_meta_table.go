@@ -58,7 +58,7 @@ func NewCreateMetaTablesTask(dingoadm *cli.DingoAdm, dc *topology.DeployConfig) 
 	})
 
 	t.AddStep(&step.ContainerExec{
-		Command: fmt.Sprintf("bash %s/%s %s", dc.GetProjectLayout().FSMdsCliBinDir, topology.SCRIPT_CREATE_MDSV2_TABLES, dc.GetProjectLayout().FSMdsCliBinaryPath),
+		Command: fmt.Sprintf("bash %s/%s %s %d", dc.GetProjectLayout().FSMdsCliBinDir, topology.SCRIPT_CREATE_MDSV2_TABLES, dc.GetProjectLayout().FSMdsCliBinaryPath, dc.GetDingoClusterId()),
 		//Command:     fmt.Sprintf("bash %s/create_mdsv2_tables.sh %s/dingo-mds-client", dc.GetProjectLayout().DingoStoreBinDir, dc.GetProjectLayout().DingoStoreBinDir),
 		ContainerId: &containerId,
 		Success:     &success,
